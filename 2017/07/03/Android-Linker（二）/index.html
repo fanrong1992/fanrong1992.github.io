@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android Linker（二） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="so链接链接过程由soinfo_link_image函数完成，主要可以分为四个主要步骤:1.定位dynamic section 由函数phdr_table_get_dynamic_section完成，该函数会遍历program header，找到为类型为PT_DYNAMIC的header, 从中获取的是dynamic section的信息，主要就是虚拟地址和项数。2.解析dynamic secti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Linker（二）">
+<meta property="og:url" content="http://example.com/2017/07/03/Android-Linker%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="so链接链接过程由soinfo_link_image函数完成，主要可以分为四个主要步骤:1.定位dynamic section 由函数phdr_table_get_dynamic_section完成，该函数会遍历program header，找到为类型为PT_DYNAMIC的header, 从中获取的是dynamic section的信息，主要就是虚拟地址和项数。2.解析dynamic secti">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androidre/packed_so.png">
+<meta property="article:published_time" content="2017-07-03T15:52:23.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.678Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androidre/packed_so.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android-Linker（二）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/03/Android-Linker%EF%BC%88%E4%BA%8C%EF%BC%89/" class="article-date">
+  <time datetime="2017-07-03T15:52:23.000Z" itemprop="datePublished">2017-07-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android Linker（二）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="so链接"><a href="#so链接" class="headerlink" title="so链接"></a>so链接</h2><p>链接过程由<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/linker.cpp#soinfo_link_image">soinfo_link_image</a>函数完成，主要可以分为四个主要步骤:<br>1.<strong>定位dynamic section</strong> 由函数<code>phdr_table_get_dynamic_section</code>完成，该函数会遍历program header，找到为类型为<code>PT_DYNAMIC</code>的header, 从中获取的是dynamic section的信息，主要就是虚拟地址和项数。<br>2.<strong>解析dynamic section</strong> dynamic section本质上是类型为<code>Elf32_Dyn</code>的数组，Elf32_Dyn结构如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Sword d_tag;      <span class="comment">/* 类型(例如，DT_SYMTAB)，决定d_un表示的意义*/</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        Elf32_Word  d_val;  <span class="comment">/* 根据d_tag的不同，有不同的意义 */</span></span><br><span class="line">        Elf32_Addr  d_ptr;  <span class="comment">/* 虚拟地址 */</span></span><br><span class="line">    &#125; d_un;</span><br><span class="line">&#125; Elf32_Dyn;</span><br></pre></td></tr></table></figure>
+<p><code>Elf32_Dyn</code>结构的<code>d_tag</code>属性表示该项的类型，类型决定了<code>d_un</code>中信息的意义，例如，当<code>d_tag = DT_SYMTAB</code>表示该项存储的是符号表的信息，<code>d_un.d_ptr</code>表示符号表的虚拟地址的偏移，当<code>d_tag = DT_RELSZ</code>时，<code>d_un.d_val</code>表示重定位表rel的项数。<br>解析的过程就是遍历数组中的每一项，根据<code>d_tag</code>的不同，获取到不同的信息。<br>dynamic section中包含的信息主要包括以下3类:<br>（1）符号信息<br>（2）重定位信息<br>（3）init&amp;finit funcs<br>3.<strong>加载needed so</strong> 调用<code>find_library</code>获取所有依赖的so的soinfo指针，如果so还没有加载，则会将so加载到内存，分配一个<code>soinfo*[]</code>指针数组，用于存放soinfo指针。<br>4.<strong>重定位</strong> 重定位so链接中最复杂同时也是最关键的一步。重定位做的工作主要是修复导入符号的引用，下面一节将对重定位过程进行详细分析。<br><code>soinfo_link_image</code>的示意代码:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">soinfo_link_image</span><span class="params">(soinfo* si, <span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 1.获取dynamic section的信息，si-&gt;dynamic指向dynamic section</span></span><br><span class="line">    phdr_table_get_dynamic_section(phdr, phnum, base, &amp;si-&gt;dynamic,</span><br><span class="line">                                   &amp;dynamic_count, &amp;dynamic_flags);</span><br><span class="line">    <span class="comment">// 2.解析dynamic section</span></span><br><span class="line">    <span class="keyword">uint32_t</span> needed_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (ElfW(Dyn)* d = si-&gt;dynamic; d-&gt;d_tag != DT_NULL; ++d) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (d-&gt;d_tag) &#123;</span><br><span class="line">        <span class="comment">// 以下为符号信息</span></span><br><span class="line">        <span class="keyword">case</span> DT_HASH:</span><br><span class="line">            si-&gt;nbucket = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>*&gt;(base + d-&gt;d_un.d_ptr)[<span class="number">0</span>];</span><br><span class="line">            si-&gt;nchain = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>*&gt;(base + d-&gt;d_un.d_ptr)[<span class="number">1</span>];</span><br><span class="line">            si-&gt;bucket = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>*&gt;(base + d-&gt;d_un.d_ptr + <span class="number">8</span>);</span><br><span class="line">            si-&gt;chain = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>*&gt;(base + d-&gt;d_un.d_ptr + <span class="number">8</span> + si-&gt;nbucket * <span class="number">4</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_SYMTAB:</span><br><span class="line">            si-&gt;symtab = <span class="keyword">reinterpret_cast</span>&lt;ElfW(Sym)*&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_STRTAB:</span><br><span class="line">            si-&gt;strtab = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">const</span> <span class="keyword">char</span>*&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="comment">// 以下为重定位信息</span></span><br><span class="line">        <span class="keyword">case</span> DT_JMPREL:</span><br><span class="line">            si-&gt;plt_rel = <span class="keyword">reinterpret_cast</span>&lt;ElfW(Rel)*&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_PLTRELSZ:</span><br><span class="line">            si-&gt;plt_rel_count = d-&gt;d_un.d_val / <span class="keyword">sizeof</span>(ElfW(Rel));</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_REL:</span><br><span class="line">            si-&gt;rel = <span class="keyword">reinterpret_cast</span>&lt;ElfW(Rel)*&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_RELSZ:</span><br><span class="line">            si-&gt;rel_count = d-&gt;d_un.d_val / <span class="keyword">sizeof</span>(ElfW(Rel));</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="comment">// 以下为 init&amp;finit funcs</span></span><br><span class="line">        <span class="keyword">case</span> DT_INIT:</span><br><span class="line">            si-&gt;init_func = <span class="keyword">reinterpret_cast</span>&lt;Linker_function_t&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_FINI:</span><br><span class="line">            ...</span><br><span class="line">        <span class="keyword">case</span> DT_INIT_ARRAY:</span><br><span class="line">            si-&gt;init_array = <span class="keyword">reinterpret_cast</span>&lt;Linker_function_t*&gt;(base + d-&gt;d_un.d_ptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> DT_INIT_ARRAYSZ:</span><br><span class="line">            ...</span><br><span class="line">        <span class="keyword">case</span> DT_FINI_ARRAY:</span><br><span class="line">            ...</span><br><span class="line">        <span class="keyword">case</span> DT_FINI_ARRAYSZ:</span><br><span class="line">            ...</span><br><span class="line">        <span class="comment">// so依赖</span></span><br><span class="line">        <span class="keyword">case</span> DT_NEEDED:</span><br><span class="line">            ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 3.加载依赖的so</span></span><br><span class="line">    <span class="keyword">for</span> (ElfW(Dyn)* d = si-&gt;dynamic; d-&gt;d_tag != DT_NULL; ++d) &#123;</span><br><span class="line">        <span class="keyword">if</span> (d-&gt;d_tag == DT_NEEDED) &#123;</span><br><span class="line">            soinfo* lsi = find_library(library_name, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">            si-&gt;add_child(lsi);</span><br><span class="line">            *pneeded++ = lsi;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    *pneeded = <span class="literal">NULL</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 4.重定位</span></span><br><span class="line">    soinfo_relocate(si, si-&gt;plt_rel, si-&gt;plt_rel_count, needed);</span><br><span class="line">    soinfo_relocate(si, si-&gt;rel, si-&gt;rel_count, needed);</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 设置已链接标志</span></span><br><span class="line">    si-&gt;flags |= FLAG_LINKED;</span><br><span class="line">    DEBUG(<span class="string">&quot;[ finished linking %s ]&quot;</span>, si-&gt;name);</span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
+
+<h3 id="重定位relocate"><a href="#重定位relocate" class="headerlink" title="重定位relocate"></a>重定位relocate</h3><p>Android ARM下需要处理两个重定位表，<code>plt_rel</code>和<code>rel</code>，<code>plt</code>指的是延迟绑定，但是Android目前并不对延迟绑定做特殊处理，直接与普通的重定位同时处理。两个重定位的表都由<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/linker.cpp#1199">soinfo_relocate</a>函数处理。<br><code>soinfo_relocate</code>函数需要遍历重定位表，处理每个重定位项，每个重定位项的处理过程可已分为4步:<br>1.<strong>解析重定位项和导入符号的信息</strong><br>重定位项的结构如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">     Elf32_Addr  r_offset;   <span class="comment">/* 需要重定位的位置的偏移 */</span></span><br><span class="line">     Elf32_Word  r_info;     <span class="comment">/* 高24位为符号在符号表中的index，低8位为重定位类型 */</span></span><br><span class="line">&#125; Elf32_Rel;</span><br></pre></td></tr></table></figure>
+<p>首先从重定位项获取的信息如下:<br>（1）重定位的类型type<br>（2）符号在符号表中的索引号sym，sym为0表示为本so内部的重定位，如果不为0，意味着该符号为导入符号<br>（3）重定位的目标地址reloc，使用r_offset + si_load_bias，相当于：偏移地址+基地址<br>符号表表项的结构为elf32_sym：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf32_sym</span> &#123;</span></span><br><span class="line">    Elf32_Word  st_name;    <span class="comment">/* 名称 – index into string table */</span></span><br><span class="line">    Elf32_Addr  st_value;   <span class="comment">/* 偏移地址 */</span></span><br><span class="line">    Elf32_Word  st_size;    <span class="comment">/* 符号长度（ 例如，函数的长度） */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span>   st_info;    <span class="comment">/* 类型和绑定类型 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span>   st_other;   <span class="comment">/* 未定义 */</span></span><br><span class="line">    Elf32_Half  st_shndx;   <span class="comment">/* section header的索引号，表示位于哪个section中 */</span></span><br><span class="line">&#125; Elf32_Sym;</span><br></pre></td></tr></table></figure>
+<p>2.<strong>如果sym不为0，则查找导入符号的信息</strong><br>如果sym不为0，则继续使用sym在符号表中获取符号信息，从符号信息中进一步获取符号的名称。随后调用<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/linker.cpp#482">soinfo_do_lookup</a>函数在所有依赖的so中根据符号名称查找符号信息，返回值类型为<code>elf32_sym</code>，同时还会返回含有该符号的so的soinfo( lsi )，如果查找成功则该导入符号的地址为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sym_addr &#x3D; s-&gt;st_value + lsi-&gt;load_bias;</span><br></pre></td></tr></table></figure>
+<p>3.<strong>修正需要重定位的地址</strong><br>根据重定位类型的不同，修正重定位地址，具体的重定位类型定义和计算方法可以参考aaelf文档的 4.6.1.2 节。<br>对于导入符号，则使用根据第二步得到<code>sym_addr</code>去修正，对于so内部的相对偏移修正，则直接将reloc的地址加上so的基址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">soinfo_relocate</span><span class="params">(soinfo* si, ElfW(Rel)* rel, <span class="keyword">unsigned</span> count, soinfo* needed[])</span> </span>&#123;</span><br><span class="line">    ElfW(Sym)* s;</span><br><span class="line">    soinfo* lsi;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> idx = <span class="number">0</span>; idx &lt; count; ++idx, ++rel) &#123;</span><br><span class="line">        <span class="keyword">unsigned</span> type = ELFW(R_TYPE)(rel-&gt;r_info);</span><br><span class="line">        <span class="keyword">unsigned</span> sym = ELFW(R_SYM)(rel-&gt;r_info);</span><br><span class="line">        ElfW(Addr) reloc = <span class="keyword">static_cast</span>&lt;ElfW(Addr)&gt;(rel-&gt;r_offset + si-&gt;load_bias);</span><br><span class="line">        ElfW(Addr) sym_addr = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span>* sym_name = <span class="literal">NULL</span>;</span><br><span class="line">        <span class="keyword">if</span> (type == <span class="number">0</span>) &#123; <span class="comment">// R_*_NONE</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (sym != <span class="number">0</span>) &#123;</span><br><span class="line">            sym_name = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">const</span> <span class="keyword">char</span>*&gt;(si-&gt;strtab + si-&gt;symtab[sym].st_name);</span><br><span class="line">            s = soinfo_do_lookup(si, sym_name, &amp;lsi, needed);</span><br><span class="line">            <span class="keyword">if</span> (s == <span class="literal">NULL</span>) &#123;&#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           sym_addr = <span class="keyword">static_cast</span>&lt;ElfW(Addr)&gt;(s-&gt;st_value + lsi-&gt;load_bias);&#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            s = <span class="literal">NULL</span>;&#125;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_JUMP_SLOT:</span><br><span class="line">            *<span class="keyword">reinterpret_cast</span>&lt;ElfW(Addr)*&gt;(reloc) = sym_addr;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_GLOB_DAT:</span><br><span class="line">            *<span class="keyword">reinterpret_cast</span>&lt;ElfW(Addr)*&gt;(reloc) = sym_addr;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_ABS32:</span><br><span class="line">            *<span class="keyword">reinterpret_cast</span>&lt;ElfW(Addr)*&gt;(reloc) += sym_addr;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_REL32:</span><br><span class="line">            *<span class="keyword">reinterpret_cast</span>&lt;ElfW(Addr)*&gt;(reloc) += sym_addr – rel-&gt;r_offset;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_COPY:</span><br><span class="line">            DL_ERR(<span class="string">&quot;%s R_ARM_COPY relocations are not supported&quot;</span>, si-&gt;name);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">case</span> R_ARM_RELATIVE:</span><br><span class="line">            <span class="keyword">if</span> (sym) &#123;</span><br><span class="line">                DL_ERR(<span class="string">&quot;odd RELATIVE form…&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            *<span class="keyword">reinterpret_cast</span>&lt;ElfW(Addr)*&gt;(reloc) += si-&gt;base;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            DL_ERR(<span class="string">&quot;unknown reloc type %d @ %p (%zu)&quot;</span>, type, rel, idx);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="CallConstructors"><a href="#CallConstructors" class="headerlink" title="CallConstructors"></a>CallConstructors</h2><p>在编译so时，可以通过链接选项<code>-init</code>或是给函数添加属性<code>__attribute__((constructor))</code>来指定so的初始化函数，这些初始化函数在so装载链接后便会被调用，再之后才会将so的<code>soinfo</code>指针返回给<code>dl_open</code>的调用者。so层面的保护手段，有两个介入点, 一个是<code>jni_onload</code>，另一个就是初始化函数，比如反调试、脱壳等，逆向分析时经常需要动态调试分析这些初始化函数。完成so的装载链接后，返回到<code>do_dlopen</code>函数，<code>do_open</code>获得<code>find_library</code>返回的刚刚加载的so的<code>soinfo</code>，在将<code>soinfo</code>返回给其他模块使用之前，最后还需要调用<code>soinfo</code>的成员函数<code>CallConstructors</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">soinfo* <span class="title">do_dlopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">int</span> flags, <span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  soinfo* si = find_library(name, flags, extinfo);</span><br><span class="line">  <span class="keyword">if</span> (si != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    si-&gt;CallConstructors();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> si;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>CallConstructors</code>函数会首先调用当前so文件调用的所有其他so文件的<code>CallConstructors</code>函数，接着调用自己的<code>soinfo</code>成员变量<code>init</code>和看<code>init_array</code>指定的函数，这两个变量在解析dynamic section时赋值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">soinfo::CallConstructors</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (constructors_called) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125; </span><br><span class="line">  get_children().for_each([] (soinfo* si) &#123;</span><br><span class="line">    si-&gt;CallConstructors(); </span><br><span class="line">  &#125;;</span><br><span class="line">  CallFunction(<span class="string">&quot;DT_INIT&quot;</span>, init_func);</span><br><span class="line">  CallArray(<span class="string">&quot;DT_INIT_ARRAY&quot;</span>, init_array, init_array_count, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了以上分析基础后，在需要动态跟踪初始化函数时，我们就知道可以将断点设在<code>do_dlopen</code>或是<code>CallConstructors</code>。</p>
+<h2 id="加壳技术"><a href="#加壳技术" class="headerlink" title="加壳技术"></a>加壳技术</h2><p>在病毒和版权保护领域，“壳”一直扮演着极为重要的角色。通过加壳可以对代码进行压缩和加密，同时再辅以虚拟化、代码混淆和反调试等手段，达到防止静态和动态分析。<br>在Android环境中，Native层的加壳主要是针对动态链接库so，so加壳的示意图如下:<br><img src="/images/androidre/packed_so.png"></p>
+<ul>
+<li>so：即被保护的目标so。</li>
+<li>loader：自身也是一个so，系统加载时首先加载loader，loader首先还原出经过加密、压缩、变换的so，再将so加载到内存，并完成链接过程，使so可以正常被其他模块使用。</li>
+<li>加壳工具：将被保护的so加密、压缩、变换，并将结果作为数据与loader整合为packed so。</li>
+</ul>
+<p>下面对so加壳的关键技术进行简单介绍。</p>
+<h3 id="loader执行时机"><a href="#loader执行时机" class="headerlink" title="loader执行时机"></a>loader执行时机</h3><p>Linker加载完loader后，loader需要将被保护的so加载起来，这就要求loader的代码需要被执行，而且要在被保护so被使用之前，前文介绍了so的初始化函数便可以满足这个要求，同时在Android系统下还可以使用<code>JNI_ONLOAD</code>函数，因此loader的执行时机有两个选择:</p>
+<ul>
+<li>so的init或initarray</li>
+<li>jni_onload</li>
+</ul>
+<h3 id="loader完成so的加载链接"><a href="#loader完成so的加载链接" class="headerlink" title="loader完成so的加载链接"></a>loader完成so的加载链接</h3><p>loader开始执行后，首先需要在内存中还原出so，so可以是经过加密、压缩、变换等手段，也可已单纯的以完全明文的数据存储，这与so加壳的技术没有必要的关系，在此不进行讨论。<br>在内存中还原出so后，loader还需要执行装载和链接，这两个过程可以完全模仿Linker来实现，下面主要介绍一下相对Linker，loader执行这两个过程有哪些变化。</p>
+<h4 id="装载"><a href="#装载" class="headerlink" title="装载"></a>装载</h4><p>还原后的so在内存中，所以装载时的主要变化就是从文件装载到从内存装载。<br>Linker在装载PT_LAOD segment时，使用so文件的描述符fd：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* seg_addr = mmap(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">void</span>*&gt;(seg_page_start),</span><br><span class="line">                      file_length,</span><br><span class="line">                      PFLAGS_TO_PROT(phdr-&gt;p_flags),</span><br><span class="line">                      MAP_FIXED|MAP_PRIVATE,</span><br><span class="line">                      fd_,file_page_start);</span><br></pre></td></tr></table></figure>
+<p>按照Linker装载，PT_LAOD segment时，需要分为两步：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* seg_addr = mmap(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">void</span>*&gt;(seg_page_start),</span><br><span class="line">                      file_length,</span><br><span class="line">                      PFLAGS_TO_PROT(phdr-&gt;p_flags),</span><br><span class="line">                      MAP_FIXED|MAP_PRIVATE,</span><br><span class="line">                      <span class="number">-1</span>,<span class="number">0</span>);</span><br><span class="line"><span class="built_in">memcpy</span>(seg_addr+seg_page_offset, elf_data_buf + phdr-&gt;p_offset, phdr-&gt;p_filesz);</span><br></pre></td></tr></table></figure>
+<p>注意第2步复制segment时，目标地址需要加上<code>seg_page_offset</code>，<code>seg_page_offset</code>是segment相对与页面起始地址的偏移。<br>其他的步骤基本按照Linker的实现即可，只需要将一些从文件读取修改为从内存读取，比如读elfheader和program header时。</p>
+<h4 id="分配soinfo"><a href="#分配soinfo" class="headerlink" title="分配soinfo"></a>分配soinfo</h4><p><code>soinfo</code>保存了so装载链接和运行时需要的所有信息，为了维护相关的信息，loader可以照搬Linker的<code>soinfo</code>结构，用于存储中间信息，装载链接结束后，还需要将<code>soinfo</code>的信息修复到Linker维护的<code>soinfo</code>，下面进行详细说明。</p>
+<h4 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h4><p>链接过程完全是操作内存，不论是从文件装载还是内存装载，链接过程都是一样，完全模仿Linker即可。<br>另外链接后记得顺便调用so初始化函数(init和init_array)。</p>
+<h3 id="soinfo修复"><a href="#soinfo修复" class="headerlink" title="soinfo修复"></a>soinfo修复</h3><p>so加壳的最关键技术点在于<code>soinfo</code>的修复，由于Linker加载的是loader，而实际对外使用的是被保护的so，所以Linker维护的<code>soinfo</code>可以说是错误，loader需要将自己维护的<code>soinfo</code>中的部分信息导出给Linker的<code>soinfo</code>。<br>修复过程如下：<br>获取Linker维护的<code>soinfo</code>，可以通过<code>dlopen</code>打开自己来获得：self_soinfo = dlopen(self)。<br>将loader <code>soinfo</code>中的信息导出到<code>self_soinfo</code>，最简单粗暴的方式就是直接赋值，比如：self_soinfo.base = soinfo.base。需要导出的主要有以下几项：</p>
+<ul>
+<li>so地址范围：base、size、load_bias</li>
+<li>符号信息：sym_tab、str_tab、</li>
+<li>符号查找信息：nbucket、nchain、bucket、chain</li>
+<li>异常处理：ARM_exidx、ARM_exidx_count</li>
+</ul>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://yaq.qq.com/blog/15">http://yaq.qq.com/blog/15</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/07/03/Android-Linker%EF%BC%88%E4%BA%8C%EF%BC%89/" data-id="ckhe7o4jy0005chl77jn92a9v" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/11/%E4%BB%A3%E7%A0%81%E8%99%9A%E6%8B%9F%E6%9C%BA/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          代码虚拟机
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Linker（一）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

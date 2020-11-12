@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Ubuntu下SSH登录Qemu虚拟机 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="宿主机要通过ssh访问虚拟机有两种网络配置方式，一种是用户模式网络，另一种是网桥网络模式。 qemu内部的用户模式网络在没有任何-net参数时，qemu默认使用的是-net nic -net user参数，提供了一种用户模式（user-mode）的网络模拟。使用用户模式网络的虚拟机可以连通宿主机及外部网络，用户模式网络是完全由qemu自身实现，不依赖于其他工具，而且不需要root权限。qemu使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu下SSH登录Qemu虚拟机">
+<meta property="og:url" content="http://example.com/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="宿主机要通过ssh访问虚拟机有两种网络配置方式，一种是用户模式网络，另一种是网桥网络模式。 qemu内部的用户模式网络在没有任何-net参数时，qemu默认使用的是-net nic -net user参数，提供了一种用户模式（user-mode）的网络模拟。使用用户模式网络的虚拟机可以连通宿主机及外部网络，用户模式网络是完全由qemu自身实现，不依赖于其他工具，而且不需要root权限。qemu使用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-05-31T03:40:21.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.732Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Virtual">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Ubuntu下SSH登录Qemu虚拟机" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/" class="article-date">
+  <time datetime="2019-05-31T03:40:21.000Z" itemprop="datePublished">2019-05-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Ubuntu下SSH登录Qemu虚拟机
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>宿主机要通过ssh访问虚拟机有两种网络配置方式，一种是用户模式网络，另一种是网桥网络模式。</p>
+<h2 id="qemu内部的用户模式网络"><a href="#qemu内部的用户模式网络" class="headerlink" title="qemu内部的用户模式网络"></a>qemu内部的用户模式网络</h2><p>在没有任何<code>-net</code>参数时，qemu默认使用的是<code>-net nic -net user</code>参数，提供了一种用户模式（user-mode）的网络模拟。使用用户模式网络的虚拟机可以连通宿主机及外部网络，用户模式网络是完全由qemu自身实现，不依赖于其他工具，而且不需要root权限。qemu使用Slirp实现了一整套TCP/IP协议栈，并且使用这个协议栈实现了一套虚拟的NAT网络。<br>优点：  </p>
+<ul>
+<li>使用简单  </li>
+<li>独立性好  </li>
+<li>虚拟机网络隔离性好  </li>
+</ul>
+<p>缺点：  </p>
+<ul>
+<li>由于其在qemu内部实现所有网络协议栈，因此其性能较差  </li>
+<li>不支持部分网络功能（如ICMP），所以不能在虚拟机中使用ping命令  </li>
+<li>不能从宿主机或外部网络直接访问客户机  </li>
+</ul>
+<p>命令举例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ qemu-system-x86_64 \</span><br><span class="line">	-kernel $KERNEL&#x2F;arch&#x2F;x86&#x2F;boot&#x2F;bzImage \</span><br><span class="line">	-append &quot;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;sda debug earlyprintk&#x3D;serial slub_debug&#x3D;QUZ&quot; \</span><br><span class="line">	-hda $IMAGE&#x2F;stretch.img \</span><br><span class="line">	-net user,hostfwd&#x3D;tcp::10021-:22 \</span><br><span class="line">	-net nic,model&#x3D;e1000 \</span><br><span class="line">	-enable-kvm \</span><br><span class="line">	-nographic \</span><br><span class="line">	-m 1G \</span><br><span class="line">	-smp 2 \</span><br><span class="line">	-pidfile vm.pid \</span><br><span class="line">	2&gt;&amp;1 | tee vm.log</span><br></pre></td></tr></table></figure>
+<p><code>-net user</code>表示使用的是用户模式，<code>hostfwd=tcp::10021-:22</code>表示将虚拟机22端口转发到宿主机的10021端口。<br><code>-net nic</code>表示为虚拟机创建虚拟机网卡，<code>model=e1000</code>表示为虚拟机添加一块e1000型的网卡，这也是qemu的默认类型。<br>查看qemu支持的NIC类型：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ qemu-system-x86_64 -net nic,model&#x3D;?</span><br><span class="line">warning: TCG doesn&#39;t support requested feature: CPUID.01H:ECX.vmx [bit 5]</span><br><span class="line">qemu: Supported NIC models: ne2k_pci,i82551,i82557b,i82559er,rtl8139,e1000,pcnet,virtio</span><br></pre></td></tr></table></figure>
+<p>这样配置好目录和参数以后启动qemu，有可能会遇到如下错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[FAILED] Failed to start Raise network interfaces.</span><br></pre></td></tr></table></figure>
+<p>这是虚拟机网络配置有问题，使用ip命令查看虚拟机使用的网卡，在虚拟机里执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># ip a s</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link&#x2F;loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1&#x2F;8 scope host lo</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 ::1&#x2F;128 scope host </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">2: enp0s3: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN group default qlen 1000</span><br><span class="line">    link&#x2F;ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: sit0@NONE: &lt;NOARP&gt; mtu 1480 qdisc noop state DOWN group default qlen 1000</span><br><span class="line">    link&#x2F;sit 0.0.0.0 brd 0.0.0.0</span><br></pre></td></tr></table></figure>
+<p>可以看到有一个<code>enp0s3</code>网卡，查看网络配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># vi &#x2F;etc&#x2F;network&#x2F;interfaces</span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet dhcp</span><br></pre></td></tr></table></figure>
+<p>网络配置文件中的网卡和实际的网卡不一样，修改<code>eth0</code>为<code>enp0s3</code>，重启网络：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># &#x2F;etc&#x2F;init.d&#x2F;networking restart</span><br><span class="line">Restarting networking (via systemctl): networking.service[  287.214196] e1000: enp0s3 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX</span><br><span class="line">[  287.227353] IPv6: ADDRCONF(NETDEV_CHANGE): enp0s3: link becomes ready</span><br><span class="line">[  287.446498] audit: type&#x3D;1107 audit(1559202014.248:8): pid&#x3D;1 uid&#x3D;0 auid&#x3D;4294967295 ses&#x3D;4294967295 subj&#x3D;system_u:system_r:kernel_t:s0 msg&#x3D;&#39;avc:  denied  &#123; reload &#125; for auid&#x3D;n&#x2F;a uid&#x3D;0 gid&#x3D;0 path&#x3D;&quot;&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;ssh.service&quot; cmdline&#x3D;&quot;systemctl reload --no-block ssh.service&quot; scontext&#x3D;system_u:system_r:kernel_t:s0 tcontext&#x3D;system_u:object_r:unlabeled_t:s0 tclass&#x3D;service</span><br><span class="line">[  287.446498]  exe&#x3D;&quot;&#x2F;lib&#x2F;systemd&#x2F;systemd&quot; sauid&#x3D;0 hostname&#x3D;? addr&#x3D;? terminal&#x3D;?&#39;</span><br><span class="line">.</span><br></pre></td></tr></table></figure>
+<p>启动网卡成功，可以在宿主机ssh连接虚拟机了:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -i identity_file -p 10021 root@localhost</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用网桥模式"><a href="#使用网桥模式" class="headerlink" title="使用网桥模式"></a>使用网桥模式</h2><p>网桥（bridge）模式可以让虚拟机和宿主机共享一个物理网络设备连接网络，虚拟机有自己的独立IP地址，可以直接连接与宿主机一样的网络，虚拟机可以访问外部网络，外部网络也可以直接访问客户机（就像访问普通物理主机一样）。即使宿主机只有一个网卡设备，使用bridge方式也可以让多个虚拟机与宿主机共享网络设备。<br>bridge模式需要添加<code>-net tap</code>参数，表明使用TAP设备。TAP是虚拟网络设备，它仿真了一个数据链路层设备（ISO七层网络结构的第二层），它像以太网的数据帧一样处理第二层数据包。TUN与TAP类似，也是一种虚拟网络设备，它是对网络层的仿真。TAP被用于创建一个网桥，而TUN与路由相关。  </p>
+<h3 id="第一种linux下tap网络配置方法："><a href="#第一种linux下tap网络配置方法：" class="headerlink" title="第一种linux下tap网络配置方法："></a>第一种linux下tap网络配置方法：</h3><p>建立网桥：Ubuntu上需要安装建立虚拟网络设备的工具uml-utilities和桥接工具bridge-utils：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install uml-utilities bridge-utils</span><br></pre></td></tr></table></figure>
+<p>创建一个bridge</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo brctl addbr br0</span><br></pre></td></tr></table></figure>
+<p>清空网卡的IP</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ip addr flush dev eth0</span><br></pre></td></tr></table></figure>
+<p>添加网卡到bridge</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo brctl addif br0 eth0</span><br></pre></td></tr></table></figure>
+<p>创建tap接口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo tunctl -t tap0 -u fanrong</span><br></pre></td></tr></table></figure>
+<p>添加tap0到bridge</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo brctl addif br0 tap0</span><br></pre></td></tr></table></figure>
+<p>确定都已启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ifconfig eth0 up</span><br><span class="line">$ sudo ifconfig tap0 up</span><br><span class="line">$ sudo ifconfig br0 up</span><br></pre></td></tr></table></figure>
+<p>检查桥接是否恰当</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo brctl show</span><br></pre></td></tr></table></figure>
+<p>为br0分配ip</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ brctl stp br0 on # 待定</span><br><span class="line">$ sudo dhclient br0</span><br></pre></td></tr></table></figure>
+<p>启动命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo qemu-system-i386 -cdrom Core-current.iso -boot d -netdev tap,id&#x3D;mynet0,ifname&#x3D;tap0,script&#x3D;no,downscript&#x3D;no -device e1000,netdev&#x3D;mynet0,mac&#x3D;52:55:00:d1:55:01</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二种linux下tap网络配置方法："><a href="#第二种linux下tap网络配置方法：" class="headerlink" title="第二种linux下tap网络配置方法："></a>第二种linux下tap网络配置方法：</h3><p>1.建立一个虚拟网络接口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mknod &#x2F;dev&#x2F;net&#x2F;tun c 10 200</span><br></pre></td></tr></table></figure>
+<p>2.建立网桥<br>修改/etc/network/interface配置文件。此处建立一个名为br0的网桥，先桥接上eth0，在启动qemu时，再桥接上tap0。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line">auto br0</span><br><span class="line">iface br0 inet static</span><br><span class="line">address 192.168.1.2</span><br><span class="line">network 192.168.1.0</span><br><span class="line">netmask 255.255.255.0</span><br><span class="line">broadcast 192.168.1.255</span><br><span class="line">gateway 192.168.1.1</span><br><span class="line">bridge_ports eth0</span><br><span class="line">bridge_fd 9</span><br><span class="line">bridge_hello 2</span><br><span class="line">bridge_maxage 12</span><br><span class="line">bridge_stp off</span><br></pre></td></tr></table></figure>
+<p>3.建立qemu-ifup脚本，启动qemu时调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install uml-utilities bridge-utils</span><br><span class="line">$ brctl addbr br0</span><br><span class="line">$ sudo vim &#x2F;etc&#x2F;qemu-ifup</span><br><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line">sudo &#x2F;sbin&#x2F;ifconfig $1 0.0.0.0 promisc up</span><br><span class="line">sudo &#x2F;sbin&#x2F;brctl addif br0 $1</span><br><span class="line">sleep 2</span><br><span class="line">$ sudo chmod +x &#x2F;etc&#x2F;qemu-ifup</span><br></pre></td></tr></table></figure>
+<p>4.qemu启动命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ -net nic -net tap,ifname&#x3D;tap0,script&#x3D;&#x2F;etc&#x2F;qemu-ifup </span><br></pre></td></tr></table></figure>
+
+
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://smilejay.com/2016/09/kvm-user-mode-networking/">http://smilejay.com/2016/09/kvm-user-mode-networking/</a><br><a target="_blank" rel="noopener" href="http://smilejay.com/2012/08/kvm-bridge-networking/">http://smilejay.com/2012/08/kvm-bridge-networking/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/" data-id="ckhe7o4mm0045chl78rt2bkcz" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/05/31/Syzkaller%E5%8E%9F%E7%90%86%E5%92%8C%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Syzkaller原理和源码分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Syzkaller安装 Fuzz Qemu amd64 Kernel</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

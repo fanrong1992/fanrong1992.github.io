@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Blind Return Oriented Programming (BROP) Attack攻击原理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。 BROP攻击的目标和前提条件目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Blind Return Oriented Programming (BROP) Attack攻击原理">
+<meta property="og:url" content="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。 BROP攻击的目标和前提条件目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack c">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/brop/asmins.jpg">
+<meta property="og:image" content="http://example.com/images/brop/stack.jpg">
+<meta property="og:image" content="http://example.com/images/brop/canary.jpg">
+<meta property="og:image" content="http://example.com/images/brop/nostopgadget.jpg">
+<meta property="og:image" content="http://example.com/images/brop/stopgadget.jpg">
+<meta property="og:image" content="http://example.com/images/brop/fourgadget.jpg">
+<meta property="og:image" content="http://example.com/images/brop/bropgadget.jpg">
+<meta property="og:image" content="http://example.com/images/brop/plt.jpg">
+<meta property="article:published_time" content="2017-02-13T01:15:14.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.691Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/brop/asmins.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Blind-Return-Oriented-Programming-BROP-Attack攻击原理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2017-02-13T01:15:14.000Z" itemprop="datePublished">2017-02-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Blind Return Oriented Programming (BROP) Attack攻击原理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/brop/bittau-brop.pdf">相关paper下载</a>。</p>
+<h2 id="BROP攻击的目标和前提条件"><a href="#BROP攻击的目标和前提条件" class="headerlink" title="BROP攻击的目标和前提条件"></a>BROP攻击的目标和前提条件</h2><p>目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack canary等保护，应用程序所在的服务器可以是32位系统或者64位系统。<br>初看这个目标感觉实现起来特别困难。其实这个攻击有两个前提条件的：</p>
+<ul>
+<li>必须先存在一个已知的stack overflow的漏洞，而且攻击者知道如何触发这个漏洞；</li>
+<li>服务器进程在crash之后会restart，并且restart的进程不会被re-rand（意味着虽然有ASLR的保护，但是复活的进程和之前的进程的地址随机化是一样的）。这个需求其实是合理的，因为当前像nginx, MySQL, Apache, OpenSSH, Samba等服务器应用都是符合这种特性的。</li>
+</ul>
+<h2 id="BROP的攻击流程1-远程dump内存"><a href="#BROP的攻击流程1-远程dump内存" class="headerlink" title="BROP的攻击流程1 - 远程dump内存"></a>BROP的攻击流程1 - 远程dump内存</h2><p>由于不知道被攻击程序的内存布局，所以首先要做的就是通过某种方法从远程服务器dump出该程序的内存到本地，为了做到这点，需要调用一个系统调用<code>write</code>，传入一个socket文件描述符：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">write(<span class="keyword">int</span> sock, <span class="keyword">void</span> *buf, <span class="keyword">int</span> len);</span><br></pre></td></tr></table></figure>
+<p>将这条系统调用转换成4条汇编指令，如图所示：<br><img src="/images/brop/asmins.jpg"><br>需要找到四个相应的gadget，然后在栈上构造好这4个gadget的内存地址。<br>问题是我们连内存分布都不知道，如何在内存中找到这4个gadget。特别是当系统部署了ASLR和stack canary等保护机制。<br>所以先将这个问题放一放，先来做一些准备工作。</p>
+<h3 id="攻破Stack-Canary防护"><a href="#攻破Stack-Canary防护" class="headerlink" title="攻破Stack Canary防护"></a>攻破Stack Canary防护</h3><p>一种方法是brute-force暴力破解，但这个方法很低效，这里使用一种<code>stack reading</code>的方法：<br>假设这里我们想要overflow的栈的布局：<br><img src="/images/brop/stack.jpg"><br>可以尝试任意多次来判断出overflow的长度（直到进程由于canary被破坏crash了，在这里即为4096+8=4104个字节），之后我们将这4096个字节填上任意值，然后一个一个字节顺序地进行尝试来还原出真实的canary，比如向栈上写入4097个字节的数据，第4097个字节为<code>*</code>，如果<code>*</code>和原来canary中第一个字节相同，则进程不会crash，不相同则会crash；然后用相同的方法试出剩下的字节内容。一个字节有256中可能，最多尝试256*8即可得出canary所有字节：<br><img src="/images/brop/canary.jpg"><br>同样也可以得到保存的<code>frame pointer</code>和<code>return address</code>。</p>
+<h3 id="寻找stop-gadget"><a href="#寻找stop-gadget" class="headerlink" title="寻找stop gadget"></a>寻找stop gadget</h3><p>已经找到攻破stack canary的方法，下一个目标是找到前面说的4个gadget。<br>在寻找这些特定的gadgets之前，我们需要先来介绍一种特殊的gadget类型：<code>stop gadget</code>。<br>一般情况下，如果我们把栈上的<code>return address</code>覆盖成某些我们随意选取的内存地址的话，程序有很大可能性会挂掉（比如，该return address指向了一段代码区域，里面会有一些对空指针的访问造成程序crash，从而使得攻击者的连接（connection）被关闭）。但是，存在另外一种情况，即该<code>return address</code>指向了一块代码区域，当程序的执行流跳到那段区域之后，程序并不会crash，而是进入了无限循环，这时程序仅仅是hang在了那里，攻击者能够一直保持连接状态。于是，我们把这种类型的gadget，称为<code>stop gadget</code>，这种gadget对于寻找其他gadgets取到了至关重要的作用。</p>
+<h3 id="寻找可利用的（potentially-useful）gadgets"><a href="#寻找可利用的（potentially-useful）gadgets" class="headerlink" title="寻找可利用的（potentially useful）gadgets"></a>寻找可利用的（potentially useful）gadgets</h3><p>假设已经找到可以使程序保持连接的stop gadget（比如一个无限循环或某个blocking的系统调用），下面寻找可以利用的gadget。<br>到目前为止，还只能对栈进行操作，只能通过覆盖<code>return address</code>进行后续操作。假设已经猜到某个<code>useful gadget</code>，比如<code>pop rdi; ret</code>，但是由于在执行完这个gadget之后进程还会跳到栈上的下一个地址，如果该地址是一个非法地址，那么进程最后还是会crash，在这个过程中攻击者其实并不知道这个<code>useful gadget</code>被执行过了（因为在攻击者看来最后的效果都是进程crash了），因此攻击者就会认为在这个过程中并没有执行到任何的<code>useful gadget</code>，从而放弃它，这个步骤如下图所示：<br><img src="/images/brop/nostopgadget.jpg"><br>但是，如果我们有了<code>stop gadget</code>，那么整个过程将会很不一样. 如果我们在需要尝试的<code>return address</code>之后填上了足够多的<code>stop gadget</code>，如下图所示：<br><img src="/images/brop/stopgadget.jpg"><br>那么任何会造成进程crash的gadget最后还是会造成进程crash，而那些<code>useful gadget</code>则会进入block状态。尽管如此，还是有一种特殊情况，即那个我们需要尝试的gadget也是一个<code>stop gadget</code>，那么如上所述，它也会被我们标识为<code>useful gadget</code>。不过这并没有关系，因为之后我们还是需要检查该<code>useful gadget</code>是否是我们想要的gadget。</p>
+<h3 id="远程dump内存"><a href="#远程dump内存" class="headerlink" title="远程dump内存"></a>远程dump内存</h3><p>到目前为止，似乎准备工作都做好了，我们已经可以绕过canary防护，并且得到很多不会造成进程crash的<code>potential useful gadget</code>了，那么接下来就是该如何找到我们之前所提到的那四个gadgets呢？<br><img src="/images/brop/fourgadget.jpg"><br>如上图所示，为了找到前两个gadgets：<code>pop rsi; ret</code>和<code>pop rdi; ret</code>，我们只需要找到一种所谓的<code>BROP gadget</code>就可以了，这种gadget很常见，它做的事情就是恢复那些<code>callee saved registers</code>。 而对它进行一个偏移就能够生成<code>pop rdi</code>和<code>pop rsi</code>这两个gadgets。<br><code>pop rdx; ret</code>这个gadget并不容易找到，它很少出现在代码里，相比于寻找<code>pop rdx</code>，可以利用<code>strcmp</code>这个函数调用，该函数调用会把字符串的长度赋值给<code>rdx</code>，从而达到相同的效果。另外<code>strcmp</code>和<code>write</code>调用都可以在程序的Procedure Linking Table(PLT)里面找到。<br>接下来的任务：</p>
+<ul>
+<li>找到所谓的<code>BROP gadget</code>；</li>
+<li>找到对应的PLT项。</li>
+</ul>
+<h3 id="寻找BROP-gadget"><a href="#寻找BROP-gadget" class="headerlink" title="寻找BROP gadget"></a>寻找BROP gadget</h3><p>事实上<code>BROP gadget</code>很特殊，因为它需要顺序地从栈上<code>pop</code>6个值，然后执行<code>ret</code>。所以如果我们利用之前提到的<code>stop gadget</code>的方法就可以很容易找到这种特殊的gadget了，我们只需要在<code>stop gadget</code>之前填上6个会造成crash的地址:<br><img src="/images/brop/bropgadget.jpg"><br>如果任何<code>useful gadget</code>满足这个条件且不会crash的话，那么它基本上就是<code>BROP gadget</code>了。</p>
+<h3 id="寻找PLT项"><a href="#寻找PLT项" class="headerlink" title="寻找PLT项"></a>寻找PLT项</h3><p>PLT是一个跳转表，它的位置一般在可执行程序开始的地方，该机制主要被用来给应用程序调用外部函数（比如libc等）。它有一个非常独特的特点：每一个项都是16个字节对齐，其中第0个字节开始的地址指向该项对应函数的<code>fast path</code>，而第6个字节开始的地址指向了该项对应函数的<code>slow path</code>：<br><img src="/images/brop/plt.jpg"><br>另外，大部分的PLT项都不会因为传进来的参数的原因crash，因为它们很多都是系统调用，都会对参数进行检查，如果有错误会返回<code>EFAULT</code>而已，并不会造成进程crash。所以攻击者可以通过下面这个方法找到PLT：如果攻击者发现好多条连续的16个字节对齐的地址都不会造成进程crash，而且这些地址加6得到的地址也不会造成进程crash，那么很有可能这就是某个PLT对应的项了。<br>那么当我们得到某个PLT项，我们该如何判断它是否是<code>strcmp</code>或者<code>write</code>呢？<br>对于<code>strcmp</code>来说, 方法是对其传入不同的参数组合，通过该方法调用返回的结果来进行判断。由于<code>BROP gadget</code>的存在，我们可以很方便地控制前两个参数，strcmp会发生如下的可能性：</p>
+<table>
+<thead>
+<tr>
+<th align="center">arg1</th>
+<th align="center">arg2</th>
+<th align="center">result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">readable</td>
+<td align="center">0x0</td>
+<td align="center">crash</td>
+</tr>
+<tr>
+<td align="center">0x0</td>
+<td align="center">readable</td>
+<td align="center">crash</td>
+</tr>
+<tr>
+<td align="center">0x0</td>
+<td align="center">0x0</td>
+<td align="center">crash</td>
+</tr>
+<tr>
+<td align="center">readable</td>
+<td align="center">readable</td>
+<td align="center">nocrash</td>
+</tr>
+</tbody></table>
+<p>根据这个signature，我们能够在很大可能性上找到<code>strcmp</code>对应的PLT项。<br>而对于<code>write</code>调用，虽然它没有这种类似的signature，但是我们可以通过检查所有的PLT项，然后触发其向某个socket写数据来检查<code>write</code>是否被调用了，如果<code>write</code>被调用了，那么我们就可以在本地看到传过来的内容了。<br>最后一步就是如何确定传给<code>write</code>的socket文件描述符是多少了。这里有两种办法：1. 同时调用好几次<code>write</code>，把它们串起来，然后传入不同的文件描述符数；2. 同时打开多个连接，然后使用一个相对较大的文件描述符数字，增加匹配的可能性。<br>到这一步为止，攻击者就能够将整个<code>.text</code>段从内存中通过socket写到本地来了，然后就可以对其进行反编译，找到其他更多的gadgets，同时，攻击者还可以dump那些symbol table之类的信息，找到PLT中其它对应的函数项如<code>dup2</code>和<code>execve</code>等。</p>
+<h2 id="BROP的攻击流程2-实施攻击"><a href="#BROP的攻击流程2-实施攻击" class="headerlink" title="BROP的攻击流程2 - 实施攻击"></a>BROP的攻击流程2 - 实施攻击</h2><p>到目前为止，最具挑战性的部分已经被解决了，我们已经可以得到被攻击进程的整个内存空间了，接下来就是按部就班了：</p>
+<ul>
+<li>将socket重定向到标准输入/输出（standard input/output）。攻击者可以使用<code>dup2</code>和<code>close</code>，跟上<code>dup</code>或者<code>fcntl(F_DUPFD)</code>。这些一般都能在PLT里面找到。</li>
+<li>在内存中找到<code>/bin/sh</code>。其中一个有效的方法是从<code>symbol table</code>里面找到一个可写区域（writable memory region），比如environ，然后通过socket将<code>/bin/sh</code>从攻击者这里读过去。</li>
+<li>execve shell. 如果execve不在PLT上, 那么攻击者就需要通过更多次的尝试来找到一个<code>pop rax; ret</code>和<code>syscall</code>的gadget。</li>
+</ul>
+<p>归纳起来，BROP攻击的整个步骤是这样的：</p>
+<ul>
+<li>通过一个已知的stack overflow的漏洞，并通过stack reading的方式绕过stack canary的防护，试出某个可用的return address；</li>
+<li>寻找stop gadget：一般情况下这会是一个在PLT中的blocking系统调用的地址（sleep等），在这一步中，攻击者也可以找到PLT的合法项；</li>
+<li>寻找BROP gadget：这一步之后攻击者就能够控制write系统调用的前两个参数了；</li>
+<li>通过signature的方式寻找到PLT上的strcmp项，然后通过控制字符串的长度来给%rdx赋值，这一步之后攻击者就能够控制write系统调用的第三个参数了；</li>
+<li>寻找PLT中的write项：这一步之后攻击者就能够将整个内存从远端dump到本地，用于寻找更多的gadgets；</li>
+<li>有了以上的信息之后，就可以创建一个shellcode来实施攻击了。</li>
+</ul>
+<p>以上就是BROP攻击的原理，后面会找一些实例来实现这个攻击。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://ytliu.info/blog/2014/05/31/blind-return-oriented-programming-brop-attack-yi/">http://ytliu.info/blog/2014/05/31/blind-return-oriented-programming-brop-attack-yi/</a><br><a target="_blank" rel="noopener" href="http://wooyun.tangscan.cn/static/drops/tips-3071.html">http://wooyun.tangscan.cn/static/drops/tips-3071.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" data-id="ckhe7o4kf000qchl7bh17gqot" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Blind Return Oriented Programming (BROP) Attack攻击实践
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">JAVA ASM字节码框架</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

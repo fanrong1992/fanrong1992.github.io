@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>卷积神经网络 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="关于卷积神经网络的原理这篇文章先不做介绍，推荐机器视角：长文揭秘图像处理和卷积神经网络架构和卷积：如何成为一个很厉害的神经网络这两篇文章，这里记录一下PyTorch对卷积神经网络的实现。代码清单 model.py 123456789101112131415161718192021222324import torch.nn as nn# 卷积神经网络(两个卷积层)class ConvNet(nn.M">
+<meta property="og:type" content="article">
+<meta property="og:title" content="卷积神经网络">
+<meta property="og:url" content="http://example.com/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="关于卷积神经网络的原理这篇文章先不做介绍，推荐机器视角：长文揭秘图像处理和卷积神经网络架构和卷积：如何成为一个很厉害的神经网络这两篇文章，这里记录一下PyTorch对卷积神经网络的实现。代码清单 model.py 123456789101112131415161718192021222324import torch.nn as nn# 卷积神经网络(两个卷积层)class ConvNet(nn.M">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/machinelearning/img.png">
+<meta property="article:published_time" content="2018-05-30T04:05:58.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.789Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Machine Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/machinelearning/img.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-卷积神经网络" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="article-date">
+  <time datetime="2018-05-30T04:05:58.000Z" itemprop="datePublished">2018-05-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      卷积神经网络
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>关于卷积神经网络的原理这篇文章先不做介绍，推荐<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA3MzI4MjgzMw==&mid=2650728746&idx=1&sn=61e9cb824501ec7c505eb464e8317915&scene=0#wechat_redirect">机器视角：长文揭秘图像处理和卷积神经网络架构</a>和<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25754846">卷积：如何成为一个很厉害的神经网络</a>这两篇文章，这里记录一下PyTorch对卷积神经网络的实现。<br><strong>代码清单</strong> model.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="comment"># 卷积神经网络(两个卷积层)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConvNet</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, num_classes=<span class="number">10</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>(ConvNet, self).__init__()</span><br><span class="line">        self.layer1 = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">1</span>, <span class="number">16</span>, kernel_size=<span class="number">5</span>, stride=<span class="number">1</span>, padding=<span class="number">2</span>),</span><br><span class="line">            nn.BatchNorm2d(<span class="number">16</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.MaxPool2d(kernel_size=<span class="number">2</span>, stride=<span class="number">2</span>))</span><br><span class="line">        self.layer2 = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">16</span>, <span class="number">32</span>, kernel_size=<span class="number">5</span>, stride=<span class="number">1</span>, padding=<span class="number">2</span>),</span><br><span class="line">            nn.BatchNorm2d(<span class="number">32</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.MaxPool2d(kernel_size=<span class="number">2</span>, stride=<span class="number">2</span>))</span><br><span class="line">        self.fc = nn.Linear(<span class="number">7</span>*<span class="number">7</span>*<span class="number">32</span>, num_classes) <span class="comment"># full connection，即输出层</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        out = self.layer1(x)</span><br><span class="line">        out = self.layer2(out)</span><br><span class="line">        out = out.reshape(out.size(<span class="number">0</span>), <span class="number">-1</span>)</span><br><span class="line">        out = self.fc(out)</span><br><span class="line">        <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+<p>这里首先构建了一个两层的卷积神经网络，<code>torch.nn.Squential</code>是一个顺序的容器，模块按照构造函数顺序加入。<br><code>torch.nn.Conv2d</code>是将2D卷积（卷积核是2D的）应用到输入，其参数依次为：  </p>
+<ul>
+<li>in_channels 输入图像的通道数</li>
+<li>out_channels 卷积产生的通道数</li>
+<li>kernel_size 卷积核大小</li>
+<li>stride 卷积的步长</li>
+<li>padding 在输入的各边0填充</li>
+</ul>
+<p>输入为一个图像的Tensor形式，其中包含$N$词袋大小，$C$是通道数，$H$是输入的高度，$W$是输入的宽度，单位是pixel。下面的demo.py中可以看到一个图像的Tensor如何构造。<br><code>torch.nn.BatchNorm2d</code><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1502.03167">Batch Normalization</a>对每个隐藏层的输入进行标准化，有加速收敛等好处。<br><code>torch.nn.ReLU</code>是一个非线性激活函数，$ReLU(x) = max(0, x)$正数不变，负数都转化为0。<br><code>torch.nn.MaxPool2d</code>是对输入进行一个2D最大池化。<br><code>torch.nn.Linear</code>对输入的数据进行一个线性转变$y = Ax + b$，参数依次为：</p>
+<ul>
+<li>in_features 输入样本的大小</li>
+<li>out_features 输出样本的大小，这里是10个数字</li>
+<li>bias</li>
+</ul>
+<p><strong>代码清单</strong> train.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> ConvNet</span><br><span class="line"></span><br><span class="line"><span class="comment"># Device configuration</span></span><br><span class="line">device = torch.device(<span class="string">&#x27;cuda:0&#x27;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&#x27;cpu&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Hyper parameters</span></span><br><span class="line">num_epochs = <span class="number">5</span></span><br><span class="line">num_classes = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line">learning_rate = <span class="number">0.001</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MNIST dataset</span></span><br><span class="line">train_dataset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data/&#x27;</span>,</span><br><span class="line">                                           train=<span class="literal">True</span>,</span><br><span class="line">                                           transform=transforms.ToTensor(),</span><br><span class="line">                                           download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">test_dataset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data/&#x27;</span>,</span><br><span class="line">                                          train=<span class="literal">False</span>,</span><br><span class="line">                                          transform=transforms.ToTensor())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Data loader</span></span><br><span class="line">train_loader = torch.utils.data.DataLoader(dataset=train_dataset,</span><br><span class="line">                                           batch_size=batch_size,</span><br><span class="line">                                           shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">test_loader = torch.utils.data.DataLoader(dataset=test_dataset,</span><br><span class="line">                                          batch_size=batch_size,</span><br><span class="line">                                          shuffle=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">model = ConvNet(num_classes).to(device)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Loss and optimizer</span></span><br><span class="line">criterion = nn.CrossEntropyLoss()</span><br><span class="line">optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Train the model</span></span><br><span class="line">total_step = <span class="built_in">len</span>(train_loader)</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> i, (images, labels) <span class="keyword">in</span> <span class="built_in">enumerate</span>(train_loader):</span><br><span class="line">        images = images.to(device)</span><br><span class="line">        labels = labels.to(device)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Forward pass</span></span><br><span class="line">        outputs = model(images)</span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Backward and optimize</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (i+<span class="number">1</span>) % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&#x27;Epoch [&#123;&#125;/&#123;&#125;], Step [&#123;&#125;/&#123;&#125;], Loss: &#123;:.4f&#125;&#x27;</span></span><br><span class="line">                   .<span class="built_in">format</span>(epoch+<span class="number">1</span>, num_epochs, i+<span class="number">1</span>, total_step, loss.item()))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Test the model</span></span><br><span class="line">model.<span class="built_in">eval</span>()  <span class="comment"># eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)</span></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    correct = <span class="number">0</span></span><br><span class="line">    total = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> test_loader:</span><br><span class="line">        images = images.to(device)</span><br><span class="line">        labels = labels.to(device)</span><br><span class="line">        outputs = model(images)</span><br><span class="line">        _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">        total += labels.size(<span class="number">0</span>)</span><br><span class="line">        correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line"></span><br><span class="line">    print(<span class="string">&#x27;Test Accuracy of the model on the 10000 test images: &#123;&#125; %&#x27;</span>.<span class="built_in">format</span>(<span class="number">100</span> * correct / total))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Save the model checkpoint</span></span><br><span class="line">torch.save(model.state_dict(), <span class="string">&#x27;model.ckpt&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ python train.py</span><br><span class="line">Epoch [1&#x2F;5], Step [100&#x2F;600], Loss: 0.1743</span><br><span class="line">Epoch [1&#x2F;5], Step [200&#x2F;600], Loss: 0.1452</span><br><span class="line">Epoch [1&#x2F;5], Step [300&#x2F;600], Loss: 0.1029</span><br><span class="line">Epoch [1&#x2F;5], Step [400&#x2F;600], Loss: 0.0549</span><br><span class="line">Epoch [1&#x2F;5], Step [500&#x2F;600], Loss: 0.0608</span><br><span class="line">...</span><br><span class="line">Test Accuracy of the model on the 10000 test images: 99 %</span><br></pre></td></tr></table></figure>
+<p>这里首先介绍一下训练数据，PyTorch支持<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torchvision/datasets.html">多种数据集</a>，上述代码用到的是MNIST数据集，一般在训练和测试时都是直接使用官网提供的<a target="_blank" rel="noopener" href="http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz">二进制数据集</a>，但是作为初学者，不太理解这个二进制到底是什么东西，所以先用下面的代码将二进制文件解析为原始的图片和对应的标签：<br><strong>代码清单</strong> resolve.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_image</span>(<span class="params">filename</span>):</span></span><br><span class="line">  f = <span class="built_in">open</span>(filename, <span class="string">&#x27;rb&#x27;</span>)</span><br><span class="line">  index = <span class="number">0</span></span><br><span class="line">  buf = f.read()</span><br><span class="line">  f.close()</span><br><span class="line">  magic, images, rows, columns = struct.unpack_from(<span class="string">&#x27;&gt;IIII&#x27;</span> , buf , index)</span><br><span class="line">  index += struct.calcsize(<span class="string">&#x27;&gt;IIII&#x27;</span>)</span><br><span class="line">  <span class="keyword">for</span> i <span class="keyword">in</span> xrange(images):</span><br><span class="line">    image = Image.new(<span class="string">&#x27;L&#x27;</span>, (columns, rows))</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> xrange(rows):</span><br><span class="line">      <span class="keyword">for</span> y <span class="keyword">in</span> xrange(columns):</span><br><span class="line">        image.putpixel((y, x), <span class="built_in">int</span>(struct.unpack_from(<span class="string">&#x27;&gt;B&#x27;</span>, buf, index)[<span class="number">0</span>]))</span><br><span class="line">        index += struct.calcsize(<span class="string">&#x27;&gt;B&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;save &#x27;</span> + <span class="built_in">str</span>(i) + <span class="string">&#x27;image&#x27;</span></span><br><span class="line">    image.save(<span class="string">&#x27;test/&#x27;</span> + <span class="built_in">str</span>(i) + <span class="string">&#x27;.png&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_label</span>(<span class="params">filename, saveFilename</span>):</span></span><br><span class="line">  f = <span class="built_in">open</span>(filename, <span class="string">&#x27;rb&#x27;</span>)</span><br><span class="line">  index = <span class="number">0</span></span><br><span class="line">  buf = f.read()</span><br><span class="line"></span><br><span class="line">  f.close()</span><br><span class="line"></span><br><span class="line">  magic, labels = struct.unpack_from(<span class="string">&#x27;&gt;II&#x27;</span> , buf , index)</span><br><span class="line">  index += struct.calcsize(<span class="string">&#x27;&gt;II&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  labelArr = [<span class="number">0</span>] * labels</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> x <span class="keyword">in</span> xrange(labels):</span><br><span class="line">    labelArr[x] = <span class="built_in">int</span>(struct.unpack_from(<span class="string">&#x27;&gt;B&#x27;</span>, buf, index)[<span class="number">0</span>])</span><br><span class="line">    index += struct.calcsize(<span class="string">&#x27;&gt;B&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  save = <span class="built_in">open</span>(saveFilename, <span class="string">&#x27;w&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  save.write(<span class="string">&#x27;,&#x27;</span>.join(<span class="built_in">map</span>(<span class="keyword">lambda</span> x: <span class="built_in">str</span>(x), labelArr)))</span><br><span class="line">  save.write(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  save.close()</span><br><span class="line">  <span class="built_in">print</span> <span class="string">&#x27;save labels success&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">  read_image(<span class="string">&#x27;data/raw/t10k-images-idx3-ubyte&#x27;</span>)</span><br><span class="line">  read_label(<span class="string">&#x27;data/raw/t10k-labels-idx1-ubyte&#x27;</span>, <span class="string">&#x27;test/label.txt&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/machinelearning/img.png" alt="解析出的图片"><br>解析出数据集中的图片后，我们可以随意选取图片来测试训练的模型<code>model.ckpt</code>：<br><strong>代码清单</strong> demo.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> ConvNet</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">model_path = <span class="string">&quot;./model.ckpt&quot;</span></span><br><span class="line">img_path = <span class="string">&quot;./12.png&quot;</span></span><br><span class="line"></span><br><span class="line">model = ConvNet()</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;load pretrained model from %s&quot;</span> % model_path</span><br><span class="line">model.load_state_dict(torch.load(model_path))</span><br><span class="line"></span><br><span class="line">transformer = transforms.ToTensor()</span><br><span class="line"><span class="comment"># 将图像转换为灰度模式，即单通道</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(img_path).convert(<span class="string">&#x27;L&#x27;</span>)</span><br><span class="line"><span class="comment">#image.resize((28, 28), Image.BILINEAR)</span></span><br><span class="line"><span class="comment"># 将图像转换为Tensor</span></span><br><span class="line">image = transformer(image)</span><br><span class="line"><span class="comment"># 为Tensor添加一维，表示batch</span></span><br><span class="line">image = image.view(<span class="number">1</span>, *image.size())</span><br><span class="line"></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">output = model(image)</span><br><span class="line"></span><br><span class="line">preds = torch.<span class="built_in">max</span>(output, <span class="number">1</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> preds.item()</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python demo.py</span><br><span class="line">load pretrained model from .&#x2F;model.ckpt</span><br><span class="line">9</span><br></pre></td></tr></table></figure>
+<p>可以看到用训练的模型可以正确识别出图片中的数字9。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://github.com/yunjey/pytorch-tutorial/blob/master/tutorials/02-intermediate/convolutional_neural_network/main.py">https://github.com/yunjey/pytorch-tutorial/blob/master/tutorials/02-intermediate/convolutional_neural_network/main.py</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" data-id="ckhe7o4ne005nchl79a712jh8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/06/01/%E5%86%B3%E7%AD%96%E6%A0%91/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          决策树
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">神经网络</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

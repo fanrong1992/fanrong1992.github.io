@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>深入理解glibc malloc | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="glibc中的内存分配是由ptmalloc2实现的，ptmalloc2是dlmalloc（General purpose allocator）的分支，并加入了线程支持。System Calls malloc内部会调用brk或mmap系统调用。Threading ptmalloc2中，当两个线程同时调用malloc，内存会立即得到分配，因为每个线程有一个单独的堆段，因此free list数据结构中保">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解glibc malloc">
+<meta property="og:url" content="http://example.com/2016/04/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3glibc-malloc/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="glibc中的内存分配是由ptmalloc2实现的，ptmalloc2是dlmalloc（General purpose allocator）的分支，并加入了线程支持。System Calls malloc内部会调用brk或mmap系统调用。Threading ptmalloc2中，当两个线程同时调用malloc，内存会立即得到分配，因为每个线程有一个单独的堆段，因此free list数据结构中保">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/threadandmain.png">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/threadarena.png">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/allocatedchunk.png">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/freechunk.png">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/fastbin.png">
+<meta property="og:image" content="http://example.com/images/glibcmalloc/unsortedbin.png">
+<meta property="article:published_time" content="2016-04-11T01:08:38.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.784Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/glibcmalloc/threadandmain.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-深入理解glibc-malloc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3glibc-malloc/" class="article-date">
+  <time datetime="2016-04-11T01:08:38.000Z" itemprop="datePublished">2016-04-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入理解glibc malloc
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>glibc中的内存分配是由<code>ptmalloc2</code>实现的，ptmalloc2是dlmalloc（General purpose allocator）的分支，并加入了线程支持。<br><strong>System Calls</strong> malloc内部会调用<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">brk</a>或<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap</a>系统调用。<br><strong>Threading</strong> ptmalloc2中，当两个线程同时调用malloc，内存会立即得到分配，因为每个线程有一个单独的堆段，因此<code>free list</code>数据结构中保存的这些堆也是分开的。这种为每个线程分配一个单独的堆和free list数据结构的行为称为<code>per thread arena</code>。<br>例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Per thread arena example. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">threadFunc</span><span class="params">(<span class="keyword">void</span>* arg)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Before malloc in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="keyword">char</span>* addr = (<span class="keyword">char</span>*) <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After malloc and before free in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="built_in">free</span>(addr);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After free in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">pthread_t</span> t1;</span><br><span class="line">    <span class="keyword">void</span>* s;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">char</span>* addr;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Welcome to per thread arena example::%d\n&quot;</span>,getpid());</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Before malloc in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    addr = (<span class="keyword">char</span>*) <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After malloc and before free in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="built_in">free</span>(addr);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After free in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    ret = pthread_create(&amp;t1, <span class="literal">NULL</span>, threadFunc, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread creation error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ret = pthread_join(t1, &amp;s);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread join error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出分析</strong><br>主线程的malloc之前，没有堆段，也没有每个线程的栈，因为thread1还没有创建。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;per_thread_arena</span><br><span class="line">Welcome to per thread arena example::3437</span><br><span class="line">Before malloc in main thread</span><br><span class="line"></span><br><span class="line"># another terminal</span><br><span class="line">$ cat &#x2F;proc&#x2F;3437&#x2F;maps</span><br><span class="line">...</span><br><span class="line">08048000-08049000 r-xp 00000000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">08049000-0804a000 r--p 00000000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">0804a000-0804b000 rw-p 00001000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">f755a000-f755b000 rw-p 00000000 00:00 0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>主线程的malloc之后，堆段创建，主线程的堆内存由<code>brk</code>系统调用创建。尽管用户请求了1000bytes，但却创建了132KB的堆内存。这个连续的堆内存称为<code>arena</code>，因为由主线程创建，所以叫它<code>main arena</code>。后续的分配请求会接着用这个arena直到用完空闲空间，它可以通过增加<code>program break location</code>来增长(并调整<code>Top Chunk</code>的大小)。当Top Chunk有大量的空闲空间时arena也可以缩小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">After malloc and before free in main thread</span><br><span class="line">...</span><br><span class="line">0986e000-0988f000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f7536000-f7537000 rw-p 00000000 00:00 0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>主线程的free之后，分配的内存区域没有释放给操作系统，而是是释放给<code>glibc malloc</code>，glibc malloc把这个空闲的块加到main arena的<code>bin</code>（glibc malloc中，freelist数据结构称为bin）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">After free in main thread</span><br><span class="line">...</span><br><span class="line">0986e000-0988f000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f7536000-f7537000 rw-p 00000000 00:00 0</span><br></pre></td></tr></table></figure>
+<p>thread1的malloc之前，thread1没有堆段，但是有栈了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Before malloc in thread 1</span><br><span class="line">...</span><br><span class="line">f6d36000-f7537000 rw-p 00000000 00:00 0                                  [stack:3904]</span><br></pre></td></tr></table></figure>
+<p>thread1的malloc之后，thread1的堆（f6c00000-f6c21000大小为132KB）创建了，与主线程不同，它是由<code>mmap</code>创建，称为<code>thread arena</code>。</p>
+<blockquote>
+<p>用户请求的大小大于128KB时，内存分配由mmap系统调用完成（而不是sbrk），不管是请求是main arena发出的还是thread arena发出的。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">After malloc and before free in thread 1</span><br><span class="line">...</span><br><span class="line">0986e000-0988f000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f6c00000-f6c21000 rw-p 00000000 00:00 0</span><br><span class="line">f6c21000-f6d00000 ---p 00000000 00:00 0</span><br><span class="line">f6d35000-f6d36000 ---p 00000000 00:00 0</span><br></pre></td></tr></table></figure>
+<p>thread1的free之后，分配的内存没有释放给操作系统，而是释放给<code>glibc malloc</code>，glibc malloc把这个空闲块加到thread arena的<code>bin</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">After free in thread 1</span><br><span class="line">...</span><br><span class="line">0986e000-0988f000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f6c00000-f6c21000 rw-p 00000000 00:00 0</span><br><span class="line">f6c21000-f6d00000 ---p 00000000 00:00 0</span><br><span class="line">f6d35000-f6d36000 ---p 00000000 00:00 0</span><br></pre></td></tr></table></figure>
+<p><strong>Arena</strong><br>arena的数量由系统的核数量决定。</p>
+<blockquote>
+<p>32位系统：<br>arena的数量 = 2 * 核的数量<br>64位系统：<br>arena的数量 = 8 * 核的数量</p>
+</blockquote>
+<p><strong>Multiple Arena</strong><br>例如：一个多线程（主线程+3个用户线程）应用在一个单核的32位系统上运行，线程数&gt;2*核数，因此glibc malloc需要确保multiple arena能被线程共享。</p>
+<ul>
+<li>主线程第一次调用malloc会创建main arena。</li>
+<li>thread1和thread2第一次调用malloc，会分别为它们创建thread arena</li>
+<li>thread3第一次调用malloc不会创建arena，会尝试reuse已存在的arena（main arena或arena1或arena2）</li>
+<li>reuse：<br>当循环可用的arena时，尝试lock arena<br>如果lock成功，返回那个arena给用户<br>如果没有空闲的arena，阻塞排队等待arena</li>
+</ul>
+<p><strong>Multiple Heaps</strong><br>glibc malloc中有三种数据结构：<br><code>heap_info</code>Heap Header - 一个thread arena可以有multiple heaps，每个heap有自己的header。（每个thread arena一开始只有一个heap，当堆段空间用尽时，会有新的heap被mmap到这个arena中）<br><code>malloc_state</code>Arena Header - 一个thread arena的multiple heaps只有一个arena header。Arena header包含着bins，top chunk，last remainder chunk等信息。<br><code>malloc_chunk</code>Chunk Header - 一个heap根据用户请求被分成多个chunk，每个chunk有自己的header。</p>
+<blockquote>
+<p>Main arena没有multiple heaps，因此没有heap_info结构。当main arena空间用尽时，sbrk创建的堆段会被增长（连续空间），直到它撞到内存映射段。<br>和thread arena不同，main arena的arena header不是sbrk创建的堆段的一部分，它是一个全局变量，因此它在libc.so的数据段。</p>
+</blockquote>
+<p>main arena和thread arena（单个堆段）<br><img src="/images/glibcmalloc/threadandmain.png"><br>thread arena（多个堆段）<br><img src="/images/glibcmalloc/threadarena.png"><br><strong>Chunk</strong>堆段中chunk的类型：</p>
+<ul>
+<li>Allocated chunk</li>
+<li>Free chunk</li>
+<li>Top chunk</li>
+<li>Last Remainder chunk</li>
+</ul>
+<p><strong>Allocated Chunk</strong><br><img src="/images/glibcmalloc/allocatedchunk.png"><br><code>prev_size</code>如果前一个chunk被free，这个成员包含前一个chunk的大小，如果前一个chunk被分配，这个域包含前一个chunk的用户数据。<br><code>size</code>这个成员包含当前chunk的大小，最后三个字节包含了标识位信息。</p>
+<ul>
+<li>PREV_INUSE(P) - 前一个chunk被分配时，设置这一位。</li>
+<li>IS_MMAPPED(M) - 当chunk是mmap创建的，设置这一位。</li>
+<li>NON_MAIN_ARENA(N) - 当chunk属于一个thread arena时，设置这一位。</li>
+</ul>
+<p><strong>Free Chunk</strong><br><img src="/images/glibcmalloc/freechunk.png"><br><code>prev_size</code>没有两个free chunk是相连的，当两个chunk都是free的，它们会合并成一个free chunk，因此free chunk的前一个chunk一定是allocated chunk，这个域一定包含用户数据。<br><code>size</code>包含这个free chunk的大小。<br><code>fd</code>指向相同bin里的下一个chunk（而不是物理内存中的下一个chunk）。<br><code>bk</code>指向相同bin里的前一个chunk（而不是物理内存中的前一个chunk）。<br><strong>Bins</strong>是free list数据结构，它们被用来保存free chunk。基于chunk的大小分为：</p>
+<ul>
+<li>Fast bin</li>
+<li>Unsorted bin</li>
+<li>Small bin</li>
+<li>Large bin</li>
+</ul>
+<p>用于保存bin的数据结构：<br><code>fastbinsY</code>这个数组保存fast bin。<br><code>bins</code>这个数组保存unsorted，small和large bin，总共有126个bin：</p>
+<ul>
+<li>Bin 1 - Unsorted bin</li>
+<li>Bin 2 to Bin 63 - Small bin</li>
+<li>Bin 64 to Bin 126 - Large bin</li>
+</ul>
+<p><strong>Fast Bin</strong> 16~80bytes大小的chunk被称为fast chunk。保存fast chunk的bin叫做fast bin，fast bin在内存中分配和回收更快。</p>
+<ul>
+<li>bin的数量 - 10<br>每个fast bin包含一个free chunk的单向链表，单项链表的增加和删除都在链表头（LIFO）。</li>
+<li>Chunk size - 以8字节区分<br>例如，第一个fast bin（index 0）包含16字节chunk的binlist，第二个fast bin（index 1）包含24字节chunk的binlist …<br>同一个fast bin的chunk一样大小。</li>
+</ul>
+<p><img src="/images/glibcmalloc/fastbin.png"></p>
+<ul>
+<li>在malloc初始化阶段，fast bin最大64字节（而不是80），因此默认16~64字节的chunk是fast chunk。</li>
+<li>不合并 - 两个相连的free chunk不会合并成一个，这会产生更多碎片，但是free的速度提高了。</li>
+</ul>
+<p><strong>Unsorted Bin</strong> 当small或large chunk free以后，不会把它们加到期望的bin，而是加到unsorted bin。这种方法使<code>glibc malloc</code>能重用最近free的chunk，使内存的分配和回收加速（因为减少了查找合适bin的时间）。</p>
+<ul>
+<li>bin的数量 - 1<br>unsorted bin包含一个free chunk的循环双向链表。</li>
+<li>Chunk size - 没有大小限制</li>
+</ul>
+<p><img src="/images/glibcmalloc/unsortedbin.png"><br><strong>Small Bin</strong> 小于512字节的chunk称为small chunk，保存small chunk的bin称为small bin。small bin的分配与回收比large bin快（没有fast bin快）。</p>
+<ul>
+<li>bin数量 - 62<br>small bin包含free chunk的循环双向链表，双向链表的增加在开头，删除在末尾（FIFO）。</li>
+<li>Chunk Size - 以8字节区分<br>例如，第一个small bin（Bin 2）保存一个16字节chunk的binlist，第二个smallbin（Bin 3）保存一个24字节chunk的binlist …<br>同一个small bin里的chunk大小相同。</li>
+<li>合并 - 两个相邻的free chunk会合并成一个。合并减少了碎片，但使free速度减慢。</li>
+</ul>
+<p><strong>Large Bin</strong> 大小大于等于512的chunk称为large chunk。保存large chunk的bin称为large bin。</p>
+<ul>
+<li>bin的数量 - 63<br>large bin包含一个free chunk的循环双向链表。<br>chunk的增加和删除可以在链表的任何位置。</li>
+<li>合并 - 两个相邻的free chunk会合并成一个。</li>
+</ul>
+<p><strong>Top Chunk</strong><br>在arena顶部的chunk称为top chunk，它不属于任何bin。Top chunk会在所有bin都没有空闲区域的时候使用。Top chunk大于用户请求时分成两部分：</p>
+<ul>
+<li>用户chunk</li>
+<li>Remainder chunk</li>
+</ul>
+<p>Remainder chunk变成新的top，top chunk小于用户请求，会通过<code>sbrk</code>(main arena)或<code>mmap</code>(thread arena)系统调用增加。<br><strong>Last Remainder Chunk</strong> 最近从small请求中分离出来的。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/">https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/04/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3glibc-malloc/" data-id="ckhe7o4nt0068chl7ehmk6gkw" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/11/Dalvik%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Dalvik类加载模块
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/05/Dalvik%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Dalvik虚拟机执行流程</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

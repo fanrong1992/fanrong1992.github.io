@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android Debug | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Android代码调试与Java一样，Dalvik实现了一个标准的调试接口，称为Java调试线协议（Java Debug Wire Protocol, JDWP）。所有用来调试Dalvik和Java上的程序的工具都是基于此协议开发的。 深入Java调试体系Android设备监视器（Monitor）和Dalvik调试监视服务器（DDMS）都采用了JDWP标准协议，它们用JDWP访问指定应用的信息（线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Debug">
+<meta property="og:url" content="http://example.com/2016/06/16/Android-Debug/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Android代码调试与Java一样，Dalvik实现了一个标准的调试接口，称为Java调试线协议（Java Debug Wire Protocol, JDWP）。所有用来调试Dalvik和Java上的程序的工具都是基于此协议开发的。 深入Java调试体系Android设备监视器（Monitor）和Dalvik调试监视服务器（DDMS）都采用了JDWP标准协议，它们用JDWP访问指定应用的信息（线">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androiddebug/Debug.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/srclookup.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/ddms.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/debug_native.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/ida_addr.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/android_attach.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/pick_process.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/debug_options.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/jdb.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/modules.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/add_breakp.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/begin_debug.png">
+<meta property="article:published_time" content="2016-06-16T07:06:39.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.665Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androiddebug/Debug.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android-Debug" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/06/16/Android-Debug/" class="article-date">
+  <time datetime="2016-06-16T07:06:39.000Z" itemprop="datePublished">2016-06-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android Debug
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Android代码调试"><a href="#Android代码调试" class="headerlink" title="Android代码调试"></a>Android代码调试</h3><p>与Java一样，Dalvik实现了一个标准的调试接口，称为<code>Java调试线协议</code>（Java Debug Wire Protocol, <code>JDWP</code>）。所有用来调试Dalvik和Java上的程序的工具都是基于此协议开发的。 <a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/cn/java/j-lo-jpda3/">深入Java调试体系</a><br>Android设备监视器（Monitor）和Dalvik调试监视服务器（DDMS）都采用了JDWP标准协议，它们用JDWP访问指定应用的信息（线程、堆使用情况、正在进行的方法调用）<br><strong>1.调试应用程序</strong><br>点击工具栏中的<code>Debug As</code>图标（like a bug）进入Debug界面，想要返回代码界面点击右上角的<code>Java</code>按钮。<br><img src="/images/androiddebug/Debug.png"><br>左上角的小窗是各个栈帧，点击某个栈帧会在代码窗口显示附近代码。<br><strong>2.显示framework层源代码</strong><br>点击栈帧时可以显示Android framework层源代码：首先要正确初始化AOSP资料库。<a target="_blank" rel="noopener" href="http://source.android.com/source/building.html">文档</a><br>下一步，为Eclipse创建类路径。在AOSP根目录下运行<code>make idegen</code>命令创建<code>idegen.sh</code>脚本，在顶层目录下创建<code>excluded-paths</code>文件，以排除顶层目录下不想包含的所有目录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">^abi&#x2F;.*</span><br><span class="line">^external&#x2F;.*</span><br><span class="line">^packages&#x2F;.*</span><br><span class="line">^cts&#x2F;.*</span><br><span class="line">^art&#x2F;.*</span><br><span class="line">^dalvik&#x2F;.*</span><br><span class="line">^development&#x2F;.*</span><br><span class="line">^prebuilts&#x2F;.*</span><br><span class="line">^out&#x2F;.*</span><br><span class="line">^tools&#x2F;.*</span><br><span class="line">^sdk&#x2F;.*</span><br><span class="line">^libcore&#x2F;.*</span><br><span class="line">^gdk&#x2F;.*</span><br><span class="line">^hardware&#x2F;.*</span><br><span class="line">^device&#x2F;.*</span><br><span class="line">^kernel&#x2F;*</span><br><span class="line">^pdk&#x2F;*</span><br><span class="line">^developers&#x2F;*</span><br></pre></td></tr></table></figure>
+<p>新建一个Java Project命名为AOSP Framework Source，取消Use Default Location复选框，指定AOSP根目录。<br>调试刚才的示例应用，右键栈帧窗口中的项目名，选择<code>Edit Source Lookup...</code>Add路径为Java Project，选上一步创建的AOSP Framework Source项目，再点击父栈帧时会显示framework层的代码。<br><img src="/images/androiddebug/srclookup.png"><br><strong>3.伪造调试设备</strong><br>对于原厂设备，启动Android SDK中自带的DDMS或Monitor只显示可调试进程。<br><img src="/images/androiddebug/ddms.png"><br>使用eng配置生成的工程设备允许访问所有进程。eng与user或userdebug之间的主要区别是系统属性ro.secure和ro.debuggable，user和userdebug生成时将这两个值设置为1和0；而eng生成时为0和1。<br>修改已root设备以支持调试系统服务和预装应用并不复杂，介绍一种简单但不是永久有效的方法，设备重启后失效。首先，获取一份<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1mi4IFTe">setpropex工具</a>，此工具可以在已root设备上修改只读的系统属性：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">shell@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp $ su</span><br><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # .&#x2F;setpropex ro.secure 0</span><br><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # .&#x2F;setpropex ro.debuggable 1</span><br><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # getprop ro.secure</span><br><span class="line">0</span><br><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # getprop ro.debuggable</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+<p>断开shell连接，在主机上使用adb root命令以root权限重启ADB守护进程。<br>最后重启所有依赖Dalvik VM的进程。在修改ro.debuggable属性后启动的任何进程都是可调试的。为了强制重启Android Dalvik层，可以简单地结束system_server进程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # ps</span><br><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # kill -9 system_server_pid</span><br></pre></td></tr></table></figure>
+<p>设备重启后，Monitor中会出现所有的Dalvik进程。<br><strong>4.附加到其他进程</strong><br>处于完全调试模式下的设备也支持实时调试任何Dalvik进程。在Eclipse启动并处于运行状态下，点击右上角的<code>DDMS</code>，在Devices窗口中选择目标进程，比如system_process。在Run菜单中选择Debug Configurations打开对话框，在对话框左边双击<code>Remote Java Application</code>新建一个链接，<code>Name</code>设为Attacher，Connect选项卡中<code>Project</code>设为AOSP Framework Source项目，<code>Host</code>设为127.0.0.1，Port设为<code>8700</code>。<br>最后点击Apply，点击Debug。</p>
+<h3 id="调试原生代码"><a href="#调试原生代码" class="headerlink" title="调试原生代码"></a>调试原生代码</h3><p>关于如何使用原生代码编程可以参考《Android C++高级编程》<br><strong>1.使用Eclipse进行调试</strong><br>打开要调试的目标项目，首先，需要告知Android生成的应用必须支持调试：选择<code>Project-&gt;Properties</code>，点开<code>C/C++生成选项</code>并选择<code>Environment</code>，点击Add按钮，变量名输入<code>NDK_DEBUG</code>，值输入<code>1</code>。点击OK就可以开始调试了。为确保新的环境变量生效，选择<code>Project-&gt;Build All</code>。<br>先在Java代码调用Native代码之前下断点，点击<code>Debug As</code>开启调试，再在Native代码中想要调试的位置下断点进行调试：<br><img src="/images/androiddebug/debug_native.png"><br><strong>2.使用AOSP进行调试</strong><br>编译AOSP代码，烧录到Nexus5设备上，具体过程可以参考我的<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/03/03/%E7%BC%96%E8%AF%91Android4-4-2%E6%BA%90%E7%A0%81%EF%BC%8C%E7%83%A7%E5%BD%95%E5%88%B0nexus5%E7%9C%9F%E6%9C%BA%E4%B8%8A/">另一篇文章</a>。<br>将GDB服务器二进制文件上传到设备：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">android4.4.2 $ adb push prebuilts&#x2F;misc&#x2F;android-arm&#x2F;gdbserver&#x2F;gdbserver &#x2F;data&#x2F;local&#x2F;tmp</span><br><span class="line">android4.4.2 $ adb shell chmod 755 &#x2F;data&#x2F;local&#x2F;tmp&#x2F;gdbserver</span><br></pre></td></tr></table></figure>
+<p>调试过程使用标准的TCP/IP连接将GDB客户端连接到GDB服务器上。建议通过USB使用ADB进行调试。用ADB的端口转发功能为GDB客户端打开一个管道：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android4.4.2 $ adb forward tcp:31337 tcp:31337</span><br></pre></td></tr></table></figure>
+<p>下一步将GDB服务器执行目标程序或附加至进程:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">~ $ adb shell</span><br><span class="line"># 启动应用，也可以手动点开，命令行显得更专（zhuang）业（bi）一点</span><br><span class="line">root@hammerhead # am start -n com.bruce.jnitest&#x2F;.MainActivity </span><br><span class="line">root@hammerhead # ps</span><br><span class="line">...</span><br><span class="line">u0_a90    15078 28517 926056 41384 ffffffff 4009573c S com.bruce.jnitest</span><br><span class="line">...</span><br><span class="line">root@hammerhead # .&#x2F;gdbserver --attach tcp:31337 15078</span><br><span class="line"># 或执行目标程序： .&#x2F;gdbserver tcp:31337 .&#x2F;debugfile</span><br></pre></td></tr></table></figure>
+<p>打开另一个终端：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">android4.4.2 $ cd prebuilts&#x2F;gcc&#x2F;linux-x86&#x2F;arm&#x2F;arm-eabi-4.7&#x2F;bin</span><br><span class="line">bin $ .&#x2F;arm-eabi-gdb -q</span><br><span class="line">(gdb) target remote :31337</span><br><span class="line">Remote debugging using :31337</span><br><span class="line">0x4009573c in ?? ()</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+<p>在另一个终端中adb连接到设备，查看so库加载的基址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead # cat &#x2F;proc&#x2F;15078&#x2F;maps</span><br><span class="line">...</span><br><span class="line">74f1c000-74f20000 r-xp 00000000 b3:1c 1638414    &#x2F;data&#x2F;app-lib&#x2F;com.bruce.jnitest-1&#x2F;libJniTest.so</span><br><span class="line">74f20000-74f21000 r--p 00003000 b3:1c 1638414    &#x2F;data&#x2F;app-lib&#x2F;com.bruce.jnitest-1&#x2F;libJniTest.so</span><br><span class="line">74f21000-74f22000 rw-p 00004000 b3:1c 1638414    &#x2F;data&#x2F;app-lib&#x2F;com.bruce.jnitest-1&#x2F;libJniTest.so</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>从中可以看到so库的基址是74f1c000，在IDA中找到想要调试的代码地址，加上基址得到实际内存中代码的地址：<br><img src="/images/androiddebug/ida_addr.png"><br>切换到gdb客户端：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">(gdb) break *0x74f1d998</span><br><span class="line">Breakpoint 1 at 0x74f1d998</span><br><span class="line">(gdb) x&#x2F;i 0x74f1d998</span><br><span class="line">   0x74f1d998:    mov    r3, #0</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line"># 触发应用调用so库中的native代码</span><br><span class="line">Program received signal SIGILL, Illegal instruction.</span><br><span class="line">0x74f1d99c in ?? ()</span><br><span class="line">(gdb) disas 0x74f1d99c,+20</span><br><span class="line">Dump of assembler code from 0x74f1d99c to 0x74f1d9b0:</span><br><span class="line">&#x3D;&gt; 0x74f1d99c:    str    r3, [r11, #-48]    ; 0x30</span><br><span class="line">   0x74f1d9a0:    b    0x74f1d9d0</span><br><span class="line">   0x74f1d9a4:    ldr    r2, [r11, #-48]    ; 0x30</span><br><span class="line">   0x74f1d9a8:    mvn    r3, #27</span><br><span class="line">   0x74f1d9ac:    lsl    r2, r2, #2</span><br><span class="line">End of assembler dump.</span><br><span class="line">(gdb) </span><br></pre></td></tr></table></figure>
+<p>剩下就可以使用GDB命令进行调试了。<br><strong>3.使用IDA调试</strong><br>GDB对thumb指令支持不好，调试thumb指令时最好还是用IDA。</p>
+<ul>
+<li>打开ddms<br>打开ddms才能打开调试端口，才能用jdb</li>
+<li>adb push android_server /data/local/tmp/<br>android_server在IDA安装目录的dbgsvr目录中<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line">cd &#x2F;data&#x2F;local&#x2F;tmp</span><br><span class="line">chmod 777 android_server</span><br><span class="line">.&#x2F;android_server</span><br></pre></td></tr></table></figure></li>
+<li>adb forward tcp:23946 tcp:23946</li>
+<li>adb shell am start -D -n com.bruce.jnitest</li>
+<li>IDA attach到目标应用上<br><code>Debugger-&gt;Attach-&gt;Remote ARMLinux/Android debugger</code><br><img src="/images/androiddebug/android_attach.png"><br>选择<code>com.bruce.jnitest</code>，进程过多可以ctrl+F查找<br><img src="/images/androiddebug/pick_process.png">  </li>
+<li>suspend on library loading<br><code>Debugger-&gt;Debugger options...</code><br><img src="/images/androiddebug/debug_options.png"><br>选择<code>suspend on libaray load/unload</code>，然后按F9继续执行。  </li>
+<li>jdb -connect com.sun.jdi.SocketAttach:hostname=127.0.0.1,port=8700<br><img src="/images/androiddebug/jdb.png"><br>弹出的框都点cancel就行了，在右边的Modules窗口中找到要调试的so库双击。<br><img src="/images/androiddebug/modules.png"><br>在新窗口中找到想要调试的函数，右键添加断点，继续执行程序。（在linker时会停多次，继续执行即可）<br><img src="/images/androiddebug/add_breakp.png"><br>下面触发应用调用库函数，控制流即停在断点处<br><img src="/images/androiddebug/begin_debug.png"><br>有时在一个函数里无法使用F5，这时在函数中按P，IDA会把这段代码作为函数分析，再按F5即可。  </li>
+</ul>
+<p><strong>reference</strong><br>《Android安全攻防权威指南》<br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/tips/6840">http://drops.wooyun.org/tips/6840</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/06/16/Android-Debug/" data-id="ckhe7o4jw0003chl7aeoa0xvy" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/20/Radare2%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Radare2使用说明
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/05/30/ARM%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ARM基础</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>IDAPython Learning part1 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="先介绍一下IDAPython的简单用法：写一个获取函数引用的功能，只需要XrefsTo()这个API函数，脚本如下：   123def find_func_xrefs(addr):    for addr in XrefsTo(addr, flags&#x3D;0):        print hex(addr.frm) 点击File-&gt;Script file加载刚才编写的脚本：加载之后就可以在IDA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IDAPython Learning part1">
+<meta property="og:url" content="http://example.com/2016/10/29/IDAPython-Learning-part1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="先介绍一下IDAPython的简单用法：写一个获取函数引用的功能，只需要XrefsTo()这个API函数，脚本如下：   123def find_func_xrefs(addr):    for addr in XrefsTo(addr, flags&#x3D;0):        print hex(addr.frm) 点击File-&gt;Script file加载刚才编写的脚本：加载之后就可以在IDA">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/idapython/scriptfile.png">
+<meta property="og:image" content="http://example.com/images/idapython/load_script.png">
+<meta property="og:image" content="http://example.com/images/idapython/output.png">
+<meta property="og:image" content="http://example.com/images/idapython/encrypt.png">
+<meta property="og:image" content="http://example.com/images/idapython/encrypt_refs.png">
+<meta property="og:image" content="http://example.com/images/idapython/encrypt_ins.png">
+<meta property="og:image" content="http://example.com/images/idapython/decrypt_refs.png">
+<meta property="og:image" content="http://example.com/images/idapython/crc32.png">
+<meta property="og:image" content="http://example.com/images/idapython/crc32_iden.png">
+<meta property="og:image" content="http://example.com/images/idapython/arg2loadfunc.png">
+<meta property="og:image" content="http://example.com/images/idapython/store_func.png">
+<meta property="og:image" content="http://example.com/images/idapython/change.png">
+<meta property="og:image" content="http://example.com/images/idapython/after_script.png">
+<meta property="article:published_time" content="2016-10-29T14:41:13.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.708Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Reverse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/idapython/scriptfile.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-IDAPython-Learning-part1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/10/29/IDAPython-Learning-part1/" class="article-date">
+  <time datetime="2016-10-29T14:41:13.000Z" itemprop="datePublished">2016-10-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      IDAPython Learning part1
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先介绍一下IDAPython的简单用法：写一个获取函数引用的功能，只需要XrefsTo()这个API函数，脚本如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_func_xrefs</span>(<span class="params">addr</span>):</span></span><br><span class="line">    <span class="keyword">for</span> addr <span class="keyword">in</span> XrefsTo(addr, flags=<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(addr.frm)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/idapython/scriptfile.png"><br>点击File-&gt;Script file加载刚才编写的脚本：<br><img src="/images/idapython/load_script.png"><br>加载之后就可以在IDA下方的IDAPython插件中使用脚本中定义的函数了，比如我们要查看0x401D0B处一个readn函数在哪里调用过：<br><img src="/images/idapython/output.png"></p>
+<blockquote>
+<p>关于IDAPython里函数的用法可以去看IDA主目录下python文件夹里的<code>idc.py</code>和<code>idaapi.py</code>，里面有对各个函数的详细说明。<br>我是在Mac上用wine装的IDA，目录在~/.wine/drive_c/users/fan/IDA 6.8/python</p>
+</blockquote>
+<h2 id="利用IDAPython解决字符串加密问题"><a href="#利用IDAPython解决字符串加密问题" class="headerlink" title="利用IDAPython解决字符串加密问题"></a>利用IDAPython解决字符串加密问题</h2><p>下面以一个例子的分析介绍IDAPython的一些用法，编写一个脚本来解决一个malware样本的多处字符串混淆问题。<br>在逆向分析一个malware样本的时候有这样一个函数：<br><img src="/images/idapython/encrypt.png" alt="可疑函数"><br>根据以往经验这个函数应该是用来解密的，关于这个函数的大量引用证实了这个想法。<br><img src="/images/idapython/encrypt_refs.png" alt="可疑函数的大量引用"><br>可以看到有116处对这个函数的引用。每当这个函数被调用时，都由一段数据作为参数通过<code>esi</code>寄存器提供给这个函数。<br><img src="/images/idapython/encrypt_ins.png" alt="可疑函数被调用的实例"><br>这时可以肯定这个函数是malware用来在运行时进行字符串解密的函数了。面临这种情况，有如下几种选择：<br>1.可以手动解密，然后重命名这些字符串。<br>2.可以动态调试这个样本，然后重命名遇到的字符串。<br>3.可以写一个脚本用来解密并且重命名这些字符串。<br>如果malware只解密了很少几个字符串的话，第一、二种方法就可以，但有116次调用这个解密函数，因此用IDAPython脚本会比较靠谱。<br>解决字符串混淆问题的第一步是确认和重写解密函数。这个解密函数非常简单。这个函数只是把数据的第一个字符当做XOR算法的key用来解密剩余的数据。<br><strong>E4 91 96 88 89 8B 8A CA 80 88 88</strong><br>在上面这个例子中，把E4作为key来异或剩余的数据。最后的结果是”urlmon.dll”。用Python重写这个解密函数：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decrypt</span>(<span class="params">data</span>):</span></span><br><span class="line">    length = <span class="built_in">len</span>(data)</span><br><span class="line">    c = <span class="number">1</span></span><br><span class="line">    o = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> c &lt; length:</span><br><span class="line">        o += <span class="built_in">chr</span>(<span class="built_in">ord</span>(data[<span class="number">0</span>]) ^ <span class="built_in">ord</span>(data[c]))</span><br><span class="line">        c += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> o</span><br></pre></td></tr></table></figure>
+<p>测试脚本可以完成解密：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from binascii import *</span><br><span class="line">&gt;&gt;&gt; d &#x3D; unhexlify(&quot;E4 91 96 88 89 8B 8A CA 80 88 88&quot;.replace(&quot; &quot;,&#39;&#39;))</span><br><span class="line">&gt;&gt;&gt; decrypt(d)</span><br><span class="line">&#39;urlmon.dll&#39;</span><br></pre></td></tr></table></figure>
+<p>下一步是确认哪些代码引用了这个解密函数，并提取作为参数的数据。用到的方法是前面提到的XrefsTo()这个API：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> addr <span class="keyword">in</span> XrefsTo(<span class="number">0x00405bf0</span>, flags=<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span> <span class="built_in">hex</span>(addr.frm)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Result:</span><br><span class="line">0x401009L</span><br><span class="line">0x40101eL</span><br><span class="line">0x401037L</span><br><span class="line">0x401046L</span><br><span class="line">0x401059L</span><br><span class="line">0x40106cL</span><br><span class="line">0x40107fL</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>获取到这些交叉引用处的参数并提取原始数据需要一些技巧。第一件我们想要做的事是获取”mov esi, offset unk_??”指令中的偏移地址，因为这个指令会把参数传递给解密函数。为了做到这点，我们需要找到调用解密函数指令的前一个指令。找到这个指令后，我们可以使用GetOperandValue()这个指令得到这个偏移地址的值。如下面代码所示：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_function_arg</span>(<span class="params">addr</span>):</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        addr = idc.PrevHead(addr) <span class="comment"># PrevHead返回addr前一条指令的地址</span></span><br><span class="line">        <span class="comment"># GetMnem获取地址的指令，GetOpnd获取地址的第0个操作数</span></span><br><span class="line">        <span class="keyword">if</span> GetMnem(addr) == <span class="string">&quot;mov&quot;</span> <span class="keyword">and</span> <span class="string">&quot;esi&quot;</span> <span class="keyword">in</span> GetOpnd(addr, <span class="number">0</span>):</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&quot;We found it at 0x%x&quot;</span> % GetOperandValue(addr, <span class="number">1</span>) <span class="comment"># GetOperandValue获取地址的第1个操作数的值</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">Example Results:</span><br><span class="line">Python&gt; find_function_arg(<span class="number">0x00401009</span>)</span><br><span class="line">We found it at <span class="number">0x418be0</span></span><br></pre></td></tr></table></figure>
+<p>现在需要将字符串从那个偏移地址中提取出来即可。一般情况下会用GetString()这个API函数，但这里的字符串都是原始的二进制数据，因此这个API并不合适。我们自己编写一个函数，一个字符一个字符读取数据，直到碰到空的终止符为止。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_string</span>(<span class="params">addr</span>):</span></span><br><span class="line">    out = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> Byte(addr) != <span class="number">0</span>: <span class="comment"># Byte返回地址里的字节</span></span><br><span class="line">            out += <span class="built_in">chr</span>(Byte(addr))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        addr += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+<p>最后，将所有代码放到一起：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_function_arg</span>(<span class="params">addr</span>):</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        addr = idc.PrevHead(addr)</span><br><span class="line">        <span class="keyword">if</span> GetMnem(addr) == <span class="string">&quot;mov&quot;</span> <span class="keyword">and</span> <span class="string">&quot;esi&quot;</span> <span class="keyword">in</span> GetOpnd(addr, <span class="number">0</span>):</span><br><span class="line">            <span class="keyword">return</span> GetOperandValue(addr, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_string</span>(<span class="params">addr</span>):</span></span><br><span class="line">    out = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> Byte(addr) != <span class="number">0</span>:</span><br><span class="line">            out += <span class="built_in">chr</span>(Byte(addr))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        addr += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> out</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decrypt</span>(<span class="params">data</span>):</span></span><br><span class="line">    length = <span class="built_in">len</span>(data)</span><br><span class="line">    c = <span class="number">1</span></span><br><span class="line">    o = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> c &lt; length:</span><br><span class="line">        o += <span class="built_in">chr</span>(<span class="built_in">ord</span>(data[<span class="number">0</span>]) ^ <span class="built_in">ord</span>(data[c]))</span><br><span class="line">        c += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> o</span><br><span class="line"> </span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;[*] Attempting to decrypt strings in malware&quot;</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> XrefsTo(<span class="number">0x00405BF0</span>, flags=<span class="number">0</span>):</span><br><span class="line">    ref = find_function_arg(x.frm)</span><br><span class="line">    string = get_string(ref)</span><br><span class="line">    dec = decrypt(string)</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;Ref Addr: 0x%x | Decrypted: %s&quot;</span> % (x.frm, dec)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Results:</span><br><span class="line">[*] Attempting to decrypt strings in malware</span><br><span class="line">Ref Addr: 0x401009 | Decrypted: urlmon.dll</span><br><span class="line">Ref Addr: 0x40101e | Decrypted: URLDownloadToFileA</span><br><span class="line">Ref Addr: 0x401037 | Decrypted: wininet.dll</span><br><span class="line">Ref Addr: 0x401046 | Decrypted: InternetOpenA</span><br><span class="line">Ref Addr: 0x401059 | Decrypted: InternetOpenUrlA</span><br><span class="line">Ref Addr: 0x40106c | Decrypted: InternetReadFile</span><br><span class="line">&lt;truncated&gt;</span><br></pre></td></tr></table></figure>
+<p>可以看到所有解密后的字符串。如果可以进一步给字符串的引用地址和加密数据提供解密后的字符串作为注释就更完美了。想要做到这一点，需要MakeComm()这个API函数。增加这样两行代码就会给程序加入必要的注释：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MakeComm(x.frm, dec)</span><br><span class="line">MakeComm(ref, dec)</span><br></pre></td></tr></table></figure>
+<p>增加了这一步后，能够非常清晰的看到交叉引用的数据。如下图所示，可以很轻松的分辨出哪些字符串被引用了：<br><img src="/images/idapython/decrypt_refs.png" alt="解密之后的交叉引用"></p>
+<h2 id="利用IDAPython解决函数-库调用的哈希混淆问题"><a href="#利用IDAPython解决函数-库调用的哈希混淆问题" class="headerlink" title="利用IDAPython解决函数/库调用的哈希混淆问题"></a>利用IDAPython解决函数/库调用的哈希混淆问题</h2><p>在反编译中我们经常会见到shellcode和malware使用哈希算法来混淆加载的函数或者库。比如逆向工程师们经常会在shellcode中看到混淆后的函数名。总的来说，整个过程是很简单的。代码在运行时会先加载kernel32.dll。然后，它会用这个加载的镜像去识别并存储LoadLibraryA函数，这函数是用来加载更多的库和函数的。这种特定的技术一般采用某种哈希算法来识别函数的。最常用的哈希算法一般是CRC32，当然，其他的一些变种算法，如ROR13，也是非常常见的。<br>比如说，当我逆向一个malware的某一部分内容的时候，我看到了如下的代码：<br><img src="/images/idapython/crc32.png" alt="malware使用CRC32哈希算法来动态加载函数"><br>因为0xEDB88320这个常数是CRC32算法的常用参数。所以我们可以判断出这个例子使用了CRC32哈希算法。<br><img src="/images/idapython/crc32_iden.png" alt="确认CRC32算法"><br>通过上图可以确定这个算法是CRC32算法。现在，算法和函数已经确定了。我们可以通过交叉引用（ida中按x）的数量来确定这个函数被被调用了多少次。可以看到这个函数一共被调用了190次。显然，手动的解密并重命名这些哈希值并不是我们想要的。因此，我们可以使用IDAPython来帮我们解决。<br>为了验证哪个哈希值对应哪个函数，我们需要生成一个windows通用函数哈希列表。想要做到这点，我们只需要获取一个windows通用库的列表，然后遍历这些库的函数列表。代码如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_functions</span>(<span class="params">dll_path</span>):</span></span><br><span class="line">    pe = pefile.PE(dll_path)</span><br><span class="line">    <span class="keyword">if</span> ((<span class="keyword">not</span> <span class="built_in">hasattr</span>(pe, <span class="string">&#x27;DIRECTORY_ENTRY_EXPORT&#x27;</span>)) <span class="keyword">or</span> (pe.DIRECTORY_ENTRY_EXPORT <span class="keyword">is</span> <span class="literal">None</span>)):</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;[*] No exports for &quot;</span> + dll_path</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        expname = []</span><br><span class="line">        <span class="keyword">for</span> exp <span class="keyword">in</span> pe.DIRECTORY_ENTRY_EXPORT.symbols:</span><br><span class="line">            <span class="keyword">if</span> exp.name:</span><br><span class="line">                expname.append(exp.name)</span><br><span class="line">        <span class="keyword">return</span> expname</span><br></pre></td></tr></table></figure>
+<p>我们随后可以得到函数名字的列表，然后计算他们的CRC32的哈希值。代码如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">calc_crc32</span>(<span class="params">string</span>):</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(binascii.crc32(string) &amp; <span class="number">0xFFFFFFFF</span>)</span><br></pre></td></tr></table></figure>
+<p>最后我们将结果写入一个JSON格式的文件中，并且命名为<code>output.json</code>。这个JSON文件包含了一个非常大的字典，采用如下的格式：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HASH &#x3D;&gt; NAME</span><br></pre></td></tr></table></figure>
+<p>完整版的代码如下：<br><a target="_blank" rel="noopener" href="https://github.com/pan-unit42/public_tools/blob/master/ida_scripts/gen_function_json.py">https://github.com/pan-unit42/public_tools/blob/master/ida_scripts/gen_function_json.py</a><br>当这个文件生成之后，我们可以返回IDA，并且继续编写我们的IDAPython脚本。我们脚本第一步要做的事情是读取我们之前创建的<code>output.json</code>这个JSON数据文件。不幸的是，JSON对象并不支持整数作为key，因此当数据被加载后，我们需要手动把key从字符串转换为整数。代码如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v <span class="keyword">in</span> json_data.iteritems():</span><br><span class="line">    json_data[<span class="built_in">int</span>(k)] = json_data.pop(k)</span><br></pre></td></tr></table></figure>
+<p>当这些数据被加载后，我们将会创建一个枚举对象保存了哈希值与函数名的对应关系。<br>使用枚举对象，我们可以找到一个整数对应的字符串，比如说CRC32哈希值对应的函数名。为了在IDA中创建新的枚举对象，我们可以使用AddEnum()这个函数。为了让这个脚本更加健壮，我们先使用GetEnum()函数来检测用来枚举的值是否已经存在。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">enumeration = GetEnum(<span class="string">&quot;crc32_functions&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> enumeration == <span class="number">0xFFFFFFFF</span>:</span><br><span class="line">    enumeration = AddEnum(<span class="number">0</span>, <span class="string">&quot;crc32_functions&quot;</span>, idaapi.hexflag())</span><br></pre></td></tr></table></figure>
+<p>这个枚举的值随后将会被修改。下一步要干的事情是根据函数的哈希值来确定真实的函数地址。这一部分看起来很像第一部分的内容。我们通过观察这个函数的结构可以发现CRC32哈希值是这个加载函数的第二个参数。<br><img src="/images/idapython/arg2loadfunc.png" alt="传递给load_function的参数"><br>同样的，我们还是枚举之前的指令来寻找函数的第二个参数。当我们找到后，我们通过output.json中的JSON数据来进行检测，并且确保有一个函数名对应了这个哈希值。代码如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> XrefsTo(load_function_address, flags = <span class="number">0</span>):</span><br><span class="line">    current_address = x.frm</span><br><span class="line">    addr_minus_20 = current_address - <span class="number">20</span></span><br><span class="line">    push_count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> current_address &gt;= addr_minus_20:</span><br><span class="line">        current_address = PrevHead(current_address)</span><br><span class="line">        <span class="keyword">if</span> GetMnem(current_address) == <span class="string">&quot;push&quot;</span>:</span><br><span class="line">            push_count += <span class="number">1</span></span><br><span class="line">            data = GetOperandValue(current_address, <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">if</span> push_count == <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">if</span> data <span class="keyword">in</span> json_data:</span><br><span class="line">                    name = json_data[data]</span><br></pre></td></tr></table></figure>
+<p>这个时候，我们使用AddConstEx()这个函数将CRC32哈希和函数名加入我们之前创建的枚举对象中。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddConstEx(enumeration, <span class="built_in">str</span>(name), <span class="built_in">int</span>(data), <span class="number">-1</span>)</span><br></pre></td></tr></table></figure>
+<p>当这个数据加入到枚举对象中后，我们可以将CRC32的哈希值转换为对应的枚举名字了。下面的两个函数一个是用来将一个整数转换成对应的枚举数据，另一个是用来将某个地址的数据转换成对应的枚举数据。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_enum</span>(<span class="params">constant</span>):</span></span><br><span class="line">    all_enums = GetEnumQty()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, all_enums):</span><br><span class="line">        enum_id = GetnEnum(i)</span><br><span class="line">        enum_constant = GetFirstConst(enum_id, <span class="number">-1</span>)</span><br><span class="line">        name = GetConstName(GetConstEx(enum_id, enum_constant, <span class="number">0</span>, <span class="number">-1</span>))</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">int</span>(enum_constant) == constant: <span class="keyword">return</span> [name, enum_id]</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            enum_constant = GetNextConst(enum_id, enum_constant, <span class="number">-1</span>)</span><br><span class="line">            name = GetConstName(GetConstEx(enum_id, enum_constant, <span class="number">0</span>, <span class="number">-1</span>))</span><br><span class="line">            <span class="keyword">if</span> enum_constant == <span class="number">0xFFFFFFFF</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">int</span>(enum_constant) == constant: <span class="keyword">return</span> [name, enum_id]</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">convert_offset_to_enum</span>(<span class="params">addr</span>):</span></span><br><span class="line">    constant = GetOperandValue(addr, <span class="number">0</span>)</span><br><span class="line">    enum_data = get_enum(constant)</span><br><span class="line">    <span class="keyword">if</span> enum_data:</span><br><span class="line">        name, enum_id = enum_data</span><br><span class="line">        OpEnumEx(addr, <span class="number">0</span>, enum_id, <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>当我们把这个枚举转换完成后，我们来研究一下如何修改DWORD处的值，因为DWORD处的值保存了加载后的函数地址。<br><img src="/images/idapython/store_func.png" alt="加载完函数后，程序将函数地址存储到了DDWORD地址"><br>为了做到这一点，我们不光需要遍历之前的指令，还要查找之后的指令，也就是将eax存储到一个DWORD地址的指令。当我们发现这条指令之后，我们可以给这个DWORD地址重新命名成正确的函数名。为了防止冲突，我们在函数名前加上一个”d_”字符串。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">address = current_address</span><br><span class="line"><span class="keyword">while</span> address &lt;= address_plus_30:</span><br><span class="line">    address = NextHead(address)</span><br><span class="line">    <span class="keyword">if</span> GetMnem(address) == <span class="string">&quot;mov&quot;</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;dword&#x27;</span> <span class="keyword">in</span> GetOpnd(address, <span class="number">0</span>) <span class="keyword">and</span> <span class="string">&#x27;eax&#x27;</span> <span class="keyword">in</span> GetOpnd(address, <span class="number">1</span>):</span><br><span class="line">            operand_value = GetOperandValue(address, <span class="number">0</span>)</span><br><span class="line">            MakeName(operand_value, <span class="built_in">str</span>(<span class="string">&quot;d_&quot;</span>_name))</span><br></pre></td></tr></table></figure>
+<p>等这一切都做完后，我们会发现原来很难读懂的汇编代码变得很好理解了。如图所示：<br><img src="/images/idapython/change.png" alt="运行完脚本后的变化"><br>现在，当我们看到DOWRDS列表的时候，就已经能得到真实的函数名字了。并且这些数据能够很好的帮助我们进行静态分析。<br><img src="/images/idapython/after_script.png" alt="脚本运行完的DWORD"><br>完整代码如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">imort json</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_enum</span>(<span class="params">constant</span>):</span></span><br><span class="line">    all_enums = GetEnumQty()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, all_enums):</span><br><span class="line">        enum_id = GetnEnum(i)</span><br><span class="line">        enum_constant = GetFirstConst(enum_id, <span class="number">-1</span>)</span><br><span class="line">        name = GetConstName(GetConstEx(enum_id, enum_constant, <span class="number">0</span>, <span class="number">-1</span>))</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">int</span>(enum_constant) == constant: <span class="keyword">return</span> [name, enum_id]</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            enum_constant = GetNextConst(enum_id, enum_constant, <span class="number">-1</span>)</span><br><span class="line">            name = GetConstName(GetConstEx(enum_id, enum_constant, <span class="number">0</span>, <span class="number">-1</span>))</span><br><span class="line">            <span class="keyword">if</span> enum_constant == <span class="number">0xFFFFFFFF</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">int</span>(enum_constant) == constant: <span class="keyword">return</span> [name, enum_id]</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">convert_offset_to_enum</span>(<span class="params">addr</span>):</span></span><br><span class="line">    constant = GetOperandValue(addr, <span class="number">0</span>)</span><br><span class="line">    enum_data = get_enum(constant)</span><br><span class="line">    <span class="keyword">if</span> enum_data:</span><br><span class="line">        name, enum_id = enum_data</span><br><span class="line">        OpEnumEx(addr, <span class="number">0</span>, enum_id, <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">enum_for_xrefs</span>(<span class="params">load_function_address, json_data, enumeration</span>):</span></span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> XrefsTo(load_function_address, flags=<span class="number">0</span>):</span><br><span class="line">        current_address = x.frm</span><br><span class="line">        addr_minus_20 = current_address<span class="number">-20</span></span><br><span class="line"> </span><br><span class="line">        push_count = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> current_address &gt;= addr_minus_20:</span><br><span class="line">            current_address = PrevHead(current_address)</span><br><span class="line">            <span class="keyword">if</span> GetMnem(current_address) == <span class="string">&quot;push&quot;</span>:</span><br><span class="line">                push_count += <span class="number">1</span></span><br><span class="line">                data = GetOperandValue(current_address, <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">if</span> push_count == <span class="number">2</span>:</span><br><span class="line">                    <span class="keyword">if</span> data <span class="keyword">in</span> json_data:</span><br><span class="line">                        name = json_data[data]</span><br><span class="line">                        AddConstEx(enumeration, <span class="built_in">str</span>(name), <span class="built_in">int</span>(data), <span class="number">-1</span>)</span><br><span class="line">                        <span class="keyword">if</span> convert_offset_to_enum(current_address):</span><br><span class="line">                            <span class="built_in">print</span> <span class="string">&quot;[+] Converted 0x%x to %s enumeration&quot;</span> % (current_address, name)</span><br><span class="line">                            address_plus_30 = current_address+<span class="number">30</span></span><br><span class="line">                            address = current_address</span><br><span class="line">                            <span class="keyword">while</span> address &lt;= address_plus_30:</span><br><span class="line">                                address = NextHead(address)</span><br><span class="line">                                <span class="keyword">if</span> GetMnem(address) == <span class="string">&quot;mov&quot;</span>:</span><br><span class="line">                                    <span class="keyword">if</span> <span class="string">&#x27;dword&#x27;</span> <span class="keyword">in</span> GetOpnd(address, <span class="number">0</span>) <span class="keyword">and</span> <span class="string">&#x27;eax&#x27;</span> <span class="keyword">in</span> GetOpnd(address, <span class="number">1</span>):</span><br><span class="line">                                        operand_value = GetOperandValue(address, <span class="number">0</span>)</span><br><span class="line">                                        MakeName(operand_value, <span class="built_in">str</span>(<span class="string">&quot;d_&quot;</span>+name))</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">fh = <span class="built_in">open</span>(<span class="string">&quot;output.json&quot;</span>, <span class="string">&#x27;rb&#x27;</span>)</span><br><span class="line">d = fh.read()</span><br><span class="line">json_data = json.loads(d)</span><br><span class="line">fh.close()</span><br><span class="line"> </span><br><span class="line"><span class="comment"># JSON objects don&#x27;t allow using integers as dict keys. Little workaround for</span></span><br><span class="line"><span class="comment"># this issue.</span></span><br><span class="line"><span class="keyword">for</span> k,v <span class="keyword">in</span> json_data.iteritems():</span><br><span class="line">    json_data[<span class="built_in">int</span>(k)] = json_data.pop(k)</span><br><span class="line"> </span><br><span class="line">conversion_function = <span class="number">0x00405680</span></span><br><span class="line">enumeration = GetEnum(<span class="string">&quot;crc32_functions&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> enumeration == <span class="number">0xFFFFFFFF</span>:</span><br><span class="line">    enumeration = AddEnum(<span class="number">0</span>, <span class="string">&quot;crc32_functions&quot;</span>, idaapi.hexflag())</span><br><span class="line">enum_for_xrefs(conversion_function, json_data, enumeration)</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在上一节中，我们利用IDAPython成功的解决了一个哈希混淆的问题，在这个问题中我们用到了枚举对象。枚举对象对我们分析这类问题会很有帮助，能够节省我们大量的时间。并且这个对象可以很容易的在IDA工程中提取或者加载，这对我们进行批量的逆向分析会很有帮助。<br><strong>reference</strong><br>Part1： <a target="_blank" rel="noopener" href="http://researchcenter.paloaltonetworks.com/2015/12/using-idapython-to-make-your-life-easier-part-1/">http://researchcenter.paloaltonetworks.com/2015/12/using-idapython-to-make-your-life-easier-part-1/</a><br>Part2： <a target="_blank" rel="noopener" href="http://researchcenter.paloaltonetworks.com/2015/12/using-idapython-to-make-your-life-easier-part-2/">http://researchcenter.paloaltonetworks.com/2015/12/using-idapython-to-make-your-life-easier-part-2/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/10/29/IDAPython-Learning-part1/" data-id="ckhe7o4oh007lchl7gfxi1m3e" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C++虚函数逆向分析（一）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/26/C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C++面向对象程序设计</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

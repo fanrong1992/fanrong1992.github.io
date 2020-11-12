@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>C++虚函数逆向分析（一） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文以一个简单C++例子进行介绍。  示例代码编译时没有使用RTTI，也没有使用异常机制下文中的样例在x86平台上测试所有二进制文件已经被strip了大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。  大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++虚函数逆向分析（一）">
+<meta property="og:url" content="http://example.com/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本文以一个简单C++例子进行介绍。  示例代码编译时没有使用RTTI，也没有使用异常机制下文中的样例在x86平台上测试所有二进制文件已经被strip了大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。  大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/cppre1/vtable1.png">
+<meta property="og:image" content="http://example.com/images/cppre1/main1.png">
+<meta property="og:image" content="http://example.com/images/cppre1/catdogwalk.png">
+<meta property="og:image" content="http://example.com/images/cppre1/vtable2.png">
+<meta property="og:image" content="http://example.com/images/cppre1/struct.png">
+<meta property="og:image" content="http://example.com/images/cppre1/struct2.png">
+<meta property="og:image" content="http://example.com/images/cppre1/vptrtype.png">
+<meta property="og:image" content="http://example.com/images/cppre1/walktype.png">
+<meta property="article:published_time" content="2016-11-02T12:53:07.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.696Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/cppre1/vtable1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-C-虚函数逆向分析（一）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
+  <time datetime="2016-11-02T12:53:07.000Z" itemprop="datePublished">2016-11-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C++虚函数逆向分析（一）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文以一个简单C++例子进行介绍。</p>
+<blockquote>
+<p>示例代码编译时没有使用RTTI，也没有使用异常机制<br>下文中的样例在x86平台上测试<br>所有二进制文件已经被strip了<br>大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。</p>
+</blockquote>
+<p>大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。因此，逆向虚函数时，目标是判断哪些函数会在特定的情况下被调用。后面会学习其他技巧，来进一步缩小范围。</p>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><p>先看一个小程序：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Mammal</span> &#123;</span></span><br><span class="line">    Mammal() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Mammal::Mammal\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Mammal() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Mammal::~Mammal\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">move</span><span class="params">()</span> </span>&#123; walk(); &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Cat</span> :</span> Mammal &#123;</span><br><span class="line">    Cat() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::Cat\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Cat() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::~Cat\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::run\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::walk\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Dog</span> :</span> Mammal &#123;</span><br><span class="line">    Dog() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::Dog\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Dog() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::~Dog\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::run\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::walk\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Mammal *m;</span><br><span class="line">    <span class="keyword">if</span> (rand() % <span class="number">2</span>) &#123;</span><br><span class="line">        m = <span class="keyword">new</span> Cat();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        m = <span class="keyword">new</span> Dog();</span><br><span class="line">    &#125;</span><br><span class="line">    m-&gt;walk();</span><br><span class="line">    <span class="keyword">delete</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>m</code>是<code>Cat</code>还是<code>Dog</code>类，取决于<code>rand</code>函数的输出。编译器无法提前预测，那么编译器如何调用合适的<code>walk</code>呢？<br>因为walk函数声明为了虚函数，编译器会在程序所处的内存空间中，插入一个包含函数指针的表，称为<code>虚函数表（虚表vtable）</code>；在实例化的时候，每个对象会多出一个<code>虚指针（vptr）</code>的成员，这个虚指针指向虚函数表，初始化这个虚指针的代码会被添加到类的构造函数中。这样当编译器要调用虚函数的时候，就可以通过虚指针找到对应的虚表，从而找到合适的函数。<br>具有同一个父类的子类，其虚表中函数的顺序也应该是一致的。比如，上面的例子中，Dog和Cat类都是Mammal类的子类，如果Dog类的虚表中，第一项是Dog::run的指针，第二项是Dog::walk的指针，那么Cat类的虚表中，第一项就是Cat::run的指针，第二项是Cat::walk的指针。<br>通过在<code>.rodata</code>段中寻找指向函数的偏移量，可以找到类的虚表：<br><img src="/images/cppre1/vtable1.png"><br>主函数编译之后如下：<br><img src="/images/cppre1/main1.png"><br>可以看到，程序在实例化的时候，为每个对象申请了4字节的内存空间，这和预期相符（类中没有数据成员，而编译器为我们添加了vptr）。在第21和23行中看到对虚函数的调用过程。在第21行中编译器对指针解引用，从而获得vptr；接着计算vptr+12，即访问虚表的第四项，而23行访问虚表的第二项。之后，程序调用虚表中对应项目指向的函数。<br><img src="/images/cppre1/catdogwalk.png"><br>三个虚表的第四项分别是<code>sub_8048864</code>、<code>sub_804881c</code>和<code>__cxa_pure_virtual</code>。前两个函数如上图所示，分别是Dog和Cat类中对walk函数的实现，最后一个函数就是Mammal类中对应的实现。因为Mammal类中没有定义walk的具体实现，而是声明其为纯虚函数。那么GCC就插入了一个默认的项目。现在就知道了虚表1是Mammal类的，2是Cat类的，3是Dog类的。<br>奇怪的是vtable中包含五个项目，而程序中每个类只有四个虚函数：</p>
+<ul>
+<li>run</li>
+<li>walk</li>
+<li>move</li>
+<li>析构函数</li>
+</ul>
+<p>实际上，多出来的项目是一个”额外的”析构函数。因为GCC会在不同场景下，使用不同的析构函数。第一个析构函数只是把实例对应的所有成员清理掉，而第二个析构函数则会回收为这个实例分配的内存，也就是23行调用的函数。在某些涉及到虚继承的情况下，还会有第三种析构函数。<br>现在就清楚虚表的布局了：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">| Offset | Pointer to  |</span><br><span class="line">|--------+-------------|</span><br><span class="line">|      0 | Destructor1 |</span><br><span class="line">|      4 | Destructor2 |</span><br><span class="line">|      8 | run         |</span><br><span class="line">|     12 | walk        |</span><br><span class="line">|     16 | move        |</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>虚表的前两个项目是空指针。这是新版本GCC的一个特征，当类具有纯虚函数时，编译器会将其析构函数替换为空指针。</p>
+</blockquote>
+<p>给函数重命名：<br><img src="/images/cppre1/vtable2.png"><br>由于Cat和Dog类都没有实现move方法，因此它们直接采用了Mammal类中的方法，虚表中的指针值也是一样的。</p>
+<h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><p>为了研究方便，我们定义了几个结构体。刚才我们已经分析了Mammal、Cat和Dog的成员只有vptr，因此如下定义三个结构体：<br><img src="/images/cppre1/struct.png"><br>下一步需要为每个虚表创建一个结构体。这是为了让反编译器更清楚的展示，如果m具有一个特定类型的话，哪个函数会被调用。这样阅读代码时会排除很多干扰。为了达成这个目的，需要把结构体中的每个项目命名为对应的函数名：<br><img src="/images/cppre1/struct2.png"><br>接着，修改类中虚指针的类型为指向对应虚表的指针。比如，Cat类的vptr成员，修改为<code>CatVtable *</code>类型。（修改类型：光标放在变量名上按<code>y</code>）<br><img src="/images/cppre1/vptrtype.png"><br>还可以把虚表中每个项目的类型改为函数指针，比如，<code>Dog_walk</code>的类型是<code>void (*)(Dog*)</code>，这样就更容易识别了。<br><img src="/images/cppre1/walktype.png"><br>上图是把m的类型修改为<code>Dog *</code>，也可以修改为<code>Cat *</code>，可以看到21行调用了相应的函数。<br>还可以将m修改为<code>Mammal *</code>类型，但是21行就会变成调用纯虚函数，这是不可能的，23行也会出问题，因此判断m一定不能是<code>Mammal *</code>类型。<br>这种和源代码不符的说法，可能听上去比较奇怪。实际上，这是因为在编译时，我们给m赋予的是一个编译时的类型（静态类型），但我们更关注它的动态类型（或者说是运行时的类型），因为这才是决定哪个虚函数被调用的关键。事实上，一个元素的动态类型，基本永远不可能是一个抽象类。因此如果给出的虚表中，含有一个<code>___cxa_pure_virtual</code>函数，那这个类型可能并不是他的运行时类型，可以无视。实际刚才的例子中我们完全可以不给Mammal类的虚表创建一个结构体，因为这个结构体永远都不会用到。<br>通过以上的分析，我们知道了，动态类型可能是Cat或者Dog，我们也知道了如何通过查看虚表的项目，来判断哪个函数会被调用，这是C++虚函数逆向的第一步。后面会介绍如何处理更多、更复杂的二进制程序和继承关系。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://www.freebuf.com/articles/web/%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8/123821.html">http://www.freebuf.com/articles/web/%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8/123821.html</a><br><a target="_blank" rel="noopener" href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/">https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" data-id="ckhe7o4kr0017chl78wgcbab0" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/09/Return-to-dl-resolve/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Return-to-dl-resolve
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/29/IDAPython-Learning-part1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">IDAPython Learning part1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

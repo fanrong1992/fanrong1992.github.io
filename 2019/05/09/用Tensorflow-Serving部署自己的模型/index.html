@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>用Tensorflow Serving部署自己的模型 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Google为了解决机器学习模型部署上线至生产环境，发布了Tensorflow Serving。本文主要通过部署一个手写数字识别的模型来介绍Tensorflow Serving的基本用法。 构建CNN模型及checkpoint保存方式如果不需要Tensorflow Serving部署模型的话，大部分人会选择传统的checkpoint方式保存训练好的模型，下面先看一下这种传统的保存方式：代码清单 m">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用Tensorflow Serving部署自己的模型">
+<meta property="og:url" content="http://example.com/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Google为了解决机器学习模型部署上线至生产环境，发布了Tensorflow Serving。本文主要通过部署一个手写数字识别的模型来介绍Tensorflow Serving的基本用法。 构建CNN模型及checkpoint保存方式如果不需要Tensorflow Serving部署模型的话，大部分人会选择传统的checkpoint方式保存训练好的模型，下面先看一下这种传统的保存方式：代码清单 m">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-05-09T08:11:21.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.771Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Tensorflow">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-用Tensorflow-Serving部署自己的模型" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2019-05-09T08:11:21.000Z" itemprop="datePublished">2019-05-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      用Tensorflow Serving部署自己的模型
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Google为了解决机器学习模型部署上线至生产环境，发布了Tensorflow Serving。本文主要通过部署一个手写数字识别的模型来介绍Tensorflow Serving的基本用法。</p>
+<h2 id="构建CNN模型及checkpoint保存方式"><a href="#构建CNN模型及checkpoint保存方式" class="headerlink" title="构建CNN模型及checkpoint保存方式"></a>构建CNN模型及checkpoint保存方式</h2><p>如果不需要Tensorflow Serving部署模型的话，大部分人会选择传统的checkpoint方式保存训练好的模型，下面先看一下这种传统的保存方式：<br><strong>代码清单</strong> mnist_test.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span>  tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 屏蔽waring信息</span></span><br><span class="line">os.environ[<span class="string">&#x27;TF_CPP_MIN_LOG_LEVEL&#x27;</span>] = <span class="string">&#x27;2&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="string">&quot;&quot;&quot;------------------加载数据---------------------&quot;&quot;&quot;</span></span><br><span class="line"><span class="comment"># 载入数据</span></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&quot;MNIST_data/&quot;</span>, one_hot=<span class="literal">True</span>)</span><br><span class="line">trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels</span><br><span class="line"><span class="comment"># 改变数据格式，为了能够输入卷积层</span></span><br><span class="line">trX = trX.reshape(<span class="number">-1</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>)  <span class="comment"># -1表示不考虑输入图片的数量,1表示单通道</span></span><br><span class="line">teX = teX.reshape(<span class="number">-1</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>)</span><br><span class="line"> </span><br><span class="line"><span class="string">&quot;&quot;&quot;------------------构建模型---------------------&quot;&quot;&quot;</span></span><br><span class="line"><span class="comment"># 定义输入输出的数据容器</span></span><br><span class="line">X = tf.placeholder(<span class="string">&quot;float&quot;</span>, [<span class="literal">None</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>], name=<span class="string">&quot;X&quot;</span>)</span><br><span class="line">Y = tf.placeholder(<span class="string">&quot;float&quot;</span>, [<span class="literal">None</span>, <span class="number">10</span>])</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义和初始化权重、dropout参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init_weights</span>(<span class="params">shape</span>):</span></span><br><span class="line">    <span class="keyword">return</span> tf.Variable(tf.random_normal(shape, stddev=<span class="number">0.01</span>))</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">w1 = init_weights([<span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">32</span>])        <span class="comment"># 3X3的卷积核，获得32个特征</span></span><br><span class="line">w2 = init_weights([<span class="number">3</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">64</span>])       <span class="comment"># 3X3的卷积核，获得64个特征</span></span><br><span class="line">w3 = init_weights([<span class="number">3</span>, <span class="number">3</span>, <span class="number">64</span>, <span class="number">128</span>])      <span class="comment"># 3X3的卷积核，获得128个特征</span></span><br><span class="line">w4 = init_weights([<span class="number">128</span> * <span class="number">4</span> * <span class="number">4</span>, <span class="number">625</span>])   <span class="comment"># 从卷积层到全连层</span></span><br><span class="line">w_o = init_weights([<span class="number">625</span>, <span class="number">10</span>])           <span class="comment"># 从全连层到输出层</span></span><br><span class="line"> </span><br><span class="line">p_keep_conv = tf.placeholder(<span class="string">&quot;float&quot;</span>, name=<span class="string">&quot;p_keep_conv&quot;</span>)</span><br><span class="line">p_keep_hidden = tf.placeholder(<span class="string">&quot;float&quot;</span>, name=<span class="string">&quot;p_keep_hidden&quot;</span>)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义模型</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_model</span>(<span class="params">X, w1, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden</span>):</span></span><br><span class="line">    <span class="comment"># 第一组卷积层和pooling层</span></span><br><span class="line">    conv1 = tf.nn.conv2d(X, w1, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    conv1_out = tf.nn.relu(conv1)</span><br><span class="line">    pool1 = tf.nn.max_pool(conv1_out, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    pool1_out = tf.nn.dropout(pool1, p_keep_conv)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 第二组卷积层和pooling层</span></span><br><span class="line">    conv2 = tf.nn.conv2d(pool1_out, w2, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    conv2_out = tf.nn.relu(conv2)</span><br><span class="line">    pool2 = tf.nn.max_pool(conv2_out, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    pool2_out = tf.nn.dropout(pool2, p_keep_conv)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 第三组卷积层和pooling层</span></span><br><span class="line">    conv3 = tf.nn.conv2d(pool2_out, w3, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    conv3_out = tf.nn.relu(conv3)</span><br><span class="line">    pool3 = tf.nn.max_pool(conv3_out, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">    pool3 = tf.reshape(pool3, [<span class="number">-1</span>, w4.get_shape().as_list()[<span class="number">0</span>]])  <span class="comment"># 转化成一维的向量</span></span><br><span class="line">    pool3_out = tf.nn.dropout(pool3, p_keep_conv)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 全连层</span></span><br><span class="line">    fully_layer = tf.matmul(pool3_out, w4)</span><br><span class="line">    fully_layer_out = tf.nn.relu(fully_layer)</span><br><span class="line">    fully_layer_out = tf.nn.dropout(fully_layer_out, p_keep_hidden)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 输出层</span></span><br><span class="line">    out = tf.matmul(fully_layer_out, w_o)</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> out</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">model = create_model(X, w1, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden)</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义代价函数、训练方法、预测操作</span></span><br><span class="line">cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=model, labels=Y))</span><br><span class="line">train_op = tf.train.RMSPropOptimizer(<span class="number">0.001</span>, <span class="number">0.9</span>).minimize(cost)</span><br><span class="line">predict_op = tf.argmax(model, <span class="number">1</span>, name=<span class="string">&quot;predict&quot;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义一个saver</span></span><br><span class="line">saver=tf.train.Saver()</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义存储路径</span></span><br><span class="line">ckpt_dir=<span class="string">&quot;./ckpt_dir&quot;</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(ckpt_dir):</span><br><span class="line">    os.makedirs(ckpt_dir)</span><br><span class="line"> </span><br><span class="line"><span class="string">&quot;&quot;&quot;------------------训练模型或者加载模型进行测试---------------------&quot;&quot;&quot;</span></span><br><span class="line">train_batch_size = <span class="number">128</span>  <span class="comment"># 训练集的mini_batch_size=128</span></span><br><span class="line">test_batch_size = <span class="number">256</span>   <span class="comment"># 测试集中调用的batch_size=256</span></span><br><span class="line">epoches = <span class="number">5</span>  <span class="comment"># 迭代周期</span></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;-------训练模型--------&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 初始化所有变量</span></span><br><span class="line">    tf.global_variables_initializer().run()</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 训练操作</span></span><br><span class="line"><span class="comment">#    for i in range(epoches):</span></span><br><span class="line"><span class="comment">#        train_batch = zip(range(0, len(trX), train_batch_size),</span></span><br><span class="line"><span class="comment">#                          range(train_batch_size, len(trX) + 1, train_batch_size))</span></span><br><span class="line"><span class="comment">#        for start, end in train_batch:</span></span><br><span class="line"><span class="comment">#            sess.run(train_op, feed_dict=&#123;X: trX[start:end], Y: trY[start:end],</span></span><br><span class="line"><span class="comment">#                                          p_keep_conv: 0.8, p_keep_hidden: 0.5&#125;)</span></span><br><span class="line"><span class="comment">#        # 每个周期用测试集中随机抽出test_batch_size个图片进行测试</span></span><br><span class="line"><span class="comment">#        test_indices = np.arange(len(teX))  # 返回一个array[0,1...len(teX)]</span></span><br><span class="line"><span class="comment">#        np.random.shuffle(test_indices)     # 打乱这个array</span></span><br><span class="line"><span class="comment">#        test_indices = test_indices[0:test_batch_size]</span></span><br><span class="line"><span class="comment">#    </span></span><br><span class="line"><span class="comment">#        # 获取测试集test_batch_size章图片的的预测结果</span></span><br><span class="line"><span class="comment">#        predict_result = sess.run(predict_op, feed_dict=&#123;X: teX[test_indices],</span></span><br><span class="line"><span class="comment">#                                                         p_keep_conv: 1.0,</span></span><br><span class="line"><span class="comment">#                                                         p_keep_hidden: 1.0&#125;)</span></span><br><span class="line"><span class="comment">#        # 获取真实的标签值</span></span><br><span class="line"><span class="comment">#        true_labels = np.argmax(teY[test_indices], axis=1)</span></span><br><span class="line"><span class="comment">#    </span></span><br><span class="line"><span class="comment">#        # 计算准确率</span></span><br><span class="line"><span class="comment">#        accuracy = np.mean(true_labels == predict_result)</span></span><br><span class="line"><span class="comment">#        print(&quot;epoch&quot;, i, &quot;:&quot;, accuracy)</span></span><br><span class="line"><span class="comment">#    </span></span><br><span class="line"><span class="comment">#        # 保存模型</span></span><br><span class="line"><span class="comment">#        saver.save(sess,ckpt_dir+&quot;/model.ckpt&quot;,global_step=i)</span></span><br><span class="line"> </span><br><span class="line">    <span class="string">&quot;&quot;&quot;-----加载模型，用导入的图片进行测试--------&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 载入图片</span></span><br><span class="line">    src = cv2.imread(<span class="string">&#x27;./2.png&#x27;</span>)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 将图片转化为28*28的灰度图</span></span><br><span class="line">    src = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    dst = cv2.resize(src, (<span class="number">28</span>, <span class="number">28</span>), interpolation=cv2.INTER_CUBIC)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 将灰度图转化为1*784的能够输入的网络的数组</span></span><br><span class="line">    picture = np.zeros((<span class="number">28</span>, <span class="number">28</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">28</span>):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">28</span>):</span><br><span class="line">            picture[i][j] = (<span class="number">255</span> - dst[i][j])</span><br><span class="line">    picture = picture.reshape(<span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>)</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 载入模型</span></span><br><span class="line">    saver.restore(sess, ckpt_dir+<span class="string">&quot;/model.ckpt-4&quot;</span>)</span><br><span class="line">    <span class="comment"># 进行预测</span></span><br><span class="line">    predict_result = sess.run(predict_op, feed_dict=&#123;X: picture,</span><br><span class="line">                                                    p_keep_conv: <span class="number">1.0</span>,</span><br><span class="line">                                                    p_keep_hidden: <span class="number">1.0</span>&#125;)</span><br><span class="line">    print(<span class="string">&quot;你导入的图片是：&quot;</span>, predict_result[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
+<p>mnist_test.py文件包含了模型定义、训练和保存、加载。其中注释掉的代码为模型训练部分，去掉注释可以进行模型训练，训练后的模型保存在ckpt_dir中：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ls ckpt_dir</span><br><span class="line">checkpoint                       model.ckpt-1.data-00000-of-00001 model.ckpt-2.index               model.ckpt-3.meta</span><br><span class="line">model.ckpt-0.data-00000-of-00001 model.ckpt-1.index               model.ckpt-2.meta                model.ckpt-4.data-00000-of-00001</span><br><span class="line">model.ckpt-0.index               model.ckpt-1.meta                model.ckpt-3.data-00000-of-00001 model.ckpt-4.index</span><br><span class="line">model.ckpt-0.meta                model.ckpt-2.data-00000-of-00001 model.ckpt-3.index               model.ckpt-4.meta</span><br></pre></td></tr></table></figure>
+
+<h2 id="用Saved-Model方式保存训练好的模型"><a href="#用Saved-Model方式保存训练好的模型" class="headerlink" title="用Saved Model方式保存训练好的模型"></a>用Saved Model方式保存训练好的模型</h2><p>为了能用Tensorflow Serving部署，需要用SavedModel方式保存模型。可以重新训练，再用SavedModel方式保存，也可以加载预训练的模型，保存为SavedModel方式。具体操作是在载入模型之后加入如下代码：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Saved Model</span></span><br><span class="line">tf.saved_model.simple_save(sess,</span><br><span class="line">        <span class="string">&#x27;savedmodel/1&#x27;</span>,</span><br><span class="line">        inputs=&#123;<span class="string">&quot;X&quot;</span>:X, <span class="string">&quot;p_keep_conv&quot;</span>:p_keep_conv, <span class="string">&quot;p_keep_hidden&quot;</span>:p_keep_hidden&#125;,</span><br><span class="line">        outputs=&#123;<span class="string">&quot;predict&quot;</span>:predict_op&#125;)</span><br></pre></td></tr></table></figure>
+<p>第一个参数sess为当前会话；第二个参数为保存模型的路径；第三个参数是模型输入，即使用模型进行预测时feed_dict里的变量；第四个参数是模型输出，对应模型预测时的第一个参数。<br>把训练模型部分的代码注释掉，运行mnist_test.py，会将模型保存为Tensorflow Serving可以用的形式：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ ls savedmodel&#x2F;1</span><br><span class="line">saved_model.pb variables</span><br><span class="line"># 查看模型的输入输出</span><br><span class="line">$ saved_model_cli show --dir savedmodel&#x2F;1 --all</span><br><span class="line"></span><br><span class="line">MetaGraphDef with tag-set: &#39;serve&#39; contains the following SignatureDefs:</span><br><span class="line"></span><br><span class="line">signature_def[&#39;serving_default&#39;]:</span><br><span class="line">  The given SavedModel SignatureDef contains the following input(s):</span><br><span class="line">    inputs[&#39;X&#39;] tensor_info:</span><br><span class="line">        dtype: DT_FLOAT</span><br><span class="line">        shape: (-1, 28, 28, 1)</span><br><span class="line">        name: X:0</span><br><span class="line">    inputs[&#39;p_keep_conv&#39;] tensor_info:</span><br><span class="line">        dtype: DT_FLOAT</span><br><span class="line">        shape: unknown_rank</span><br><span class="line">        name: p_keep_conv:0</span><br><span class="line">    inputs[&#39;p_keep_hidden&#39;] tensor_info:</span><br><span class="line">        dtype: DT_FLOAT</span><br><span class="line">        shape: unknown_rank</span><br><span class="line">        name: p_keep_hidden:0</span><br><span class="line">  The given SavedModel SignatureDef contains the following output(s):</span><br><span class="line">    outputs[&#39;predict&#39;] tensor_info:</span><br><span class="line">        dtype: DT_INT64</span><br><span class="line">        shape: (-1)</span><br><span class="line">        name: predict:0</span><br><span class="line">  Method name is: tensorflow&#x2F;serving&#x2F;predict</span><br></pre></td></tr></table></figure>
+<p>saved_model_cli命令行工具在安装过tensorflow之后就有了。  </p>
+<h2 id="用Tensorflow-Serving部署模型"><a href="#用Tensorflow-Serving部署模型" class="headerlink" title="用Tensorflow Serving部署模型"></a>用Tensorflow Serving部署模型</h2><p>接下来就可以用Tensorflow Serving对模型进行部署了，Tensorflow Serving可以提供<code>gRPC</code>和<code>REST</code>两种方式，<code>gRPC</code>使用<code>8500</code>端口，<code>REST</code>使用<code>8501</code>端口，通过<code>-p</code>选项来映射docker和本地的端口，前面的是本地端口，后面的是docker端口，<code>--name</code>选项指定docker容器的名称，<code>--mount</code>选项挂载文件系统到容器，<code>-e</code>选项设置环境变量，<code>-t</code>选项分配虚拟终端：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker run -p 8502:8501 --name mnist_model --mount type&#x3D;bind,source&#x3D;&#x2F;home&#x2F;fanrong&#x2F;tfserving&#x2F;savedmodel,target&#x3D;&#x2F;models&#x2F;mnist_test -e MODEL_NAME&#x3D;mnist_test -t tensorflow&#x2F;serving</span><br><span class="line">2019-05-09 07:31:04.975302: I tensorflow_serving&#x2F;model_servers&#x2F;server.cc:82] Building single TensorFlow model file config:  model_name: mnist_test model_base_path: &#x2F;models&#x2F;mnist_test</span><br><span class="line">2019-05-09 07:31:04.975674: I tensorflow_serving&#x2F;model_servers&#x2F;server_core.cc:461] Adding&#x2F;updating models.</span><br><span class="line">2019-05-09 07:31:04.975744: I tensorflow_serving&#x2F;model_servers&#x2F;server_core.cc:558]  (Re-)adding model: mnist_test</span><br><span class="line">2019-05-09 07:31:05.076332: I tensorflow_serving&#x2F;core&#x2F;basic_manager.cc:739] Successfully reserved resources to load servable &#123;name: mnist_test version: 1&#125;</span><br><span class="line">2019-05-09 07:31:05.076402: I tensorflow_serving&#x2F;core&#x2F;loader_harness.cc:66] Approving load for servable version &#123;name: mnist_test version: 1&#125;</span><br><span class="line">2019-05-09 07:31:05.076447: I tensorflow_serving&#x2F;core&#x2F;loader_harness.cc:74] Loading servable version &#123;name: mnist_test version: 1&#125;</span><br><span class="line">2019-05-09 07:31:05.076533: I external&#x2F;org_tensorflow&#x2F;tensorflow&#x2F;contrib&#x2F;session_bundle&#x2F;bundle_shim.cc:363] Attempting to load native SavedModelBundle in bundle-shim from: &#x2F;models&#x2F;mnist_test&#x2F;1</span><br><span class="line">2019-05-09 07:31:05.076560: I external&#x2F;org_tensorflow&#x2F;tensorflow&#x2F;cc&#x2F;saved_model&#x2F;reader.cc:31] Reading SavedModel from: &#x2F;models&#x2F;mnist_test&#x2F;1</span><br><span class="line">2019-05-09 07:31:05.081699: I external&#x2F;org_tensorflow&#x2F;tensorflow&#x2F;cc&#x2F;saved_model&#x2F;reader.cc:54] Reading meta graph with tags &#123; serve &#125;</span><br><span class="line">2019-05-09 07:31:05.109514: I external&#x2F;org_tensorflow&#x2F;tensorflow&#x2F;cc&#x2F;saved_model&#x2F;loader.cc:182] Restoring SavedModel bundle.</span><br><span class="line">2019-05-09 07:31:05.146630: I external&#x2F;org_tensorflow&#x2F;tensorflow&#x2F;cc&#x2F;saved_model&#x2F;loader.cc:285] SavedModel load for tags &#123; serve &#125;; Status: success. Took 70041 microseconds.</span><br><span class="line">2019-05-09 07:31:05.146734: I tensorflow_serving&#x2F;servables&#x2F;tensorflow&#x2F;saved_model_warmup.cc:101] No warmup data file found at &#x2F;models&#x2F;mnist_test&#x2F;1&#x2F;assets.extra&#x2F;tf_serving_warmup_requests</span><br><span class="line">2019-05-09 07:31:05.147120: I tensorflow_serving&#x2F;core&#x2F;loader_harness.cc:86] Successfully loaded servable version &#123;name: mnist_test version: 1&#125;</span><br><span class="line">2019-05-09 07:31:05.153768: I tensorflow_serving&#x2F;model_servers&#x2F;server.cc:313] Running gRPC ModelServer at 0.0.0.0:8500 ...</span><br><span class="line">[warn] getaddrinfo: address family for nodename not supported</span><br><span class="line">2019-05-09 07:31:05.158494: I tensorflow_serving&#x2F;model_servers&#x2F;server.cc:333] Exporting HTTP&#x2F;REST API at:localhost:8501 ...</span><br><span class="line">[evhttp_server.cc : 237] RAW: Entering the event loop ...</span><br></pre></td></tr></table></figure>
+<p>接下来要对上线的模型请求服务，需要编写客户端代码：<br><strong>代码清单</strong> client.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">URL = <span class="string">&#x27;http://localhost:8502/v1/models/mnist_test:predict&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">    src = cv2.imread(<span class="string">&#x27;./2.png&#x27;</span>)</span><br><span class="line">    src = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    dst = cv2.resize(src, (<span class="number">28</span>, <span class="number">28</span>), interpolation=cv2.INTER_CUBIC)    </span><br><span class="line">    picture = np.zeros((<span class="number">28</span>,<span class="number">28</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">28</span>):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">28</span>):</span><br><span class="line">            picture[i][j] = (<span class="number">255</span> - dst[i][j])</span><br><span class="line">    picture = picture.reshape(<span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>)</span><br><span class="line">    predict_request = <span class="string">&#x27;&#123;&quot;inputs&quot;:&#123;&quot;X&quot;:%s, &quot;p_keep_conv&quot;:1.0, &quot;p_keep_hidden&quot;:1.0&#125;&#125;&#x27;</span> % picture.tolist()</span><br><span class="line">    response = requests.post(URL, data=predict_request)</span><br><span class="line">    response.raise_for_status()</span><br><span class="line">    print(response.json()[<span class="string">&#x27;outputs&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p>这里需要注意的是输入参数中的<code>X</code>，X本身是一个numpy数组类型，但是参数只能以字符串形式传递，如果直接用nunpy数组，转换为字符串是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[[[[  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   ...</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]</span><br><span class="line">   [  0.]]]]</span><br></pre></td></tr></table></figure>
+<p>服务端接收到字符串以后无法处理，会报400 Client Error: Bad Request for url: <a target="_blank" rel="noopener" href="http://localhost:8502/v1/models/mnist_test:predict">http://localhost:8502/v1/models/mnist_test:predict</a><br>所以需要先把numpy数组转换为list类型，list类型转换为字符串是这样的：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[[[0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], ...[0.0], [0.0], [0.0], [0.0], [0.0]]]]</span><br></pre></td></tr></table></figure>
+<p>服务端接收到字符串之后，可以识别为list类型，进行正常处理。<br>最后是这种效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python client.py</span><br><span class="line">[2]</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/" data-id="ckhe7o4nu006cchl78vyn49g4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Syzkaller安装 Fuzz Qemu amd64 Kernel
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Docker安装使用MySQL和Tensorflow Serving</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

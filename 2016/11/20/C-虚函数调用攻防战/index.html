@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>C++虚函数调用攻防战 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。 虚函数表劫持攻击vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++虚函数调用攻防战">
+<meta property="og:url" content="http://example.com/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。 虚函数表劫持攻击vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtab">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-11-20T02:19:15.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.694Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-C-虚函数调用攻防战" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/" class="article-date">
+  <time datetime="2016-11-20T02:19:15.000Z" itemprop="datePublished">2016-11-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C++虚函数调用攻防战
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。<br><code>虚函数调用</code>是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过<code>vtable</code>函数指针来实现，vtable指针由编译器添加到对象中。</p>
+<h3 id="虚函数表劫持攻击"><a href="#虚函数表劫持攻击" class="headerlink" title="虚函数表劫持攻击"></a>虚函数表劫持攻击</h3><p>vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtable指针。<br><strong>vtable注入</strong><br>伪造vtable，在每个表项中填写ROP chain的地址。利用uaf等漏洞篡改vtable指针指向伪造的vtable，虚函数调用时，触发ROP。<br><strong>vtable重用</strong><br>不伪造vtable，篡改vtable指针指向已有的vtable。实际中非常少。<br><strong>vtable破坏</strong><br>直接篡改vtable，但现在不可行，因为编译器将vtable放到只读内存页。</p>
+<h3 id="虚函数表防护"><a href="#虚函数表防护" class="headerlink" title="虚函数表防护"></a>虚函数表防护</h3><p><strong>VTint: Protecting Virutal Function Tables’ Integrity</strong><br>目标：二进制层面进行的防护，防护vtable劫持攻击。<br>设计：<code>vtable注入</code>和<code>vtable破坏</code>两种攻击方法的vtable都是可写的，因此在运行时检查vtable是否可写，如果可写则判断为受到攻击。<code>vtable重用</code>可以通过区分数据和vtable进行部分防护。<br>实现：理解二进制程序的基础上，对二进制程序进行修改。<br>1.解析二进制文件，恢复高级信息，如识别vtable信息、虚函数调用点。<br>PE文件格式：重定位表、导入/导出表<br>输出：候选函数入口点（重定位表中恢复）、候选vtable（vtable是一个数组，其中每个表项是一个虚函数指针，vtable需要重定位，每个表项也需要重定位）。<br>2.反汇编恢复控制流图等高级信息。<br>(1)识别构造函数：给对象分配内存、将vtable拷贝到分配内存中、成员变量初始化。<br>(2)识别真正的vtable：vtable一定会在某个构造函数中被引用到，所以被引用到的就是真正的vtable。<br>(3)识别虚函数调用：<br>虚函数调用是间接调用，this指针是虚函数调用的第一个参数。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov eax, [edi] ; edi保存vtable</span><br><span class="line">push ecx ; PE中this指针存在ecx</span><br><span class="line">call [eax+8]</span><br></pre></td></tr></table></figure>
+<p>3.重写二机制文件，部署安全策略。<br>将识别出的vtable拷贝到新的只读内存页，加一个特殊的ID <code>VTID</code>来区分这个内存页。<br>在虚函数调用点之前添加检查语句：检查vtable的内存页是否包含VTID（区分vtable与数据）；检查vtable的内存页是不是只读。<br><strong>VTrust: Regaining Trust on Virtual Calls</strong><br>目标：源代码层次上进行防护<br>设计：两层防护措施相结合。<br>1.验证vtable目标虚函数是否有匹配的类型<br>虚函数调用点处知道目标函数的函数名和参数列表，虚函数定义点处也是知道函数名和参数列表的。C++调用约定，必须是兼容类型信息：调用点处的类必须是定义点处类本身或其子类，因此直接验证这两个类型是否相等。验证方法，将类型信息编码成整数：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">signature &#x3D; hash(funcName, paramList, qualifiers, classinfo)</span><br></pre></td></tr></table></figure>
+<p>无法防护动态代码，攻击者可能伪造signature。<br>2.确保vtable指针是一个合法的指针<br>限制运行时目标虚函数必须指向静态代码，不能指向动态代码。打断传统的vtable查找过程，在中间引入一个只读内存可信区域（转换表），将合法的vtable指针放到这个转换表中，将原来存放vtable指针的位置换成一个索引，索引用来在转换表中找vtable指针。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://www.edu.cn/xxh/spkt/msjt/sp/201603/t20160310_1374571.shtml">围绕虚函数调用的攻防战</a><br>VTint: Protecting Virutal Function Tables’ Integrity<br>VTrust: Regaining Trust on Virtual Calls</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/" data-id="ckhe7o4ko0015chl7e71wc71n" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          树莓派上练习ARM PWN
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/09/Return-to-dl-resolve/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Return-to-dl-resolve</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

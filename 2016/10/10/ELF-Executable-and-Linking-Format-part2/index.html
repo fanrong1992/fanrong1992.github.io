@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ELF: Executable and Linking Format part2 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。 Program Header可执行目标文件和共享目标文件的程序头部表（program header table）是一个结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ELF: Executable and Linking Format part2">
+<meta property="og:url" content="http://example.com/2016/10/10/ELF-Executable-and-Linking-Format-part2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。 Program Header可执行目标文件和共享目标文件的程序头部表（program header table）是一个结构">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/elfpart2/exe.png">
+<meta property="og:image" content="http://example.com/images/elfpart2/process_image.png">
+<meta property="og:image" content="http://example.com/images/elfpart2/shared_object.png">
+<meta property="article:published_time" content="2016-10-10T01:39:59.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.704Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Reverse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/elfpart2/exe.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ELF-Executable-and-Linking-Format-part2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/10/10/ELF-Executable-and-Linking-Format-part2/" class="article-date">
+  <time datetime="2016-10-10T01:39:59.000Z" itemprop="datePublished">2016-10-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ELF: Executable and Linking Format part2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="PROGRAM-LOADING"><a href="#PROGRAM-LOADING" class="headerlink" title="PROGRAM LOADING"></a>PROGRAM LOADING</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>这一篇介绍了目标文件信息和系统运行程序所需的动作。<br>可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即<code>进程映像</code>。一个进程映像通过segment保存文本、数据、堆栈等。</p>
+<h3 id="Program-Header"><a href="#Program-Header" class="headerlink" title="Program Header"></a>Program Header</h3><p>可执行目标文件和共享目标文件的<code>程序头部表（program header table）</code>是一个结构体数组，每个元素描述了一个segment，以及系统准备执行程序时所需的其他信息。目标文件的segment包含一个或多个section，后面会介绍。Program Header只对可执行目标文件和共享目标文件有意义。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Program Header</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Word p_type;</span><br><span class="line">    Elf32_Off  p_offset;</span><br><span class="line">    Elf32_Addr p_vaddr;</span><br><span class="line">    Elf32_Addr p_paddr;</span><br><span class="line">    Elf32_Word p_filesz;</span><br><span class="line">    Elf32_Word p_memsz;</span><br><span class="line">    Elf32_Word p_flags;</span><br><span class="line">    Elf32_Word p_align;</span><br><span class="line">&#125; Elf32_Phdr;</span><br></pre></td></tr></table></figure>
+<p><code>p_type</code> 说明了这个数组元素描述了一个什么种类的segment，以及如何解释这个数组元素的信息。Type取值和含义后面介绍。<br><code>p_offset</code> 从文件开头到segment第一个字节的偏移。<br><code>p_vaddr</code> segment第一个字节在内存中的虚拟地址。<br><code>p_paddr</code> 某些系统上此成员保存segment的物理地址。由于System V忽略应用程序的物理地址，这个成员的取值在可执行目标文件和共享目标文件中没有定义。<br><code>p_filesz</code> segment在文件映像中的字节数，可能为0。<br><code>p_memsz</code> segment在内存映像中的字节数，可能为0。<br><code>p_flags</code> 与segment相关的标志。后面介绍。<br><code>p_align</code> 后面”程序加载”一节会介绍，可加载的进程segment其p_vaddr和p_offset必须是模页大小同余的。这个成员给出了segment在内存和文件中的对齐值。<br>有的表项描述了进程segment，其他的则描述了一些进程映像中并不包含的辅助信息。segment表项除了有明确规定的，可以采用任意的顺序。下面列出了segment类型的取值，其他的取值留作以后使用。<br><strong>Segment Types</strong>，p_type</p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">PT_NULL</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="left">PT_LOAD</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">PT_DYNAMIC</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">PT_INTERP</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td align="left">PT_NOTE</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td align="left">PT_SHLIB</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="left">PT_PHDR</td>
+<td align="right">6</td>
+</tr>
+<tr>
+<td align="left">PT_LOPROC</td>
+<td align="right">0X70000000</td>
+</tr>
+<tr>
+<td align="left">PT_HIPROC</td>
+<td align="right">0X7FFFFFFF</td>
+</tr>
+</tbody></table>
+<p><code>PT_NULL</code> 表示此数组元素未被使用，其他成员的值未定义。这个类型使程序头部表可以包含一些无关的表项。<br><code>PT_LOAD</code> 表示这是一个可加载的segment，通过p_filesz和p_memsz描述。目标文件中的字节将被映射到内存segment的开始部分去。如果segment的内存大小（p_memsz）大于文件大小（p_filesz），在segment已初始化数据区后面多出来的部分将填充值为0的字节。文件大小可以小于内存大小。程序头部表中可加载的segment表项依据p_vaddr成员按升序排列。<br><code>PT_DYNAMIC</code> 保存了动态链接的相关信息。参见后面”动态section”一节。<br><code>PT_INTERP</code> 指定了一个以空字节结尾的字符串的位置和长度，这个字符串是需调用的解释器的路径。<br><code>PT_NOTE</code> 指定了辅助信息的位置和大小。<br><code>PT_SHLIB</code> 保留的，未定义语义。<br><code>PT_PHDR</code> 如果有，指定了文件和内存映像中程序头部表的位置和大小。<br><code>PT_LOPROC</code>至<code>PT_HIPROC</code>此范围内的取值留作处理器相关的语义。</p>
+<blockquote>
+<p>注：除非在其他地方有特殊的需求，所有程序头部的segment类型都是可选的，即文件的程序头部表可能只包含与其内容有关的程序头部。</p>
+</blockquote>
+<h4 id="Base-Address"><a href="#Base-Address" class="headerlink" title="Base Address"></a>Base Address</h4><p>可执行目标文件和共享目标文件有一个基地址，这个地址是程序目标文件的内存映像的起始虚拟地址。基地址的一个作用是在动态链接时重定位程序的内存映像。<br>一个可执行目标文件或共享目标文件的基地址是在执行期间由三个值计算出来的：<code>内存加载地址</code>、<code>最大页尺寸</code>、<code>程序的可加载segment的起始虚拟地址</code>。程序头部中的虚拟地址可能并不代表程序内存映像中实际的虚拟地址。为了计算基地址,需要首先确定与<code>PT_LOAD</code>类型segment<code>p_vaddr</code>对应的内存地址，然后截去地址的低位部分，使地址为最接近的最大页大小的整数倍的地址，这就是基地址。依据加载进内存的文件的类型，内存地址可能与<code>p_vaddr</code>的值匹配，也可能不匹配。<br>part1中介绍的.bss section是<code>SHT_NOBITS</code>型的，虽然它不占据文件空间，但对segment在内存中的映像还是有影响的。通常，这些未初始化的数据驻留在segment的尾部，因此，使得程序头部中的<code>p_memsz</code>比<code>p_filesz</code>大。</p>
+<h4 id="note-section"><a href="#note-section" class="headerlink" title="note section"></a>note section</h4><p>有时厂商或系统构建者需要用特定的信息注释目标文件,程序利用这些 信息进行一致性和兼容性等检查。<code>SHT_NOTE</code>类型的section和<code>PT_NOTE</code>类型的程序头部就是用于这个目的。</p>
+<h3 id="Program-Loading"><a href="#Program-Loading" class="headerlink" title="Program Loading"></a>Program Loading</h3><p>系统创建或增补一个进程映像时，只是逻辑上的拷贝文件中的segment到虚拟内存中的segment。系统何时、是否在物理上访问这个文件，取决于程序的执行行为，比如系统加载等。执行进程的过程中，只有引用到逻辑页时才会请求一个物理页。进程中通常会有很多未引用的页，这种延迟物理读的方式就将这些未引用的页排除了，提高了系统的性能。在实际应用中，如果想实现这种方式，就必须使可执行目标文件和共享目标文件的segment映像在文件中的偏移及其虚拟地址是模页大小同余的。<br><strong>Executable File</strong><br><img src="/images/elfpart2/exe.png"><br><strong>Program Header Segments</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Member</th>
+<th align="right">Text</th>
+<th align="right">Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">p_type</td>
+<td align="right">PT_LOAD</td>
+<td align="right">PT_LOAD</td>
+</tr>
+<tr>
+<td align="left">p_offset</td>
+<td align="right">0x100</td>
+<td align="right">0x2bf00</td>
+</tr>
+<tr>
+<td align="left">p_vaddr</td>
+<td align="right">0x08048100</td>
+<td align="right">0x08074f00</td>
+</tr>
+<tr>
+<td align="left">p_paddr</td>
+<td align="right">unspecified</td>
+<td align="right">unspecified</td>
+</tr>
+<tr>
+<td align="left">p_filesz</td>
+<td align="right">0x2be00</td>
+<td align="right">0x4e00</td>
+</tr>
+<tr>
+<td align="left">p_memsz</td>
+<td align="right">0x2be00</td>
+<td align="right">0x5e24</td>
+</tr>
+<tr>
+<td align="left">p_flags</td>
+<td align="right">PF_R+PF_X</td>
+<td align="right">PF_R+PF_W+PF_X</td>
+</tr>
+<tr>
+<td align="left">p_align</td>
+<td align="right">0x1000</td>
+<td align="right">0x1000</td>
+</tr>
+</tbody></table>
+<p>例子中，.text段和.data段的文件偏移、虚拟地址都是模4KB同余的，但是有四个页面（依据页面大小和系统文件块大小）包含的不全是文本或数据。</p>
+<ul>
+<li>第一个文本页包含ELF头部，程序头部表和其他信息。</li>
+<li>最后一个text页包含一份.data段开始部分的拷贝。</li>
+<li>第一个data页包含一份.data段结尾部分的拷贝。</li>
+<li>最后一个data页可能包含与进程运行不相关的文件信息。</li>
+</ul>
+<p>逻辑上，系统使每个段看起来都好像是完整和独立的，以便为它们所在的内存赋予访问权限。这就需要调整段的地址，以确保地址空间中的每个逻辑页有一组独立的权限。在上面的例子中，文件中保存文本结尾和数据开头的区域将被映射两次，一个虚拟地址对应文本，另一个不同的虚拟地址对应数据。<br>.data段的结尾处需要为未初始化的数据做特殊的处理，系统将这部分数据的值置为0。如果文件的最后一个data页包含其他信息，这些信息不会映射到逻辑内存页中，必须将内存页剩余部分的数据置为 0，这一点与可执行文件允许有未知的内容不同。系统是否需 要除去其他三个页面中的不纯信息(Impurities)未作规定。这个程序对应的内存映像如下图所示，假设页面大小是4KB(0x1000)。<br><strong>Process Image Segment</strong><br><img src="/images/elfpart2/process_image.png"><br>可执行目标文件和共享目标文件加载 segment 时有所不同，通常可执行目标文件的segment包含的是绝对代码。为了使进程正确执行，segment必须驻留在可执行目标文件中指定的虚拟地址。 因此，系统不会改变<code>p_vaddr</code>的值，直接将它作为虚拟地址。<br>而共享目标文件的segment包含的是位置无关代码，这就意味着，虽然其虚拟地址在不同进程间是不同的，但却不会导致执行行为无效。尽管系统为每个进程单独选择虚拟地址，它仍然维护这些segment的相对位置。由于位置无关代码在segment中使用相对地址，内存虚拟地址间的偏移必须与文件中的虚拟地址的偏移保持一致。下图举了不同进程中共享目标虚拟地址分配的一个例子，展示了相对位置的不变性，也展示了如何计算基地址。<br><strong>Example Shared Object Segment Address</strong><br><img src="/images/elfpart2/shared_object.png"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/10/10/ELF-Executable-and-Linking-Format-part2/" data-id="ckhe7o4l6001tchl75ryv1ngn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/19/L-CTF2016-PWN-Writeup/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          L-CTF2016 PWN Writeup
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/08/29/Android%E4%B8%AD%E7%9A%84Apk%E5%8A%A0%E5%9B%BA%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android中的Apk加固原理解析和实现</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android逆向之反调试 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="为了防止通过调试将内存中的DEX文件dump出来，APP一般都会采用各种反调试来进行保护，这篇文章主要对常见的一些反调试技术进行介绍。 ptrace自身或子进程相互ptrace代码非常简单，在JNI_Onload最开始加上这个函数即可：   1234void anti_ptrace(void)&amp;#123;    ptrace(PTRACE_TRACEME, 0, 0, 0)；&amp;#125; 其中PT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向之反调试">
+<meta property="og:url" content="http://example.com/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="为了防止通过调试将内存中的DEX文件dump出来，APP一般都会采用各种反调试来进行保护，这篇文章主要对常见的一些反调试技术进行介绍。 ptrace自身或子进程相互ptrace代码非常简单，在JNI_Onload最开始加上这个函数即可：   1234void anti_ptrace(void)&amp;#123;    ptrace(PTRACE_TRACEME, 0, 0, 0)；&amp;#125; 其中PT">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-04-14T16:08:37.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.685Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android逆向之反调试" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/" class="article-date">
+  <time datetime="2017-04-14T16:08:37.000Z" itemprop="datePublished">2017-04-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android逆向之反调试
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>为了防止通过调试将内存中的DEX文件dump出来，APP一般都会采用各种反调试来进行保护，这篇文章主要对常见的一些反调试技术进行介绍。</p>
+<h2 id="ptrace自身或子进程相互ptrace"><a href="#ptrace自身或子进程相互ptrace" class="headerlink" title="ptrace自身或子进程相互ptrace"></a>ptrace自身或子进程相互ptrace</h2><p>代码非常简单，在JNI_Onload最开始加上这个函数即可：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">anti_ptrace</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ptrace(PTRACE_TRACEME, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)；</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中PTRACE_TRACEME代表：本进程被自身进程ptrace。一般一个进程只能被附加一次，如果应用已被自身进程附加，后面的调试附加就会失败。</p>
+<h2 id="检查调试状态"><a href="#检查调试状态" class="headerlink" title="检查调试状态"></a>检查调试状态</h2><p>这种方式是通过Android中的API进行检验，有两种方法：<br><strong>检查应用是否属于debug模式</strong><br>调用Android中的flag属性：<code>ApplicationInfo.FLAG_DEBUGGABLE</code>，判断是否属于debug模式：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isDebuggable</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (context.getApplicationInfo().flags &amp; ApplicationInfo.FLAG_DEBUGGABLE) != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个是为了防止破解者在应用的AndroidManifest.xml中添加：<code>android:debuggable=true</code>属性，然后对应用进行调试。解决方法是通过将/default.prop中的Android系统属性<code>ro.debuggable</code>修改为1即可使得所有应用可以被调试。<br><strong>检查应用是否处于调试状态</strong><br>这种方法也是通过系统的API：<code>android.os.Debug.isDebuggerConnected();</code>判断当前应用有没有被调试。用jdb进行连接操作（jdb -connect com.sun.jdi.SocketAttach:hostname=127.0.0.1,port=8700）时，这段代码就会返回true。所以可以通过这个API判断当前应用是否处于调试状态来进行反调试。</p>
+<h2 id="检查端口"><a href="#检查端口" class="headerlink" title="检查端口"></a>检查端口</h2><p>破解逆向时通常需要借助IDA，使用IDA时，在设备中要启动android_server来进行通信，android_server会默认占用23946端口：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # .&#x2F;android_server</span><br><span class="line">IDA Android 32-bit remote debug server(ST) v1.19. Hex-Rays (c) 2004-2015</span><br><span class="line">Listening on port #23946...</span><br></pre></td></tr></table></figure>
+<p>查看设备的TCP端口使用情况：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F; # cat &#x2F;proc&#x2F;net&#x2F;tcp</span><br><span class="line">  sl  local_address rem_address   st tx_queue rx_queue tr tm-&gt;when retrnsmt   uid  timeout inode</span><br><span class="line">   0: 00000000:5D8A 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 63939 1 00000000 100 0 0 10 -1</span><br></pre></td></tr></table></figure>
+<p>其中5D8A转换成十进制就是23946，而看到uid是0，因为运行android_server是root身份。只要在JNI_Onload最开始加上下面的函数即可检测：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_port</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> bufsize = <span class="number">256</span>;</span><br><span class="line">    <span class="keyword">char</span> filename[bufsize];</span><br><span class="line">    <span class="keyword">char</span> line[bufsize];</span><br><span class="line">    <span class="keyword">int</span> pid = getpid();</span><br><span class="line">    <span class="built_in">sprintf</span>(filename, <span class="string">&quot;/proc/net/tcp&quot;</span>);</span><br><span class="line">    FILE *fd = fopen(filename, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">while</span> (fgets(line, bufsize, fd)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">strstr</span>(line, <span class="string">&quot;5D8A&quot;</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">                <span class="keyword">int</span> ret = kill(pid, SIGKILL);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(fd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决办法就是换一个端口：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # .&#x2F;as -p6666</span><br><span class="line">IDA Android 32-bit remote debug server(ST) v1.19. Hex-Rays (c) 2004-2015</span><br><span class="line">Listening on port #6666...</span><br></pre></td></tr></table></figure>
+
+<h2 id="读取进程状态"><a href="#读取进程状态" class="headerlink" title="读取进程状态"></a>读取进程状态</h2><p>在使用IDA进行调试的时候，需要在设备端启动android_server进行通信，那么被调试的进程就会被附加，TracerPid就是android_server进程的pid值了。所以可以在应用中的native层加上一个循环检查status中的TracerPid字段的值，如果非0或是非本进程pid（如果采用了第一种方法），那么就认为被附加调试了。还可以检查进程列表中有没有android_server进程。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F; # cat &#x2F;proc&#x2F;12730&#x2F;status</span><br><span class="line">Name:    com.bruce</span><br><span class="line">State:    t (tracing stop) &lt;-非调试状态为S或R</span><br><span class="line">Tgid:    12730</span><br><span class="line">Pid:    12730</span><br><span class="line">PPid:    179</span><br><span class="line">TracerPid:    32354 &lt;- 非0非本进程pid，被附加</span><br><span class="line">Uid:    10128    10128    10128    10128</span><br><span class="line">Gid:    10128    10128    10128    10128</span><br><span class="line">FDSize:    256</span><br><span class="line">Groups:    50128</span><br></pre></td></tr></table></figure>
+<p>将下面这个函数加到JNI_Onload中，或者在JNI_Onload中新建一个线程不停地进行检查。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_tracerpid</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pid = getpid();</span><br><span class="line">    <span class="keyword">int</span> bufsize = <span class="number">256</span>;</span><br><span class="line">    <span class="keyword">char</span> filename[bufsize];</span><br><span class="line">    <span class="keyword">char</span> line[bufsize];</span><br><span class="line">    <span class="keyword">int</span> tracerpid;</span><br><span class="line">    FILE *fp;</span><br><span class="line">    <span class="built_in">sprintf</span>(filename, <span class="string">&quot;/proc/%d/status&quot;</span>, pid);</span><br><span class="line">    fp = fopen(filename, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (fp != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">while</span> (fgets(line, bufsize, fp)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">strstr</span>(line, <span class="string">&quot;TracerPid&quot;</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">                tracerpid = atoi(&amp;line[<span class="number">10</span>]);</span><br><span class="line">                <span class="keyword">if</span> (tracerpid != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">int</span> ret = kill(pid, SIGKILL);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        fclose(fp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决方法：<br>1.修改内存中的值，但是有时候是循环检查，每次都修改不方便；<br>2.patch so文件，将循环检查的函数NOP掉；<br>3.一种比较复杂的方法，但是可以一劳永逸：<a target="_blank" rel="noopener" href="http://www.wjdiankong.cn/android%E9%80%86%E5%90%91%E4%B9%8B%E6%97%85-%E5%BA%94%E7%94%A8%E7%9A%84%E5%8F%8D%E8%B0%83%E8%AF%95%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90%E9%99%84%E5%8A%A0%E4%BF%AE%E6%94%B9ida%E8%B0%83%E8%AF%95/">修改内核信息</a><br>读取/proc/pid/wchan:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F; # cat &#x2F;proc&#x2F;12730&#x2F;wchan</span><br><span class="line">ptrace_stop &lt;- 非调试状态为ep_poll</span><br></pre></td></tr></table></figure>
+
+<h2 id="模拟器检测"><a href="#模拟器检测" class="headerlink" title="模拟器检测"></a>模拟器检测</h2><p>检测应用是不是运行在一台模拟器中：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isEmulator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Class systemPropertyClazz = Class.forName(<span class="string">&quot;android.os.SystemProperties&quot;</span>);</span><br><span class="line">        <span class="keyword">boolean</span> kernelQemu = getProperty(systemPropertyClazz, <span class="string">&quot;ro.kernel.qemu&quot;</span>).length() &gt; <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">boolean</span> hardwareGoldfish = getProperty(systemPropertyClazz, <span class="string">&quot;ro.hardware&quot;</span>).equals(<span class="string">&quot;goldfish&quot;</span>);</span><br><span class="line">        <span class="keyword">boolean</span> modelSdk = getProperty(systemPropertyClazz, <span class="string">&quot;ro.product.model&quot;</span>).equals(<span class="string">&quot;sdk&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (kernelQemu || hardwareGoldfish || modelSdk) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// error assumes emulator</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getProperty</span><span class="params">(Class clazz, String propertyName)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (String) clazz.getMethod(<span class="string">&quot;get&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class&#125;).invoke(clazz, <span class="keyword">new</span> Object[] &#123;propertyName&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="检测android-server关键字以及文件目录"><a href="#检测android-server关键字以及文件目录" class="headerlink" title="检测android_server关键字以及文件目录"></a>检测android_server关键字以及文件目录</h2><p>调试进程的时候，这个进程会被IDA中的android_server附加，而在<code>/proc/pid/cmdline</code>中会有进程的进程名，因此通过android_server的进程号可以找到它的进程名：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F; # cat &#x2F;proc&#x2F;3514&#x2F;cmdline</span><br><span class="line">.&#x2F;android_server</span><br></pre></td></tr></table></figure>
+<p>android_server的进程号可以通过TracerPid来获得。如果有这个名字说明应用正在被调试。<br>一般情况下，android_server都会放在/data/local/tmp目录下，因此还可以检测这个目录中有没有android_server，如果有就退出程序。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_andser</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 获取tracerpid之后</span></span><br><span class="line">    <span class="keyword">if</span> (tracerpid != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">sprintf</span>(filename, <span class="string">&quot;/proc/%d/cmdline&quot;</span>, tracerpid);</span><br><span class="line">        FILE *fd = fopen(filename, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (fd != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="keyword">while</span> (fgets(nameline, bufsize, fd)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">strstr</span>(nameline, <span class="string">&quot;android_server&quot;</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">                    <span class="keyword">int</span> ret = kill(pid, SIGKILL);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决方法：将android_server重命名一下，如果有目录检查就换一个目录。</p>
+<h2 id="检测调试状态下的软件断点"><a href="#检测调试状态下的软件断点" class="headerlink" title="检测调试状态下的软件断点"></a>检测调试状态下的软件断点</h2><p>调试时下断点是利用的ptrace系统函数，在调试器设置断点的时候，首先完成两件事：</p>
+<ul>
+<li>保存目标地址上的数据</li>
+<li>将目标地址上的头几个字节替换为breakpoint指令，命中断点触发breakpoint，这时程序向操作系统发送SIGRAP信号，调试器收到SIGRAP信号后，调试器会回退被跟踪进程的当前PC值，当控制权回到原进程时，PC就恰好指向了断点所在位置，这就是调试器设置断点的基本原理。</li>
+</ul>
+<p>软件断点通过改写目标地址的头几字节为breakpoint指令，接下来类似于前面所讲的几种方法，直接进行检测文件，可以遍历so中可执行segment，查找是否出现breakpoint指令即可。<br>关键函数实现如下：<br>1.读取ELF文件在内存中的地址：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">GetLibAddr</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> ret = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">char</span> name[] = <span class="string">&quot;libxxx.so&quot;</span>;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">4096</span>], *temp;</span><br><span class="line">    <span class="keyword">int</span> pid;</span><br><span class="line">    FILE *fp;</span><br><span class="line">    pid = getpid();</span><br><span class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">&quot;/proc/%d/maps&quot;</span>, pid);</span><br><span class="line">    fp = fopen(buf, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (fp == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;open failed&quot;</span>);</span><br><span class="line">        <span class="keyword">goto</span> _error;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (fgets(buf, <span class="keyword">sizeof</span>(buf), fp)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(buf, name)) &#123;</span><br><span class="line">            temp = strtok(buf, <span class="string">&quot;-&quot;</span>);</span><br><span class="line">            ret = strtoul(temp, <span class="literal">NULL</span>, <span class="number">16</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    _error: fclose(fp);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.读取完以后，根据其对应的偏移地址进行检测，有没有ARM、Thumb、Thumb2的断点指令，如果有就kill进程：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_breakpoint</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pid = getpid();</span><br><span class="line">    Elf32_Ehdr *elfhdr;</span><br><span class="line">    Elf32_Phdr *pht;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> size, base, offset, phtable;</span><br><span class="line">    <span class="keyword">int</span> n, i,j;</span><br><span class="line">    <span class="keyword">char</span> *p;</span><br><span class="line">    <span class="comment">//从maps中读取elf文件在内存中的起始地址</span></span><br><span class="line">    base = GetLibAddr();</span><br><span class="line">    <span class="keyword">if</span> (base == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    elfhdr = (Elf32_Ehdr *) base;</span><br><span class="line">    phtable = elfhdr-&gt;e_phoff + base;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; elfhdr-&gt;e_phnum; i++) &#123;</span><br><span class="line">        pht = (Elf32_Phdr *)(phtable + i * <span class="keyword">sizeof</span>(Elf32_Phdr));</span><br><span class="line">        <span class="keyword">if</span> (pht-&gt;p_flags &amp; <span class="number">1</span>) &#123;</span><br><span class="line">            offset = pht-&gt;p_vaddr + base + <span class="keyword">sizeof</span>(Elf32_Ehdr) + <span class="keyword">sizeof</span>(Elf32_Phdr)*elfhdr-&gt;e_phnum;</span><br><span class="line">            p = (<span class="keyword">char</span>*)offset;</span><br><span class="line">            size = pht-&gt;p_memsz;</span><br><span class="line">            <span class="keyword">for</span> (j=<span class="number">0</span>, n=<span class="number">0</span>; j &lt; size; ++j, ++p) &#123;</span><br><span class="line">                <span class="keyword">if</span> (*p == <span class="number">0x10</span> &amp;&amp; *(p+<span class="number">1</span>) == <span class="number">0xde</span>) &#123;</span><br><span class="line">                    n++;</span><br><span class="line">                    <span class="keyword">int</span> ret1 = kill(pid, SIGKILL);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (*p == <span class="number">0xf0</span> &amp;&amp; *(p+<span class="number">1</span>) == <span class="number">0xf7</span> </span><br><span class="line">                &amp;&amp; *(p+<span class="number">2</span>) == <span class="number">0x00</span> &amp;&amp; *(p+<span class="number">3</span>) == <span class="number">0xa0</span>) &#123;</span><br><span class="line">                    n++;</span><br><span class="line">                    <span class="keyword">int</span> ret2 = kill(pid, SIGKILL);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span>(*p == <span class="number">0x01</span> &amp;&amp; *(p+<span class="number">1</span>) == <span class="number">0x00</span> </span><br><span class="line">                &amp;&amp; *(p+<span class="number">2</span>) == <span class="number">0x9f</span> &amp;&amp; *(p+<span class="number">3</span>) == <span class="number">0xef</span>) &#123;</span><br><span class="line">                    n++;</span><br><span class="line">                    <span class="keyword">int</span> ret3 = kill(pid, SIGKILL);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决方法：一般这种函数可以在JNI_Onload、com_java_XX这类函数中调用，经过几次动态调试就可以找出关键函数，将其NOP掉就可以了。</p>
+<h2 id="使用Inotify对文件进行监控"><a href="#使用Inotify对文件进行监控" class="headerlink" title="使用Inotify对文件进行监控"></a>使用Inotify对文件进行监控</h2><p>在动态调试的过程中，一般会查看调试进程的虚拟地址空间或者是dump内存，这时就会涉及到对文件的读写以及打开的权限，这时候对它们进行检测就能发现是否正在被破解。Linux下的Inotify就可以实现对文件系统事件的打开，读写的监管。如果通过Inotify收到事件的变化，我们就Kill掉进程。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_inotify</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret, len, i;</span><br><span class="line">    <span class="keyword">int</span> pid = getpid();</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> MAXLEN = <span class="number">2048</span>;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">char</span> readbuf[MAXLEN];</span><br><span class="line">    <span class="keyword">int</span> fd, wd;</span><br><span class="line">    fd_set readfds;</span><br><span class="line">    fd = inotify_init();</span><br><span class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">&quot;/proc/%d/maps&quot;</span>, pid);</span><br><span class="line">    wd = inotify_add_watch(fd, buf, IN_ALL_EVENTS);</span><br><span class="line">    <span class="keyword">if</span> (wd &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">            i = <span class="number">0</span>;</span><br><span class="line">            FD_ZERO(&amp;readfds); <span class="comment">// 使得readfds清零</span></span><br><span class="line">            FD_SET(fd, &amp;readfds); <span class="comment">// 将fd加入readfds集合</span></span><br><span class="line">            ret = select(fd + <span class="number">1</span>, &amp;readfds, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">if</span> (ret == <span class="number">-1</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">                len = read(fd, readbuf, MAXLEN);</span><br><span class="line">                <span class="keyword">while</span> (i &lt; len) &#123;</span><br><span class="line">                    <span class="class"><span class="keyword">struct</span> <span class="title">inotify_event</span> *<span class="title">event</span> =</span> (struct inotify_event *) &amp;readbuf[i];</span><br><span class="line">                    <span class="keyword">if</span> ((event-&gt;mask &amp; IN_ACCESS) || (event-&gt;mask &amp; IN_OPEN)) &#123;</span><br><span class="line">                        <span class="keyword">int</span> ret = kill(pid, SIGKILL);</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    i += <span class="keyword">sizeof</span>(struct inotify_event) + event-&gt;len;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    inotify_rm_watch(fd, wd);</span><br><span class="line">    close(fd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码执行时间差检测"><a href="#代码执行时间差检测" class="headerlink" title="代码执行时间差检测"></a>代码执行时间差检测</h2><p>动态调试的时候关键代码的前后时间差比正常执行的时候要大许多，因此可以计算代码执行时间，如果超出一般正常情况下设定值，就认为代码被调试。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">gettimeofday</span><span class="params">(struct timeval *tv, struct timezone *tz)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">check_time</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pid = getpid();</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">t1</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">t2</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timezone</span> <span class="title">tz</span>;</span></span><br><span class="line">    gettimeofday(&amp;t1, &amp;tz);</span><br><span class="line">    gettimeofday(&amp;t2, &amp;tz);</span><br><span class="line">    <span class="keyword">int</span> timeoff = (t2.tv_sec) - (t1.tv_sec);</span><br><span class="line">    <span class="keyword">if</span> (timeoff &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> ret = kill(pid, SIGKILL);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/feibabeibei_beibei/article/details/60956307"> Android反调试方法总结以及源码实现之检测篇（一）</a><br><a target="_blank" rel="noopener" href="http://www.wjdiankong.cn/android%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E4%B9%8B%E6%97%85-android%E5%BA%94%E7%94%A8%E5%8F%8D%E8%B0%83%E8%AF%95%E6%93%8D%E4%BD%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%A1%88%E8%A7%A3/">Android安全防护之旅—Android应用”反调试”操作的几种方案解析</a><br>《Android安全攻防实战》</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/" data-id="ckhe7o4ka000ichl79py1a62b" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/17/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Linux内核漏洞利用（一）环境配置
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/04/12/%E4%BD%BF%E7%94%A8sulley-framework/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用sulley framework</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

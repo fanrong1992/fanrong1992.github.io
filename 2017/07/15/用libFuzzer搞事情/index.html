@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>用libFuzzer搞事情 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05 12345$ tar xzf openssl1.0.1f.tgz$">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用libFuzzer搞事情">
+<meta property="og:url" content="http://example.com/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05 12345$ tar xzf openssl1.0.1f.tgz$">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-07-15T15:41:39.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.773Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Fuzzing">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-用libFuzzer搞事情" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/" class="article-date">
+  <time datetime="2017-07-15T15:41:39.000Z" itemprop="datePublished">2017-07-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      用libFuzzer搞事情
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以<a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop">libfuzzer-workshop</a>这个系列教程为主。</p>
+<h2 id="Heartbleed-Vulnerable-CVE-2014-0160"><a href="#Heartbleed-Vulnerable-CVE-2014-0160" class="headerlink" title="Heartbleed Vulnerable(CVE-2014-0160)"></a>Heartbleed Vulnerable(CVE-2014-0160)</h2><p><strong>编译有漏洞的openssl版本</strong> libfuzzer-workshop/lessons/05</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tar xzf openssl1.0.1f.tgz</span><br><span class="line">$ cd openssl1.0.1f</span><br><span class="line">$ .&#x2F;config</span><br><span class="line">$ make clean</span><br><span class="line">$ make CC&#x3D;&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize&#x3D;address -fsanitize-coverage&#x3D;trace-pc-guard,trace-cmp,trace-gep,trace-div&quot; -j$(nproc)</span><br></pre></td></tr></table></figure>
+<p><strong>fuzzer实现</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  SSL_library_init();</span><br><span class="line">  SSL_load_error_strings();</span><br><span class="line">  ERR_load_BIO_strings();</span><br><span class="line">  OpenSSL_add_all_algorithms();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  assert (sctx = SSL_CTX_new(TLSv1_method()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  assert(SSL_CTX_use_certificate_file(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  assert(SSL_CTX_use_PrivateKey_file(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="keyword">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint8_t</span> *data, <span class="keyword">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> SSL_CTX *sctx = Init();</span><br><span class="line">  SSL *server = SSL_new(sctx);</span><br><span class="line">  BIO *sinbio = BIO_new(BIO_s_mem());</span><br><span class="line">  BIO *soutbio = BIO_new(BIO_s_mem());</span><br><span class="line">  SSL_set_bio(server, sinbio, soutbio);</span><br><span class="line">  SSL_set_accept_state(server);</span><br><span class="line">  BIO_write(sinbio, data, size);</span><br><span class="line">  SSL_do_handshake(server);</span><br><span class="line">  SSL_free(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>fuzzer中用到了刚刚编译的openssl产生的库文件，代码中的API都是openssl库中的。<br><strong>编译运行fuzzer</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize&#x3D;address \</span><br><span class="line">-fsanitize-coverage&#x3D;trace-pc-guard,trace-cmp,trace-gep,trace-div \</span><br><span class="line">-Iopenssl1.0.1f&#x2F;include openssl1.0.1f&#x2F;libssl.a openssl1.0.1f&#x2F;libcrypto.a \</span><br><span class="line">..&#x2F;..&#x2F;libFuzzer&#x2F;libFuzzer.a -o openssl_fuzzer</span><br><span class="line">$ mkdir corpus1</span><br><span class="line">$ .&#x2F;openssl_fuzzer corpus1</span><br><span class="line">INFO: Seed: 4157502167</span><br><span class="line">INFO: Loaded 1 modules (36195 guards): [0xc19890, 0xc3ce1c),</span><br><span class="line">Loading corpus dir: corpus1</span><br><span class="line">INFO: -max_len is not provided, using 64</span><br><span class="line">INFO: A corpus is not provided, starting from an empty corpus</span><br><span class="line">#0    READ units: 1</span><br><span class="line">#1    INITED cov: 1527 ft: 413 corp: 1&#x2F;1b exec&#x2F;s: 0 rss: 33Mb</span><br><span class="line">#4    NEW    cov: 1533 ft: 444 corp: 2&#x2F;10b exec&#x2F;s: 0 rss: 34Mb L: 9 MS: 3 ChangeByte-ChangeBit-CMP- DE: &quot;\xff\xff\xff\xff\xff\xff\xff\xff&quot;-</span><br><span class="line">#111    NEW    cov: 1533 ft: 447 corp: 3&#x2F;28b exec&#x2F;s: 0 rss: 39Mb L: 18 MS: 5 ShuffleBytes-InsertByte-PersAutoDict-PersAutoDict-ChangeBit- DE: &quot;\xff\xff\xff\xff\xff\xff\xff\xff&quot;-&quot;\xff\xff\xff\xff\xff\xff\xff\xff&quot;-</span><br><span class="line">#1186    NEW    cov: 1536 ft: 463 corp: 4&#x2F;38b exec&#x2F;s: 0 rss: 84Mb L: 10 MS: 5 CopyPart-ChangeBit-InsertByte-CMP-CMP- DE: &quot;\xff\xff\xff\xff&quot;-&quot;\xfd\x03\x00\x00&quot;-</span><br><span class="line">...</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x3D;&#x3D;11010&#x3D;&#x3D;ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x0000004c542c bp 0x7ffc92f1bac0 sp 0x7ffc92f1b270</span><br><span class="line">READ of size 65279 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x4c542b in __asan_memcpy &#x2F;home&#x2F;fanrong&#x2F;Downloads&#x2F;src&#x2F;llvm&#x2F;projects&#x2F;compiler-rt&#x2F;lib&#x2F;asan&#x2F;asan_interceptors.cc:462</span><br><span class="line">    #1 0x5221b2 in tls1_process_heartbeat &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl1.0.1f&#x2F;ssl&#x2F;t1_lib.c:2586:3</span><br><span class="line">    #2 0x593639 in ssl3_read_bytes &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl1.0.1f&#x2F;ssl&#x2F;s3_pkt.c:1092:4</span><br><span class="line">    #3 0x597f23 in ssl3_get_message &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl1.0.1f&#x2F;ssl&#x2F;s3_both.c:457:7</span><br><span class="line">    #4 0x5604d9 in ssl3_get_client_hello &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl1.0.1f&#x2F;ssl&#x2F;s3_srvr.c:941:4</span><br><span class="line">    #5 0x55c4fc in ssl3_accept &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl1.0.1f&#x2F;ssl&#x2F;s3_srvr.c:357:9</span><br><span class="line">    #6 0x5158ac in LLVMFuzzerTestOneInput &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer.cc:39:3</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>如输出所示，<code>tls1_process_heartbeat</code>函数中发生了<code>heap-buffer-overflow</code>。可以看到模糊测试是非常有效的。</p>
+<h2 id="c-ares-CVE-2016-5180"><a href="#c-ares-CVE-2016-5180" class="headerlink" title="c-ares(CVE-2016-5180)"></a>c-ares(CVE-2016-5180)</h2><p>接下来看一下<a target="_blank" rel="noopener" href="https://c-ares.haxx.se/">c-ares</a>的漏洞，这个漏洞已经被利用在ChromeOS上，以root权限<a target="_blank" rel="noopener" href="https://googlechromereleases.blogspot.com/2016/09/stable-channel-updates-for-chrome-os.html">远程代码执行</a>。<br><strong>编译有漏洞的c-ares版本</strong> libfuzzer-workshop/lessons/06</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tar xzvf c-ares.tgz</span><br><span class="line">$ cd c-ares</span><br><span class="line">$ .&#x2F;buildconf</span><br><span class="line">$ .&#x2F;configure CC&#x3D;&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize&#x3D;address -fsanitize-coverage&#x3D;trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span><br><span class="line">$ make CFLAGS&#x3D;</span><br></pre></td></tr></table></figure>
+<p><strong>fuzzer实现</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ares.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="keyword">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint8_t</span> *data, <span class="keyword">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span> *buf;</span><br><span class="line">  <span class="keyword">int</span> buflen;</span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">s</span><span class="params">(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">const</span> <span class="keyword">char</span> *&gt;(data), size)</span></span>;</span><br><span class="line">  ares_create_query(s.c_str(), ns_c_in, ns_t_a, <span class="number">0x1234</span>, <span class="number">0</span>, &amp;buf, &amp;buflen, <span class="number">0</span>);</span><br><span class="line">  ares_free_string(buf);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>编译运行fuzzer</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ clang++ -g c_ares_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize&#x3D;address \</span><br><span class="line">-fsanitize-coverage&#x3D;trace-pc-guard,trace-cmp,trace-gep,trace-div \</span><br><span class="line">-Ic-ares c-ares&#x2F;.libs&#x2F;libcares.a \</span><br><span class="line">..&#x2F;..&#x2F;libFuzzer&#x2F;libFuzzer.a -o c_ares_fuzzer</span><br><span class="line">$ mkdir corpus1</span><br><span class="line">$ .&#x2F;c_ares_fuzzer corpus1</span><br><span class="line">INFO: Seed: 4265518985</span><br><span class="line">INFO: Loaded 1 modules (63 guards): [0x7740f0, 0x7741ec),</span><br><span class="line">INFO: -max_len is not provided, using 64</span><br><span class="line">INFO: A corpus is not provided, starting from an empty corpus</span><br><span class="line">#0    READ units: 1</span><br><span class="line">#1    INITED cov: 20 ft: 17 corp: 1&#x2F;1b exec&#x2F;s: 0 rss: 26Mb</span><br><span class="line">#3    NEW    cov: 22 ft: 22 corp: 2&#x2F;3b exec&#x2F;s: 0 rss: 27Mb L: 2 MS: 2 ShuffleBytes-InsertByte-</span><br><span class="line">#5    NEW    cov: 25 ft: 29 corp: 3&#x2F;41b exec&#x2F;s: 0 rss: 27Mb L: 38 MS: 4 ShuffleBytes-InsertByte-EraseBytes-InsertRepeatedBytes-</span><br><span class="line">#7    NEW    cov: 25 ft: 31 corp: 4&#x2F;105b exec&#x2F;s: 0 rss: 27Mb L: 64 MS: 1 CrossOver-</span><br><span class="line">#15    NEW    cov: 25 ft: 35 corp: 5&#x2F;145b exec&#x2F;s: 0 rss: 27Mb L: 40 MS: 4 ShuffleBytes-CrossOver-CopyPart-CMP- DE: &quot;\x00\x00\x00\x00\x00\x00\x00\x00&quot;-</span><br><span class="line">#25    NEW    cov: 25 ft: 39 corp: 6&#x2F;148b exec&#x2F;s: 0 rss: 27Mb L: 3 MS: 4 InsertByte-ChangeBit-ChangeByte-InsertByte-</span><br><span class="line">#27    NEW    cov: 25 ft: 43 corp: 7&#x2F;152b exec&#x2F;s: 0 rss: 27Mb L: 4 MS: 1 InsertByte-</span><br><span class="line">...</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">&#x3D;&#x3D;34918&#x3D;&#x3D;ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6040003344f4 at pc 0x000000516534 bp 0x7fff1814e3f0 sp 0x7fff1814e3e8</span><br><span class="line">WRITE of size 1 at 0x6040003344f4 thread T0</span><br><span class="line">    #0 0x516533 in ares_create_query &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;06&#x2F;c-ares&#x2F;ares_create_query.c:196:3</span><br><span class="line">    #1 0x51553f in LLVMFuzzerTestOneInput &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Fuzz&#x2F;libfuzzer-workshop&#x2F;lessons&#x2F;06&#x2F;c_ares_fuzzer.cc:16:3</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>关于fuzzing还有很多高级话题，比如，如何改进fuzzer并分析其performance；种子语料库、自定义选项和其他一些因素都非常重要。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop/tree/master/lessons/05">https://github.com/Dor1s/libfuzzer-workshop/tree/master/lessons/05</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/" data-id="ckhe7o4nw006hchl74m8b8rte" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/08/03/CVE-2015-3636%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CVE-2015-3636漏洞分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/15/libFuzzer%E8%8F%9C%E9%B8%9F%E5%85%A5%E9%97%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">libFuzzer菜鸟入门</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

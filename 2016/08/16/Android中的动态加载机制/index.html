@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android中的动态加载机制 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文主要介绍Android动态加载jar的技术，如何开发一个可以自定义控件的Android应用？就像eclipse一样，可以动态加载插件；如何让Android应用执行服务器上的不可预知的代码？如何对Android应用加密，而只在执行时自解密，从而防止被破解？这篇文章是一个基础，后面的一些文章会以此继续深入。   类加载机制Dalvik虚拟机如同其他Java虚拟机一样，在运行程序时首先需要将对应的类">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中的动态加载机制">
+<meta property="og:url" content="http://example.com/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本文主要介绍Android动态加载jar的技术，如何开发一个可以自定义控件的Android应用？就像eclipse一样，可以动态加载插件；如何让Android应用执行服务器上的不可预知的代码？如何对Android应用加密，而只在执行时自解密，从而防止被破解？这篇文章是一个基础，后面的一些文章会以此继续深入。   类加载机制Dalvik虚拟机如同其他Java虚拟机一样，在运行程序时首先需要将对应的类">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/dynamicload/structure.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/exportjar.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/export.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/dynamicdemo.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/result.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/importproj.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/improtproj2.png">
+<meta property="og:image" content="http://example.com/images/dynamicload/importjar.png">
+<meta property="article:published_time" content="2016-08-16T14:09:02.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.687Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/dynamicload/structure.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android中的动态加载机制" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2016-08-16T14:09:02.000Z" itemprop="datePublished">2016-08-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android中的动态加载机制
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文主要介绍Android动态加载jar的技术，如何开发一个可以自定义控件的Android应用？就像eclipse一样，可以动态加载插件；如何让Android应用执行服务器上的不可预知的代码？如何对Android应用加密，而只在执行时自解密，从而防止被破解？这篇文章是一个基础，后面的一些文章会以此继续深入。  </p>
+<h2 id="类加载机制"><a href="#类加载机制" class="headerlink" title="类加载机制"></a>类加载机制</h2><p>Dalvik虚拟机如同其他Java虚拟机一样，在运行程序时首先需要将对应的类加载到内存中。而在Java标准的虚拟机中，类加载可以从class文件中读取，也可以是其他形式的二进制流，因此，我们常常利用这一点，在程序运行时手动加载Class，从而达到代码动态加载执行的目的。<br>然而Dalvik虚拟机毕竟不算是标准的Java虚拟机，因此在类加载机制上，它们有相同的地方，也有不同之处。例如，在使用标准Java虚拟机时，我们经常自定义继承自<code>ClassLoader</code>的类加载器。然后通过<code>defineClass</code>方法来从一个二进制流中加载Class，然而，这在Android里是行不通的。参看源码我们知道，Android中ClassLoader的defineClass方法具体是调用<code>VMClassLoader</code>的defineClass本地静态方法。而这个本地方法除了抛出一个<code>UnsupportedOperationException</code>之外，什么都没做，甚至连返回值都为空。<br><strong>代码清单</strong> /dalvik/vm/native/java_lang_VMClassLoader.cpp  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Dalvik_java_lang_VMClassLoader_defineClass</span><span class="params">(<span class="keyword">const</span> u4* args, JValue* pResult)</span> </span>&#123;  </span><br><span class="line">    Object* loader = (Object*) args[<span class="number">0</span>];</span><br><span class="line">    StringObject* nameObj = (StringObject*) args[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">const</span> u1* data = (<span class="keyword">const</span> u1*) args[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">int</span> offset = args[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">int</span> len = args[<span class="number">4</span>];</span><br><span class="line">    Object* pd = (Object*) args[<span class="number">5</span>];</span><br><span class="line">    <span class="keyword">char</span>* name = <span class="literal">NULL</span>;</span><br><span class="line">    name = dvmCreateCstrFromString(nameObj);</span><br><span class="line">    LOGE(<span class="string">&quot;ERROR: defineClass(%p, %s, %p, %d, %d, %p)\n&quot;</span>,loader, name, data, offset, len, pd);</span><br><span class="line">    dvmThrowException(<span class="string">&quot;Ljava/lang/UnsupportedOperationException;&quot;</span>,<span class="string">&quot;can&#x27;t load this type of class file&quot;</span>);</span><br><span class="line">    <span class="built_in">free</span>(name);</span><br><span class="line">    RETURN_VOID();</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<h2 id="Dalvik虚拟机类加载机制"><a href="#Dalvik虚拟机类加载机制" class="headerlink" title="Dalvik虚拟机类加载机制"></a>Dalvik虚拟机类加载机制</h2><p>那如果在Dalvik虚拟机里，ClassLoader不好使，我们如何实现动态加载类呢？Android为我们从ClassLoader派生出了两个类：<code>DexClassLoader</code>（/libcore/dalvik/src/main/java/dalvik/system/DexClassLoader.java）和<code>PathClassLoader</code>（/libcore/dalvik/src/main/java/dalvik/system/PathClassLoader.java）。这两个继承自ClassLoader的类加载器，本质上是重载了ClassLoader的findClass方法。在执行loadClass时，我们可以参看ClassLoader部分源码：<br><strong>代码清单</strong> /libcore/libdvm/src/main/java/java/lang/ClassLoader.java: loadClass()  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String className, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">Class&lt;?&gt; clazz = findLoadedClass(className);</span><br><span class="line">    <span class="keyword">if</span> (clazz == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            clazz = parent.loadClass(className, <span class="keyword">false</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            <span class="comment">// Don&#x27;t want to see this.</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (clazz == <span class="keyword">null</span>) &#123;</span><br><span class="line">            clazz = findClass(className);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> clazz;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因此DexClassLoader和PathClassLoader都属于符合<code>双亲委派模型</code>的类加载器（因为它们没有重载loadClass方法）。也就是说，它们在加载一个类之前，回去检查自己以及自己以上的类加载器是否已经加载了这个类。如果已经加载过了，就会直接将之返回，而不会重复加载。<br>DexClassLoader和PathClassLoader其实都是通过<code>DexFile</code>这个类来实现类加载的。这里需要顺便提一下的是，Dalvik虚拟机识别的是dex文件，而不是class文件。因此，我们供类加载的文件也只能是dex文件，或者包含有dex文件的apk或jar文件。<br>PathClassLoader是通过构造函数<code>new DexFile(path)</code>来产生DexFile对象的；而DexClassLoader则是通过其静态方法<code>loadDex(path, outpath, 0)</code>得到DexFile对象。<br>PathClassLoader是Android应用中的<code>默认加载器</code>。这两者的区别在于：</p>
+<ul>
+<li>DexClassLoader可以加载任意路径的apk、jar和dex文件，并且会在指定的outpath路径释放出dex文件。</li>
+<li>PathClassLoader只能加载<code>/data/app</code>中的apk，也就是已经安装到手机中的apk。这个也是PathClassLoader作为默认类加载器的原因，因为一般程序都是安装了再打开。</li>
+</ul>
+<p>另外，PathClassLoader在加载类时调用的是DexFile的<code>loadClassBinaryName</code>，而DexClassLoader调用的是<code>loadClass</code>。因此，在使用PathClassLoader时类全名需要用<code>/</code>替换<code>.</code><br>下面看一下Android中的各种类加载器分别加载哪些类：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.androiddemo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"><span class="keyword">import</span> android.widget.ListView;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;  </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        <span class="comment">// java.lang.BootClassLoader，也继承了ClassLoader类</span></span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;Context的类加载加载器:&quot;</span>+Context.class.getClassLoader());</span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;ListView的类加载器:&quot;</span>+ListView.class.getClassLoader());</span><br><span class="line">        <span class="comment">// dalvik.system.PathClassLoader</span></span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;应用程序默认加载器:&quot;</span>+getClassLoader());</span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;系统类加载器:&quot;</span>+ClassLoader.getSystemClassLoader());</span><br><span class="line">        <span class="comment">// 默认加载器PathClassLoader的父亲是BootClassLoader</span></span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>,<span class="string">&quot;打印应用程序默认加载器的委派机制:&quot;</span>);</span><br><span class="line">        ClassLoader classLoader = getClassLoader();</span><br><span class="line">        <span class="keyword">while</span>(classLoader != <span class="keyword">null</span>)&#123;</span><br><span class="line">            Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;类加载器:&quot;</span>+classLoader);</span><br><span class="line">            classLoader = classLoader.getParent();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 系统加载器PathClassLoader的父亲也是BootClassLoader</span></span><br><span class="line">        Log.i(<span class="string">&quot;DEMO&quot;</span>,<span class="string">&quot;打印系统加载器的委派机制:&quot;</span>);</span><br><span class="line">        classLoader = ClassLoader.getSystemClassLoader();</span><br><span class="line">        <span class="keyword">while</span>(classLoader != <span class="keyword">null</span>)&#123;</span><br><span class="line">            Log.i(<span class="string">&quot;DEMO&quot;</span>, <span class="string">&quot;类加载器:&quot;</span>+classLoader);</span><br><span class="line">            classLoader = classLoader.getParent();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实际操作"><a href="#实际操作" class="headerlink" title="实际操作"></a>实际操作</h2><p>使用到的工具都比较常规：javac、dx、eclipse等其中dx工具最好是指明–no-strict，因为class文件的路径可能不匹配。<br>加载好类后，通常我们可以通过Java反射机制来使用这个类，但是这样效率相对不高，而且老用反射代码也比较复杂凌乱。更好的做法是定义一个interface，并将这个interface写进宿主程序里。待加载的类，继承自这个interface，并且有一个参数为空的构造函数，以使我们能够通过Class的newInstance方法产生对象然后将对象强制转换为interface对象，于是就可以直接调用成员方法了，下面是具体的实现步骤了:<br><strong>第一步</strong><br>编写好动态代码类：<br><img src="/images/dynamicload/structure.png"><br><strong>代码清单</strong> IDynamic.java  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.dynamic.interfaces;</span><br><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IDynamic</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Activity activity)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showBanner</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showDialog</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showFullScreen</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showAppWall</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码清单</strong> Dynamic.java  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.dynamic.impl;</span><br><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"><span class="keyword">import</span> android.widget.Toast;</span><br><span class="line"><span class="keyword">import</span> com.dynamic.interfaces.IDynamic;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 动态类实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Dynamic</span> <span class="keyword">implements</span> <span class="title">IDynamic</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Activity mActivity;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">        mActivity = activity;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showBanner</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Toast.makeText(mActivity, <span class="string">&quot;我是ShowBanner方法&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showDialog</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Toast.makeText(mActivity, <span class="string">&quot;我是ShowDialog方法&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showFullScreen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Toast.makeText(mActivity, <span class="string">&quot;我是ShowFullScreen方法&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showAppWall</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Toast.makeText(mActivity, <span class="string">&quot;我是ShowAppWall方法&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第二步</strong><br>将上面开发好的动态类打包成jar，这里要注意的是只打包实现类Dynamic.java，不打包接口类IDynamic.java<br>右键项目-&gt;Export<br><img src="/images/dynamicload/exportjar.png"><br>点击next<br><img src="/images/dynamicload/export.png"><br>然后使用dx命令:(我的jar文件是dynamic.jar)<br><code>dx --dex --output=dynamic_temp.jar dynamic.jar</code><br>这样就生成了dynamic_temp.jar，这个jar和dynamic.jar有什么区别呢？<br>其实这条命令主要做的工作是：首先将dynamic.jar编译成dynamic.dex文件(Android虚拟机认识的字节码文件)，然后再将dynamic.dex文件压缩成dynamic_temp.jar，当然你也可以压缩成zip格式的，或者直接编译成apk文件都可以的，这个后面会说到。<br>同样的方法只打包接口类IDynamic.java，得到dynamic_int.jar，不用dx处理，第三步中会用到。<br><strong>第三步</strong><br>新建一个DynamicDemo项目，目录如下<br><img src="/images/dynamicload/dynamicdemo.png"><br>下面看一下目标类：<br><strong>代码清单</strong> AndroidDynamicLoadClassActivity.java  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.dynamic.demo;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"><span class="keyword">import</span> android.content.Intent;</span><br><span class="line"><span class="keyword">import</span> android.content.pm.ActivityInfo;</span><br><span class="line"><span class="keyword">import</span> android.content.pm.PackageManager;</span><br><span class="line"><span class="keyword">import</span> android.content.pm.ResolveInfo;</span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"><span class="keyword">import</span> android.os.Environment;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"><span class="keyword">import</span> android.view.View;</span><br><span class="line"><span class="keyword">import</span> android.view.View.OnClickListener;</span><br><span class="line"><span class="keyword">import</span> android.widget.Button;</span><br><span class="line"><span class="keyword">import</span> android.widget.Toast;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.dynamic.interfaces.IDynamic;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> dalvik.system.DexClassLoader;</span><br><span class="line"><span class="keyword">import</span> dalvik.system.PathClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AndroidDynamicLoadClassActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 动态类加载接口</span></span><br><span class="line">    <span class="keyword">private</span> IDynamic lib;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        <span class="comment">// 初始化组件</span></span><br><span class="line">        Button showBannerBtn = (Button) findViewById(R.id.show_banner_btn);</span><br><span class="line">        Button showDialogBtn = (Button) findViewById(R.id.show_dialog_btn);</span><br><span class="line">        Button showFullScreenBtn = (Button) findViewById(R.id.show_fullscreen_btn);</span><br><span class="line">        Button showAppWallBtn = (Button) findViewById(R.id.show_appwall_btn);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* 使用DexClassLoader方式加载类 */</span></span><br><span class="line">        <span class="comment">// dex压缩文件的路径（可以是apk，jar，zip格式）</span></span><br><span class="line">        String jarPath = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + <span class="string">&quot;dynamic_temp.jar&quot;</span>;</span><br><span class="line">        <span class="comment">// dex解压释放后的目录</span></span><br><span class="line">        String dexOutputDirs = getApplicationContext().getCacheDir().getAbsolutePath();</span><br><span class="line">        <span class="comment">// 定义DexClassLoader</span></span><br><span class="line">        <span class="comment">// 第一个参数：是dex压缩文件的路径</span></span><br><span class="line">        <span class="comment">// 第二个参数：是dex解压缩后存放的目录</span></span><br><span class="line">        <span class="comment">// 第三个参数：是C/C++依赖的本地库文件目录,可以为null</span></span><br><span class="line">        <span class="comment">// 第四个参数：是上一级的类加载器</span></span><br><span class="line">        DexClassLoader cl = <span class="keyword">new</span> DexClassLoader(jarPath, dexOutputDirs, <span class="keyword">null</span>, getClassLoader());</span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* 使用PathClassLoader方法加载类 */</span></span><br><span class="line">        <span class="comment">// 创建一个intent，用来找到指定的apk：这里的&quot;com.dynamic.impl&quot;是指定apk中在AndroidMainfest.xml文件中定义的&lt;action name=&quot;com.dynamic.impl&quot;/&gt;</span></span><br><span class="line">        Intent intent = <span class="keyword">new</span> Intent(<span class="string">&quot;com.dynamic.impl&quot;</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">// 获得包管理器</span></span><br><span class="line">        PackageManager pm = getPackageManager();</span><br><span class="line">        List&lt;ResolveInfo&gt; resolveinfoes = pm.queryIntentActivities(intent, <span class="number">0</span>);</span><br><span class="line">        <span class="comment">// 获得指定的activity信息</span></span><br><span class="line">        ActivityInfo actInfo = resolveinfoes.get(<span class="number">0</span>).activityInfo;</span><br><span class="line">        <span class="comment">// 获得apk的目录或者jar的目录</span></span><br><span class="line">        String apkPath = actInfo.applicationInfo.sourceDir;</span><br><span class="line">        <span class="comment">// native代码的目录</span></span><br><span class="line">        String libPath = actInfo.applicationInfo.nativeLibraryDir;</span><br><span class="line">        <span class="comment">// 创建类加载器，把dex加载到虚拟机中</span></span><br><span class="line">        <span class="comment">// 第一个参数：是指定apk安装的路径，这个路径要注意只能是通过actInfo.applicationInfo.sourceDir来获取</span></span><br><span class="line">        <span class="comment">// 第二个参数：是C/C++依赖的本地库文件目录,可以为null</span></span><br><span class="line">        <span class="comment">// 第三个参数：是上一级的类加载器</span></span><br><span class="line">        PathClassLoader pcl = <span class="keyword">new</span> PathClassLoader(apkPath, libPath, <span class="keyword">this</span>.getClassLoader());</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 加载类</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// com.dynamic.impl.Dynamic是动态类名</span></span><br><span class="line">            <span class="comment">// 使用DexClassLoader加载类</span></span><br><span class="line">            Class libProviderClazz = cl.loadClass(<span class="string">&quot;com.dynamic.impl.Dynamic&quot;</span>);</span><br><span class="line">            <span class="comment">// 使用PathClassLoader加载类</span></span><br><span class="line">            <span class="comment">// Class libProviderClazz = pcl.loadClass(&quot;com.dynamic.impl.Dynamic&quot;);</span></span><br><span class="line">            lib = (IDynamic)libProviderClazz.newInstance();</span><br><span class="line">            <span class="keyword">if</span> (lib != <span class="keyword">null</span>) &#123;</span><br><span class="line">                lib.init(AndroidDynamicLoadClassActivity.<span class="keyword">this</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception exception) &#123;</span><br><span class="line">            exception.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 下面分别调用动态类中的方法</span></span><br><span class="line">        showBannerBtn.setOnClickListener(<span class="keyword">new</span> OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (lib != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    lib.showBanner();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    Toast.makeText(getApplicationContext(), <span class="string">&quot;类加载失败&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        showDialogBtn.setOnClickListener(<span class="keyword">new</span> OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (lib != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    lib.showDialog();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    Toast.makeText(getApplicationContext(), <span class="string">&quot;类加载失败&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        showFullScreenBtn.setOnClickListener(<span class="keyword">new</span> OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (lib != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    lib.showFullScreen();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    Toast.makeText(getApplicationContext(), <span class="string">&quot;类加载失败&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        showAppWallBtn.setOnClickListener(<span class="keyword">new</span> OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (lib != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    lib.showAppWall();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    Toast.makeText(getApplicationContext(), <span class="string">&quot;类加载失败&quot;</span>, <span class="number">1500</span>).show();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里定义了一个IDynamic接口变量，而且给出了DexClassLoader和PathClassLoader加载类的使用方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DexClassLoader cl = <span class="keyword">new</span> DexClassLoader(jarPath, dexOutputDirs, <span class="keyword">null</span>, getClassLoader());</span><br></pre></td></tr></table></figure>
+<p>DexClassLoader是继承ClassLoader类的，这里面的参数说明：</p>
+<ul>
+<li><p>第一个参数是：dex压缩文件的路径，就是我们将上面编译后的dynamic_temp.jar存放的目录，当然也可以是zip和apk格式的。</p>
+</li>
+<li><p>第二个参数是：dex解压后存放的目录，就是将jar、zip或apk文件解压出的dex文件存放的目录，这个就和PathClassLoader方法有区别了，同时你也可以看到PathClassLoader方法中没有这个参数，这个也真是这两个类的区别：<br>PathClassLoader不能主动从zip包中释放出dex，因此只支持直接操作dex格式文件，或者已经安装的apk（因为已经安装的apk在手机的data/dalvik目录中存在缓存的dex文件）。而DexClassLoader可以支持apk、jar和dex文件，并且会在指定的outpath路径释放出dex文件。  </p>
+<blockquote>
+<p>我们可以通过DexClassLoader方法指定解压后的dex文件的存放目录，但是我们一般不这么做，因为这样做无疑的暴露了dex文件，所以我们一般不会将jar/zip/apk压缩文件存放到用户可以察觉到的位置，同时解压dex的目录也是不能让用户看到的。</p>
+</blockquote>
+</li>
+<li><p>第三个参数是：加载的时候需要用到的lib库，这个一般不用。</p>
+</li>
+<li><p>第四个参数是：给DexClassLoader指定父加载器。</p>
+</li>
+</ul>
+<p>com.dynamic.interfaces这个包是从Dynamic项目中剪切过来的，同时要在Dynamic项目中新建一个lib文件夹，将dynamic_int.jar文件拷进去，然后右键dynamic_int.jar-&gt;Build Path-&gt;Add to Build Path，后面会说为什么要这么做。<br><strong>第四步</strong><br>运行目标类：<br>如果用的是DexClassLoader方式加载类:这时候需要将jar或者zip或者apk文件放到指定的目录中，我这里放到了/data/data/com.dynamic.demo/files目录。<br>如果用的是PathClassLoader方法加载类:这时候需要先将Dynamic.apk安装到设备上，不然找不到这个指定的activity，同时需要注意：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Intent intent = <span class="keyword">new</span> Intent(<span class="string">&quot;com.dynamic.impl&quot;</span>, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+<p>这里<code>com.dynamic.impl</code>是一个action，需要定义在Dynamic项目中，这个名称是动态apk和目标apk之间约定好的。  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">&quot;@drawable/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">&quot;@style/AppTheme&quot;</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;.DynamicActivity&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span> &gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;com.dynamic.impl&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.action.MAIN&quot;</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.LAUNCHER&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>运行结果：<br><img src="/images/dynamicload/result.png"><br>点击按钮就弹出对应的Toast，成功地运行了动态类中的代码。<br>其实更好的办法就是将动态的jar，zip，apk文件从网络上获取，安全可靠，同时本地的目标项目不需要改动代码就可以执行不同的逻辑了。</p>
+<h2 id="问题解释"><a href="#问题解释" class="headerlink" title="问题解释"></a>问题解释</h2><p>需要解释的是项目中接口和jar的位置以及导入方式，在解释原因之前先来了解一下Eclipse中引用项目的不同方式和区别：<br><strong>第一种</strong> 最常用的将引用项目打成jar放到需要引用项目的libs下面(这里是将PluginImpl打成jar,放到HostProject项目的libs中)<br>这种方式是Eclipse推荐使用的，当我们在建立一个项目的时候也会自动产生这个文件夹，当我们将我们需要引用的项目打成jar，然后放到这个文件夹之后，Eclipse就自动导入了(这个功能是Eclipse3.7之后有的)。<br><strong>第二种</strong> 和第一种的区别是，我们可以从新新建一个文件夹比如是lib，然后将引用的jar放到这个文件夹中，但是此时Eclipse是不会自动导入的，需要我们手动的导入(Add to Build Path…)，但是这个是一个区别，还有一个区别，也是到这个这个报错原因的区别，就是libs文件夹中的jar，在运行的时候是会将这个jar集成到程序中的，而我们新建的文件夹(名字非libs即可)，及时我们手动的导入，编译是没有问题的，但是运行的时候，是不会将jar集成到程序中。<br><strong>第三种</strong> 和前两种的区别是不需要将引用项目打成jar，直接引用这个项目<br><img src="/images/dynamicload/importproj.png"><br>这种方式其实效果和第一种差不多，唯一的区别就是不需要打成jar，但是运行的时候是不会将引用项目集成到程序中的。<br><strong>第四种</strong> 和第三种的方式是一样的，也是不需要将引用项目打成jar，直接引用项目：<br><img src="/images/dynamicload/improtproj2.png"><br>这个前提是需要设置引用项目为Library，同时引用的项目和被引用的项目必须在一个工作空间中，不然会报错，这种的效果和第二种是一样的，在运行的时候是会将引用项目集成到程序中的。<br><strong>第五种</strong> 和第一种、第二种差不多，导入jar：<br><img src="/images/dynamicload/importjar.png"><br>这里有很多种方式选择jar的位置，但是这些操作的效果和第一种是一样的，运行的时候是不会将引用的jar集成到程序中的。<br>上面两个项目可以将Dynamic看成一个插件项目，DynamicDemo看成一个宿主项目，要遵循的一个原则就是<strong>插件项目不能集成接口，宿主项目一定要集成接口</strong>。<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1pKYm53X">项目下载</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/jiangwei0910410003/article/details/17679823">http://blog.csdn.net/jiangwei0910410003/article/details/17679823</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/jiangwei0910410003/article/details/41384667">http://blog.csdn.net/jiangwei0910410003/article/details/41384667</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" data-id="ckhe7o4od007bchl7h73f6mf9" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/08/17/C-%E5%8F%98%E9%87%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C++变量和基本类型
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/16/%E7%AE%97%E6%B3%95-%E6%8E%92%E5%BA%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">算法-排序</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

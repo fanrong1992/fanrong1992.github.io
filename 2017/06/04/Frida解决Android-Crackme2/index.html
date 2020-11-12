@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Frida解决Android Crackme2 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="crackme2也是一道OWASP的Android题目，下面就用frida来解决它。和crackme1一样，在模拟器中运行时会检测它是在root设备上运行的。用JEB反编译之后，MainActivity如下：   123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frida解决Android Crackme2">
+<meta property="og:url" content="http://example.com/2017/06/04/Frida%E8%A7%A3%E5%86%B3Android-Crackme2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="crackme2也是一道OWASP的Android题目，下面就用frida来解决它。和crackme1一样，在模拟器中运行时会检测它是在root设备上运行的。用JEB反编译之后，MainActivity如下：   123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/frida/antidebug.png">
+<meta property="og:image" content="http://example.com/images/frida/uncrackable2.png">
+<meta property="og:image" content="http://example.com/images/frida/codecheck.png">
+<meta property="article:published_time" content="2017-06-04T07:04:35.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.706Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/frida/antidebug.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Frida解决Android-Crackme2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/04/Frida%E8%A7%A3%E5%86%B3Android-Crackme2/" class="article-date">
+  <time datetime="2017-06-04T07:04:35.000Z" itemprop="datePublished">2017-06-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Frida解决Android Crackme2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://github.com/OWASP/owasp-mstg/tree/master/Crackmes/Android/Level_02">crackme2</a>也是一道OWASP的Android题目，下面就用frida来解决它。<br>和crackme1一样，在模拟器中运行时会检测它是在root设备上运行的。<br>用JEB反编译之后，MainActivity如下：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> sg.vantagepoint.uncrackable2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">c</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> CodeCheck m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.loadLibrary(<span class="string">&quot;foo&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MainActivity</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(String arg5)</span> </span>&#123;</span><br><span class="line">        AlertDialog v0 = <span class="keyword">new</span> AlertDialog$Builder(((Context)<span class="keyword">this</span>)).create();</span><br><span class="line">        v0.setTitle(((CharSequence)arg5));</span><br><span class="line">        v0.setMessage(<span class="string">&quot;This in unacceptable. The app is now going to exit.&quot;</span>);</span><br><span class="line">        v0.setButton(-<span class="number">3</span>, <span class="string">&quot;OK&quot;</span>, <span class="keyword">new</span> DialogInterface$OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(DialogInterface arg2, <span class="keyword">int</span> arg3)</span> </span>&#123;</span><br><span class="line">                System.exit(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        v0.setCancelable(<span class="keyword">false</span>);</span><br><span class="line">        v0.show();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(MainActivity arg0, String arg1)</span> </span>&#123;</span><br><span class="line">        arg0.a(arg1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle arg5)</span> </span>&#123;</span><br><span class="line">        Void v3 = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">this</span>.init();</span><br><span class="line">        <span class="keyword">if</span>((b.a()) || (b.b()) || (b.c())) &#123;</span><br><span class="line">            <span class="keyword">this</span>.a(<span class="string">&quot;Root detected!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(a.a(<span class="keyword">this</span>.getApplicationContext())) &#123;</span><br><span class="line">            <span class="keyword">this</span>.a(<span class="string">&quot;App is debuggable!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> AsyncTask() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">protected</span> String <span class="title">a</span><span class="params">(Void[] arg3)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">while</span>(!Debug.isDebuggerConnected()) &#123;</span><br><span class="line">                    SystemClock.sleep(<span class="number">100</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(String arg3)</span> </span>&#123;</span><br><span class="line">                MainActivity.a(<span class="keyword">this</span>.a, <span class="string">&quot;Debugger detected!&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> Object <span class="title">doInBackground</span><span class="params">(Object[] arg2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.a(((Void[])arg2));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPostExecute</span><span class="params">(Object arg1)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.a(((String)arg1));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.execute(<span class="keyword">new</span> Void[]&#123;v3, v3, v3&#125;);</span><br><span class="line">        <span class="keyword">this</span>.m = <span class="keyword">new</span> CodeCheck();</span><br><span class="line">        <span class="keyword">super</span>.onCreate(arg5);</span><br><span class="line">        <span class="keyword">this</span>.setContentView(<span class="number">2130968603</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">verify</span><span class="params">(View arg5)</span> </span>&#123;</span><br><span class="line">        String v0 = <span class="keyword">this</span>.findViewById(<span class="number">2131427422</span>).getText().toString();</span><br><span class="line">        AlertDialog v1 = <span class="keyword">new</span> AlertDialog$Builder(((Context)<span class="keyword">this</span>)).create();</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.m.a(v0)) &#123;</span><br><span class="line">            v1.setTitle(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">            v1.setMessage(<span class="string">&quot;This is the correct secret.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            v1.setTitle(<span class="string">&quot;Nope...&quot;</span>);</span><br><span class="line">            v1.setMessage(<span class="string">&quot;That\&#x27;s not it. Try again.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        v1.setButton(-<span class="number">3</span>, <span class="string">&quot;OK&quot;</span>, <span class="keyword">new</span> DialogInterface$OnClickListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(DialogInterface arg1, <span class="keyword">int</span> arg2)</span> </span>&#123;</span><br><span class="line">                arg1.dismiss();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        v1.show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>尝试像前面一样hook OnClickListener，启动frida-server：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell </span><br><span class="line">generic:&#x2F; # .&#x2F;data&#x2F;local&#x2F;tmp&#x2F;frida-server</span><br></pre></td></tr></table></figure>
+<p>启动crackme2应用，连接frida：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ frida -U sg.vantagepoint.uncrackable2</span><br><span class="line">...</span><br><span class="line">Failed to attach: ambiguous name; it matches: sg.vantagepoint.uncrackable2 (pid: 3844), sg.vantagepoint.uncrackable2 (pid: 3859)</span><br></pre></td></tr></table></figure>
+<p>有两个名称相同的进程，可以验证一下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ frida-ps -U</span><br><span class="line">3844  sg.vantagepoint.uncrackable2</span><br><span class="line">3859  sg.vantagepoint.uncrackable2</span><br></pre></td></tr></table></figure>
+<p>尝试注入父进程：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ frida -U 3844</span><br><span class="line">...</span><br><span class="line">Failed to attach: unable to access process with pid 3844 due to system restrictions; try &#96;sudo sysctl kernel.yama.ptrace_scope&#x3D;0&#96;, or run Frida as root</span><br></pre></td></tr></table></figure>
+<p>查看反编译的MainActivity，程序加载了libfoo.so，onCreate()方法的第一行调用了一个native方法init()，这个方法应该是libfoo.so中的。一开始我用radare2打开armeabi目录下的so文件，查看init()函数，查看跳转到的子函数0x11c0。看到反汇编的代码很奇怪，其实这里的代码是thumb指令，而按照ARM模式进行了反汇编，调整方法是在visual mode下按<code>:</code>，输入命令<code>e asm.bits=16</code>，按照thumb模式进行反汇编。反汇编正常后，发现函数都是用地址表示，不知道调用的是什么函数。改为查看x86_64目录下的so文件。</p>
+<blockquote>
+<p>其实这里改为x86_64有多个原因:<br>(1)Mac上即使在radare2中输入<code>e asm.bits=16</code>也不能正常按thumb模式反汇编，在Ubuntu上能正常反汇编。<br>(2)正常反汇编arm的so文件看不到函数的名字，不知道调用了什么函数。<br>(3)后面frida hook native函数的时候，arm和x86都会有”Error: unable to intercept function at ***”的错误，只有x86_64能正常hook。不知道是不是这些开源软件在Mac上都有各种各样的bug，还是我用的不对。</p>
+</blockquote>
+<p>列出x86_64 so文件的导出函数：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ r2 libfoo.so</span><br><span class="line"> -- This page intentionally left blank.</span><br><span class="line">[0x000007a0]&gt; iE</span><br><span class="line">[Exports]</span><br><span class="line">vaddr&#x3D;0x00000a00 paddr&#x3D;0x00000a00 ord&#x3D;009 fwd&#x3D;NONE sz&#x3D;433 bind&#x3D;GLOBAL type&#x3D;FUNC name&#x3D;Java_sg_vantagepoint_uncrackable2_CodeCheck_bar</span><br><span class="line">vaddr&#x3D;0x000009f0 paddr&#x3D;0x000009f0 ord&#x3D;010 fwd&#x3D;NONE sz&#x3D;15 bind&#x3D;GLOBAL type&#x3D;FUNC name&#x3D;Java_sg_vantagepoint_uncrackable2_MainActivity_init</span><br><span class="line">vaddr&#x3D;0x00002048 paddr&#x3D;0x00001048 ord&#x3D;014 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;GLOBAL type&#x3D;NOTYPE name&#x3D;__bss_start</span><br><span class="line">vaddr&#x3D;0x00002048 paddr&#x3D;0x00001048 ord&#x3D;015 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;GLOBAL type&#x3D;NOTYPE name&#x3D;__bss_start</span><br><span class="line">vaddr&#x3D;0x0000204d paddr&#x3D;0x0000204d ord&#x3D;016 fwd&#x3D;NONE sz&#x3D;0 bind&#x3D;GLOBAL type&#x3D;NOTYPE name&#x3D;_end</span><br><span class="line"></span><br><span class="line">5 exports</span><br></pre></td></tr></table></figure>
+<p>Java_sg_vantagepoint_uncrackable2_MainActivity_init和Java_sg_vantagepoint_uncrackable2_CodeCheck_bar两个函数是我们需要关注的，先看一下init()函数：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[0x000007a0]&gt; s 0x9f0</span><br><span class="line">[0x000009f0]&gt; V #切换到visual mode，p&#x2F;P切换view</span><br><span class="line">[0x000009f0 41% 672 libfoo.so]&gt; pd $r @ sym.Java_sg_vantagepoint_uncrackable2_MainActivity_init</span><br><span class="line">            ;-- Java_sg_vantagepoint_uncrackable2_MainActivity_init:</span><br><span class="line">            0x000009f0      50             push rax</span><br><span class="line">            0x000009f1      e82afeffff     call 0x820                  ;[1]</span><br><span class="line">            0x000009f6      c6054f160000.  mov byte [0x0000204c], 1    ; [0x204c:1]&#x3D;58 ; &quot;: (GNU) 4.9.x 20150123 (prerelease)&quot; 0x0000204c  ; &quot;: (GNU) 4.9.x 20150123 (prerelease)&quot;</span><br><span class="line">            0x000009fd      58             pop rax</span><br><span class="line">            0x000009fe      c3             ret</span><br><span class="line">            0x000009ff      90             nop</span><br></pre></td></tr></table></figure>
+<p>查看init()函数的子函数0x820：<br><img src="/images/frida/antidebug.png"></p>
+<blockquote>
+<p>在<code>visual mode</code>下按<code>c</code>显示一个游标，移动游标到<code>call 0x820</code>这一行，按回车就跳转过去（按<code>u</code>跳转回来）</p>
+</blockquote>
+<p>这个函数里调用了fork、pthread_create、getppid、ptrace和waitpid等函数。这是一个基本的反调试技术，附加调试进程被阻止，因为已经有其他进程作为调试器连接。<br>我们可以让frida为我们生成一个进程而不是将它注入到运行中的进程中。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ frida -U -f sg.vantagepoint.uncrackable2</span><br></pre></td></tr></table></figure>
+<p>这样frida注入到Zygote中，生成我们的进程并且等待输入，使反调试失效。<br>在摆脱反调试之后，应用程序还是会检测root，点击OK后退出。可以用frida来hook System.exit函数，使其失效。  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">setImmediate(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;[*] Starting script&quot;</span>);</span><br><span class="line">    Java.perform(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        exitClass = Java.use(<span class="string">&quot;java.lang.System&quot;</span>);</span><br><span class="line">        exitClass.exit.implementation = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;[*] System.exit called&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">&quot;[*] Hooking calls to System.exit&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>关闭所有正在运行的crackme2进程，用frida运行它：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ frida -U -f sg.vantagepoint.uncrackable2 -l uncrackable2.js --no-pause</span><br><span class="line">...</span><br><span class="line">Spawned &#96;sg.vantagepoint.uncrackable2&#96;. Resuming main thread!</span><br><span class="line">[*] Starting script</span><br><span class="line">[USB::Android Emulator 5554::[&#39;sg.vantagepoint.uncrackable2&#39;]]-&gt; [*] Hooking calls to System.exit</span><br><span class="line">[*] System.exit called</span><br></pre></td></tr></table></figure>
+<p>等到出现<code>[*] Hooking calls to System.exit</code>，点击OK，程序就不会退出了。<br><img src="/images/frida/uncrackable2.png"><br>程序需要输入一个字符串，需要继续分析MainActivity：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.m = <span class="keyword">new</span> CodeCheck();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.m.a(string)) &#123;</span><br><span class="line">    Dialog.setTitle((CharSequence)<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">    Dialog.setMessage((CharSequence)<span class="string">&quot;This is the correct secret.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看看CodeCheck类：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> sg.vantagepoint.uncrackable2;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CodeCheck</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">bar</span><span class="params">(<span class="keyword">byte</span>[] var1)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">a</span><span class="params">(String string)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.bar(string.getBytes());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输入的字符串被传递给一个native方法bar，同样在libfoo.so中找到这个函数：<br><img src="/images/frida/codecheck.png"><br>看到0xb52处的汇编代码  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x00000b52      83f817         cmp eax, 0x17</span><br><span class="line">0x00000b55      7515           jne 0xb6c</span><br></pre></td></tr></table></figure>
+<p>这里有一个eax和0x17的比较，如果不相同，strncmp函数不会调用，0x17是strncmp的一个参数。可以猜测输入的字符串长度应该是0x17。尝试hook strncmp，打印它的参数，会发现strncmp被调用了很多次，需要进一步限制输出。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">var strncmp &#x3D; undefined;</span><br><span class="line">imports &#x3D; Module.enumerateImportsSync(&quot;libfoo.so&quot;);</span><br><span class="line"></span><br><span class="line">for (i &#x3D; 0; i &lt; imports.length; i++) &#123;</span><br><span class="line">    if (imports[i].name &#x3D;&#x3D; &quot;strncmp&quot;) &#123;</span><br><span class="line">        strncmp &#x3D; imports[i].address;</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">Interceptor.attach(strncmp, &#123;</span><br><span class="line">    onEnter: function(args) &#123;</span><br><span class="line">        if (args[2].toInt32() &#x3D;&#x3D; 23 &amp;&amp; Memory.readUtf8String(args[0], 23) &#x3D;&#x3D; &quot;01234567890123456789012&quot;) &#123;</span><br><span class="line">            console.log(&quot;[*] Secret string at &quot; + args[1] + &quot;: &quot; + Memory.readUtf8String(args[1], 23));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>1.该脚本调用<code>Module.enumerateImportsSync()</code>以从libfoo.so中获取有关导入信息的对象数组。我们遍历这个数组，直到找到strncmp并检索其地址。然后我们将<code>Interceptor</code>附加到它。<br>2.Java中的字符串不会以null结束。当strncmp使用frida的<code>Memory.readUtf8String</code>方法访问字符串指针的内存位置并且不提供长度时，frida会期待一个<code>\0</code>结束符，或者输出一些垃圾内存。它不知道字符串在哪里结束。如果我们指定要读取的字符数量作为第二个参数就解决了这个问题。<br>3.如果我们没有限制strncmp参数的条件将得到很多输出。限制条件为第三个参数size_t为23。<br>如何知道args[0]是我们的输入，args[1]是我们寻找的字符串，这个是试出来的。<br>启动frida加载这个脚本：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">frida -U -f sg.vantagepoint.uncrackable2 -l uncrackable2.js --no-pause</span><br><span class="line">...</span><br><span class="line">Spawned &#96;sg.vantagepoint.uncrackable2&#96;. Resuming main thread!</span><br><span class="line">[*] Starting script</span><br><span class="line">[USB::Android Emulator 5554::[&#39;sg.vantagepoint.uncrackable2&#39;]]-&gt; [*] Hooking calls to System.exit</span><br><span class="line">[*] Intercepting strncmp</span><br><span class="line">[*] System.exit called</span><br><span class="line">[*] Secret string at 0x7fff9553d870: thanks for all the fish</span><br></pre></td></tr></table></figure>
+<p>输入字符串”01234567890123456789012”按VERIFY，终端会显示正确答案：Thanks for all the fish<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3794.html">利用FRIDA攻击Android应用程序（三）</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/06/04/Frida%E8%A7%A3%E5%86%B3Android-Crackme2/" data-id="ckhe7o4lb0021chl7164vfxah" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/06/06/angr%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          angr使用说明
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/06/01/Manticore%EF%BC%9A%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Manticore：符号执行</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android无源码调试 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前几天通过从网上查阅相关资料，大体了解了一些Android无源码调试的方法，本文主要总结无源码调试的三种方法：  smalidea + Android Studio IDA 插桩（Instrumentation）  smalidea + Android Studio1.安装  下载插件smalidea； 进入Android Studio开始安装插件，进入Settings-&gt;Plugins点击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android无源码调试">
+<meta property="og:url" content="http://example.com/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前几天通过从网上查阅相关资料，大体了解了一些Android无源码调试的方法，本文主要总结无源码调试的三种方法：  smalidea + Android Studio IDA 插桩（Instrumentation）  smalidea + Android Studio1.安装  下载插件smalidea； 进入Android Studio开始安装插件，进入Settings-&gt;Plugins点击">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androiddebug/config.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/smalidea-debug.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/attachprocess.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/debugrun.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/locals.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/log.png">
+<meta property="article:published_time" content="2017-01-10T07:53:24.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.683Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androiddebug/config.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android无源码调试" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" class="article-date">
+  <time datetime="2017-01-10T07:53:24.000Z" itemprop="datePublished">2017-01-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android无源码调试
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前几天通过从网上查阅相关资料，大体了解了一些Android无源码调试的方法，本文主要总结无源码调试的三种方法：</p>
+<ul>
+<li>smalidea + Android Studio</li>
+<li>IDA</li>
+<li>插桩（Instrumentation）</li>
+</ul>
+<h2 id="smalidea-Android-Studio"><a href="#smalidea-Android-Studio" class="headerlink" title="smalidea + Android Studio"></a>smalidea + Android Studio</h2><p>1.安装</p>
+<ul>
+<li>下载插件<a target="_blank" rel="noopener" href="https://bitbucket.org/JesusFreke/smali/downloads">smalidea</a>；</li>
+<li>进入Android Studio开始安装插件，进入Settings-&gt;Plugins点击<code>Install plugin from disk</code>选中下载的压缩包；</li>
+<li>点击<code>apply</code>。</li>
+</ul>
+<p>2.开启应用调试<br>要调试一个APK的DEX中的代码，必须满足以下两个条件：</p>
+<ul>
+<li>APK中的AndroidManifest.xml文件中的Application标签包含属性android:debuggable=”true” (Android Studio中Build-&gt;Build APK产生的APK文件中就有这个属性)；</li>
+<li>/default.prop中ro.debuggable的值为1</li>
+</ul>
+<p>可选方案：</p>
+<ul>
+<li>apktool反编译app后在AndroidManifest.xml文件中插入android:debuggable=”true”</li>
+<li>hook system debug(Xinstaller)</li>
+<li>修改boot.img</li>
+</ul>
+<p>3.调试应用<br>1）使用baksmali反编译应用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ baksmali test.apk -o myapp&#x2F;src</span><br></pre></td></tr></table></figure>
+<p>2）Android Studio导入项目：启动Android Studio-&gt;File-&gt;New-&gt;Import Project，选择上面生成的路径，选定src的上层目录<code>myapp</code>；<br>3）选择<code>Create project from existing sources</code>，一路next；<br>4）导入后，将导航栏左上角的Android改为Project；<br>5）右键src目录，即smali的顶级目录，设定Mark Directory As-&gt;Sources Root<br>6）安装应用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ adb install test.apk</span><br></pre></td></tr></table></figure>
+<p>7）启动应用程序：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell am start -D -n com.example.test&#x2F;.MainActivity</span><br><span class="line">$ adb shell ps | grep test</span><br><span class="line">u0_a111   30659 181   869984 31672 ffffffff 00000000 S com.example.test</span><br><span class="line">$ adb forward tcp:8700 jdwp:30659</span><br></pre></td></tr></table></figure>
+<p>8）在Android Studio设置远程调试：Run-&gt;Edit Configurations…，点左上角的<code>+</code>，选择<code>Remote</code>，设置如下：<br><img src="/images/androiddebug/config.png"><br>9）Run-&gt;Debug，触发断点之后就可以动态调试了：<br><img src="/images/androiddebug/smalidea-debug.png"><br>smalidea调试可以查看变量值（在右下角Watches中添加寄存器），但问题是单步调试跳的不准，不一定会跳到哪一步。</p>
+<h2 id="IDA"><a href="#IDA" class="headerlink" title="IDA"></a>IDA</h2><p>1.解压出APK的DEX文件classes.dex；<br>2.在IDA中加载这个DEX文件；<br>3.将光标移动到要下断点的行，按F2下断点；<br>4.打开一个Terminal：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell am start -D -n com.example.test&#x2F;.MainActivity</span><br></pre></td></tr></table></figure>
+<p>5.选择Debugger-&gt;Attach to process…将Debugger Attach到要调试的进程；<br><img src="/images/androiddebug/attachprocess.png"><br>6.开始运行后按F9运行程序到断点，弹出的窗口cancel掉就行了；<br><img src="/images/androiddebug/debugrun.png"><br>7.在Debugger-&gt;Debugger windows-&gt;Locals窗口中有变量，但是无法正确显示。<br><img src="/images/androiddebug/locals.png"><br>IDA调试查看不了变量值，但是每一步跳的比较准，可以结合使用这两种调试方法：IDA查看运行流程，smalidea查看变量值。</p>
+<h2 id="Instrumentation"><a href="#Instrumentation" class="headerlink" title="Instrumentation"></a>Instrumentation</h2><p>这个方法在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/01/08/Android-Reverse-Engineering/">之前的文章</a>中介绍过，插桩的方法步骤比较复杂，但是实现的功能比较强大。而且可以在以前的基础上添加更多的方法，实现更多的功能，比如在一篇博客上看到的：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">PrintFunc</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Thread cur_thread = Thread.currentThread();</span><br><span class="line">    StackTraceElement stack[] = cur_thread.getStackTrace();</span><br><span class="line">    Log.d(<span class="string">&quot;bruce&quot;</span>, stack[<span class="number">3</span>].toString() + <span class="string">&quot;[&quot;</span> + cur_thread.getId() + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在需要调试的APK反编译出来的smali代码中添加一句：  </p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">invoke-static &#123;&#125;, <span class="class">Lcom/bruce/BFLog;</span>-&gt;PrintFunc()V</span><br></pre></td></tr></table></figure>
+<p>就可以将当前执行的函数打印出来：<br><img src="/images/androiddebug/log.png"><br>以后如果还有比较好用的方法，还会再来添加。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://wooyun.tangscan.cn/static/drops/tips-7181.html">http://wooyun.tangscan.cn/static/drops/tips-7181.html</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/CharlesSimonyi/article/details/51989096">http://blog.csdn.net/CharlesSimonyi/article/details/51989096</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/charlessimonyi/article/details/52027563">http://blog.csdn.net/charlessimonyi/article/details/52027563</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" data-id="ckhe7o4k4000dchl77ubta8bi" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          JAVA ASM字节码框架
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Rootkit技术（一）从syscall到hook</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

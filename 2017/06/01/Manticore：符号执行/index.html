@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Manticore：符号执行 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="简介Manticore是一个用python开发的用来进行动态二进制分析的开源工具，可以帮助我们快速地利用符号执行、污点分析和插桩来分析二进制。Manticore有一个命令行工具，可以用符号执行来产生程序的测试用例，当运行程序时，每个测试用例会产生不同的输出结果，例如一个普通的退出或一个崩溃。命令行工具可以满足一些应用场景，但是实际的使用更加灵活，可以使用它提供的Python API来自定义分析和根">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Manticore：符号执行">
+<meta property="og:url" content="http://example.com/2017/06/01/Manticore%EF%BC%9A%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="简介Manticore是一个用python开发的用来进行动态二进制分析的开源工具，可以帮助我们快速地利用符号执行、污点分析和插桩来分析二进制。Manticore有一个命令行工具，可以用符号执行来产生程序的测试用例，当运行程序时，每个测试用例会产生不同的输出结果，例如一个普通的退出或一个崩溃。命令行工具可以满足一些应用场景，但是实际的使用更加灵活，可以使用它提供的Python API来自定义分析和根">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/symexe/multiple-styles.png">
+<meta property="article:published_time" content="2017-05-31T16:39:46.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.720Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Symbolic Execution">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/symexe/multiple-styles.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Manticore：符号执行" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/01/Manticore%EF%BC%9A%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/" class="article-date">
+  <time datetime="2017-05-31T16:39:46.000Z" itemprop="datePublished">2017-06-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Manticore：符号执行
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Manticore是一个用python开发的用来进行动态二进制分析的开源工具，可以帮助我们快速地利用符号执行、污点分析和插桩来分析二进制。<br>Manticore有一个命令行工具，可以用符号执行来产生程序的测试用例，当运行程序时，每个测试用例会产生不同的输出结果，例如一个普通的退出或一个崩溃。<br>命令行工具可以满足一些应用场景，但是实际的使用更加灵活，可以使用它提供的Python API来自定义分析和根据应用进行优化。Manticore API可以：</p>
+<ul>
+<li>舍弃无关紧要的状态</li>
+<li>在任意执行点运行自定义分析函数</li>
+<li>具体化符号内存</li>
+<li>内省和修改模拟的机器状态</li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>1.安装系统依赖  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get update &amp;&amp; sudo apt-get install z3 python-pip -y</span><br><span class="line">$ python -m pip install -U pip</span><br></pre></td></tr></table></figure>
+<p>2.安装manticore  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https:&#x2F;&#x2F;github.com&#x2F;trailofbits&#x2F;manticore.git &amp;&amp; cd manticore</span><br><span class="line">$ sudo pip install .</span><br></pre></td></tr></table></figure>
+<p>3.例子  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd examples&#x2F;linux</span><br><span class="line">$ make</span><br></pre></td></tr></table></figure>
+<p>命令行工具：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ manticore basic</span><br><span class="line">$ cat mcore_8PZ_Lo&#x2F;test_00000001.stdin| .&#x2F;basic</span><br><span class="line">Message: It is less than or equal to 0x41</span><br><span class="line">$ cat mcore_8PZ_Lo&#x2F;test_00000002.stdin| .&#x2F;basic</span><br><span class="line">Message: It is greater than 0x41</span><br></pre></td></tr></table></figure>
+<p>Manticore API：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd ..&#x2F;script</span><br><span class="line">python count_instructions.py ..&#x2F;linux&#x2F;helloworld</span><br><span class="line">Executed  6897  instructions.</span><br></pre></td></tr></table></figure>
+
+<h2 id="实验例子"><a href="#实验例子" class="headerlink" title="实验例子"></a>实验例子</h2><p>下面是<a target="_blank" rel="noopener" href="https://github.com/trailofbits/manticore/raw/master/examples/linux/binaries/multiple-styles">multiple-styles</a>的writeup。<br>用IDA反汇编multiple-styles的main函数如下：<br><img src="/images/symexe/multiple-styles.png"><br>看到程序可能输出”sounds fake but ok”或”you got it!”，猜测后者是正确输入后的结果。代码逻辑比较简单，目的是对manticore有一个初步了解。<br>如果我们执行命令<code>manticore multiple-styles</code>，manticore将会开始自动分析二进制文件，最终会得出到达所有代码路径的输入，但是这会花费大量时间。通过部分人工分析，可以写出优化的脚本。</p>
+<h3 id="插桩解决方法"><a href="#插桩解决方法" class="headerlink" title="插桩解决方法"></a>插桩解决方法</h3><p>解决方法脚本如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> manticore <span class="keyword">import</span> Manticore</span><br><span class="line"></span><br><span class="line">m = Manticore(<span class="string">&#x27;./multiple-styles&#x27;</span>) <span class="comment"># 加载二进制文件</span></span><br><span class="line">m.context[<span class="string">&#x27;flag&#x27;</span>] = <span class="string">&quot;&quot;</span> <span class="comment"># 在manticore的context字典中创建一个flag条目，在这里存储flag，可以在不同的hook之间访问</span></span><br><span class="line"><span class="comment"># 下面创建一些hook，hook告诉manticore在执行指定地址的指令之前挂起程序，先执行我们的代码，然后继续执行</span></span><br><span class="line"><span class="meta">@m.hook(0x400a3b) # 当指令运行到指定地址时，运行下面函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hook</span>(<span class="params">state</span>):</span></span><br><span class="line">    cpu = state.cpu</span><br><span class="line">    m.context[<span class="string">&#x27;flag&#x27;</span>] += <span class="built_in">chr</span>(cpu.AL - <span class="number">10</span>) <span class="comment"># flag的值存在EAX的最低字节AL中</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@m.hook(0x400a3e)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hook2</span>(<span class="params">state</span>):</span></span><br><span class="line">    cpu = state.cpu</span><br><span class="line">    cpu.ZF = <span class="literal">True</span> <span class="comment"># 设置zero flag为True，使得不管字符是否匹配都能到下一轮</span></span><br><span class="line"><span class="comment"># 下面两个hook只是打印flag</span></span><br><span class="line"><span class="meta">@m.hook(0x400a40)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hookf</span>(<span class="params">state</span>):</span></span><br><span class="line">    print(<span class="string">&quot;Failed&quot;</span>)</span><br><span class="line">    m.terminate()</span><br><span class="line"></span><br><span class="line"><span class="meta">@m.hook(0x400a6c)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hooks</span>(<span class="params">state</span>):</span></span><br><span class="line">    print(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">    print(m.context[<span class="string">&#x27;flag&#x27;</span>])</span><br><span class="line">    m.terminate()</span><br><span class="line"><span class="comment"># 设置m.concrete_data为17字节的填充，传入stdin</span></span><br><span class="line">m.concrete_data = <span class="string">&quot;12345678&quot;</span> * <span class="number">2</span> + <span class="string">&quot;\n&quot;</span></span><br><span class="line">m.run()</span><br></pre></td></tr></table></figure>
+<p>运行脚本：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python concrete.py </span><br><span class="line">Success!</span><br><span class="line">coldlikeminisodas</span><br></pre></td></tr></table></figure>
+
+<h3 id="符号执行解决方法"><a href="#符号执行解决方法" class="headerlink" title="符号执行解决方法"></a>符号执行解决方法</h3><p>理想的状态是不需要我们自己弄明白如何计算输入到stdin的值，这里的逆向非常容易，但是真实的问题不会这么简单，manticore的符号执行的能力使得我们可以让它来做这些工作。<br>解决方法脚本如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> manticore <span class="keyword">import</span> Manticore</span><br><span class="line"></span><br><span class="line">m = Manticore(<span class="string">&#x27;./multiple-styles&#x27;</span>)</span><br><span class="line">m.context[<span class="string">&#x27;flag&#x27;</span>] = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@m.hook(0x400a6c) # success的地址</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hook</span>(<span class="params">state</span>):</span></span><br><span class="line">    cpu = state.cpu</span><br><span class="line">    transform_base = cpu.RBP - <span class="number">0x50</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">17</span>):</span><br><span class="line">        solved = state.solve_one(cpu.read_int(transform_base + i, <span class="number">8</span>))</span><br><span class="line">        print(solved)</span><br><span class="line">        m.context[<span class="string">&#x27;flag&#x27;</span>] += <span class="built_in">chr</span>(solved)</span><br><span class="line">    print(m.context[<span class="string">&#x27;flag&#x27;</span>])</span><br><span class="line">    m.terminate()</span><br><span class="line"></span><br><span class="line">m.run()</span><br></pre></td></tr></table></figure>
+<p>这种解决方法为manticore指定一个目的地址，然后帮它找到如何到达这里。通过分析二进制，它会从stdin读取值到位于<code>RBP-0x50</code>的<code>buffer</code>，我们把这个地址保存在变量<code>transform_base</code>中。然后循环<code>buffer</code>里的每一个字节，告诉manticore给这个字节找到一个值，能让我们到达当前地址。将找到的值一个个加入到flag中。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python symbolic.py   </span><br><span class="line">...</span><br><span class="line">coldlikeminisodas</span><br></pre></td></tr></table></figure>
+<p>我们像可编程调试器一样使用manticore，修改循环所以它不会出错。我们为manticore标记hook的指令为success状态，<code>state.solve_one</code>操作使用z3来解决限制。限制的建立是通过检查程序剩余部分，找出需要填在内存<code>transform_base+i</code>中的值，使得我们能够到达当前状态。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://blog.trailofbits.com/2017/04/27/manticore-symbolic-execution-for-humans/">Manticore: Symbolic execution for humans</a><br><a target="_blank" rel="noopener" href="https://gist.github.com/ehennenfent/a5ad9746615d1490c618a88b98769c10">Multiple Styles: The Writeup</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/06/01/Manticore%EF%BC%9A%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/" data-id="ckhe7o4ly0039chl72vh414h6" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/06/04/Frida%E8%A7%A3%E5%86%B3Android-Crackme2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Frida解决Android Crackme2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/05/20/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">密码学基础</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android Linker（一） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="目前Android应用加固可以分为dex加固和Native加固，Native加固的保护对象为Native层的so文件，使用加壳、反调试、混淆、VM等手段增加so文件的反编译难度。目前最主流的so文件保护方案还是加壳技术， 在so文件加壳和脱壳的攻防技术领域，最重要的基础的便是对于Linker即装载链接机制的理解。本文分析了so文件的装载和链接过程，也就是在调用dlopen(“libxx.so”)之">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Linker（一）">
+<meta property="og:url" content="http://example.com/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目前Android应用加固可以分为dex加固和Native加固，Native加固的保护对象为Native层的so文件，使用加壳、反调试、混淆、VM等手段增加so文件的反编译难度。目前最主流的so文件保护方案还是加壳技术， 在so文件加壳和脱壳的攻防技术领域，最重要的基础的便是对于Linker即装载链接机制的理解。本文分析了so文件的装载和链接过程，也就是在调用dlopen(“libxx.so”)之">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-07-02T14:55:32.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.675Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android-Linker（一）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
+  <time datetime="2017-07-02T14:55:32.000Z" itemprop="datePublished">2017-07-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android Linker（一）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>目前Android应用加固可以分为dex加固和Native加固，Native加固的保护对象为Native层的so文件，使用加壳、反调试、混淆、VM等手段增加so文件的反编译难度。目前最主流的so文件保护方案还是加壳技术， 在so文件加壳和脱壳的攻防技术领域，最重要的基础的便是对于Linker即装载链接机制的理解。本文分析了so文件的装载和链接过程，也就是在调用dlopen(“libxx.so”)之后，Linker的处理过程，还对so加壳的关键技术进行了简要介绍。<br>本文基于Android5.0 AOSP源码，仅针对ARM平台。</p>
+<h2 id="so装载"><a href="#so装载" class="headerlink" title="so装载"></a>so装载</h2><h3 id="整体流程说明"><a href="#整体流程说明" class="headerlink" title="整体流程说明"></a>整体流程说明</h3><p>Java层调用so中的native函数都会有一个调用语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Static &#123;</span><br><span class="line">  System.loadLibrary(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从这条语句开始的调用流程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;libcore&#x2F;luni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;System.java:loadLibrary()</span><br><span class="line">&#x2F;libcore&#x2F;luni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;Runtime.java:loadLibrary()</span><br><span class="line">&#x2F;libcore&#x2F;luni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;Runtime.java:doLoad()</span><br><span class="line">&#x2F;libcore&#x2F;luni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;Runtime.java:nativeLoad()</span><br><span class="line">&#x2F;dalvik&#x2F;vm&#x2F;native&#x2F;java_lang_Runtime.cpp:Dalvik_java_lang_Runtime_nativeLoad()</span><br><span class="line">&#x2F;dalvik&#x2F;vm&#x2F;Native.cpp:dvmLoadNativeCode()</span><br><span class="line">&#x2F;bionic&#x2F;linker&#x2F;dlfcn.cpp:dlopen()</span><br></pre></td></tr></table></figure>
+<p>整个流程是通过查看<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/">Android源码</a>，进行交叉引用，代码跟踪找到的。至此开始正式的分析。</p>
+<h4 id="do-dlopen"><a href="#do-dlopen" class="headerlink" title="do_dlopen"></a>do_dlopen</h4><p>调用<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/dlfcn.cpp#82">dlopen</a>后，中间经过<code>dlopen_ext</code>, 到达第一个主要函数<a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/linker.cpp#910">do_dlopen</a>:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">soinfo* <span class="title">do_dlopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">int</span> flags, <span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  protect_data(PROT_READ | PROT_WRITE);</span><br><span class="line">  soinfo* si = find_library(name, flags, extinfo); <span class="comment">// 查找so</span></span><br><span class="line">  <span class="keyword">if</span> (si != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    si-&gt;CallConstructors(); <span class="comment">// 调用so的init函数</span></span><br><span class="line">  &#125;</span><br><span class="line">  protect_data(PROT_READ);</span><br><span class="line">  <span class="keyword">return</span> si;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>do_dlopen</code>调用了两个重要的函数，第一个是<code>find_library</code>，第二个是<code>soinfo</code>的成员函数 <code>CallConstructors</code>，<code>find_library</code>函数的作用是查找并加载动态链接库，完成so的装载链接后，通过 <code>CallConstructors</code>调用so的初始化函数。</p>
+<h4 id="find-library-internal"><a href="#find-library-internal" class="headerlink" title="find_library_internal"></a>find_library_internal</h4><p><a target="_blank" rel="noopener" href="http://androidxref.com/5.0.0_r2/xref/bionic/linker/linker.cpp#842">find_library</a>直接调用了<code>find_library_internal</code>，下面直接看<code>find_library_internal</code>函数：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> soinfo* <span class="title">find_library_internal</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">int</span> dlflags, <span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (name == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> somain;</span><br><span class="line">  &#125;</span><br><span class="line">  soinfo* si = find_loaded_library_by_name(name);  <span class="comment">// 判断so是否已经加载</span></span><br><span class="line">  <span class="keyword">if</span> (si == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    TRACE(“[ ‘%s’ has <span class="keyword">not</span> been found by name.  Trying harder…]”, name);</span><br><span class="line">    si = load_library(name, dlflags, extinfo);     <span class="comment">// 继续so的加载流程</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (si != <span class="literal">NULL</span> &amp;&amp; (si-&gt;flags &amp; FLAG_LINKED) == <span class="number">0</span>) &#123;</span><br><span class="line">    DL_ERR(“recursive link to \”%s\””, si-&gt;name);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> si;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>find_library_internal</code>首先通过<code>find_loaded_library_by_name</code>函数判断目标so是否已经加载，如果已经加载则直接返回对应的<code>soinfo</code>指针，没有加载的话则调用<code>load_library</code>继续加载流程，下面看<code>load_library</code>函数。</p>
+<h4 id="load-library"><a href="#load-library" class="headerlink" title="load_library"></a>load_library</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> soinfo* <span class="title">load_library</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">int</span> dlflags, <span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="number">-1</span>;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Open the file.</span></span><br><span class="line">  fd = open_library(name);                <span class="comment">// 打开so文件，获得文件描述符fd</span></span><br><span class="line"></span><br><span class="line">  <span class="function">ElfReader <span class="title">elf_reader</span><span class="params">(name, fd)</span></span>;         <span class="comment">// 创建ElfReader对象</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Read the ELF header and load the segments.</span></span><br><span class="line">  <span class="keyword">if</span> (!elf_reader.Load(extinfo)) &#123;        <span class="comment">// 使用ElfReader的Load方法，完成so装载</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  soinfo* si = soinfo_alloc(SEARCH_NAME(name), &amp;file_stat);  <span class="comment">// 为so分配新的soinfo结构</span></span><br><span class="line">  <span class="keyword">if</span> (si == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  si-&gt;base = elf_reader.load_start();  <span class="comment">// 根据装载结果，更新soinfo的成员变量</span></span><br><span class="line">  si-&gt;size = elf_reader.load_size();</span><br><span class="line">  si-&gt;load_bias = elf_reader.load_bias();</span><br><span class="line">  si-&gt;phnum = elf_reader.phdr_count();</span><br><span class="line">  si-&gt;phdr = elf_reader.loaded_phdr();</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (!soinfo_link_image(si, extinfo)) &#123;  <span class="comment">// 调用soinfo_link_image完成so的链接过程</span></span><br><span class="line">    soinfo_free(si);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> si;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>load_library</code>函数呈现了so装载链接的整个流程，主要有3步:</p>
+<ul>
+<li>装载：创建ElfReader对象，通过ElfReader对象的Load方法将so文件装载到内存</li>
+<li>分配soinfo：调<code>soinfo_alloc</code>函数为so分配新的soinfo结构，并按照装载结果更新相应的成员变量</li>
+<li>链接：调用<code>soinfo_link_image</code>完成so的链接</li>
+</ul>
+<p>通过前面的分析，可以看到，<code>load_library</code>函数中包含了so装载链接的主要过程，下面主要通过分析 <code>ElfReader</code>类和<code>soinfo_link_image</code>函数, 来分别介绍so的装载和链接过程。</p>
+<h3 id="装载"><a href="#装载" class="headerlink" title="装载"></a>装载</h3><p>在<code>load_library</code>中，首先初始化<code>elf_reader</code>对象，第一个参数为so的名字，第二个参数为文件描述符fd，之后调用<code>ElfReader</code>的<code>Load</code>方法装载so。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ElfReader <span class="title">elf_reader</span><span class="params">(name, fd)</span></span></span><br><span class="line">...</span><br><span class="line"><span class="comment">// Read the ELF header and load the segments.</span></span><br><span class="line"><span class="keyword">if</span> (!elf_reader.Load(extinfo)) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ElfReader::Load</code>方法如下:  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">ElfReader::Load</span><span class="params">(<span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> ReadElfHeader() &amp;&amp;             <span class="comment">// 读取elf header</span></span><br><span class="line">         VerifyElfHeader() &amp;&amp;           <span class="comment">// 验证elf header</span></span><br><span class="line">         ReadProgramHeader() &amp;&amp;         <span class="comment">// 读取program header</span></span><br><span class="line">         ReserveAddressSpace(extinfo) &amp;&amp;<span class="comment">// 分配空间</span></span><br><span class="line">         LoadSegments() &amp;&amp;              <span class="comment">// 按照program header指示装载segments</span></span><br><span class="line">         FindPhdr();                    <span class="comment">// 找到装载后的phdr地址</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ElfReader::Load</code>方法首先读取so的elf header，再对elf header进行验证，之后读取program header，根据program header计算so需要的内存大小并分配相应的空间，紧接着将so按照以segment为单位装载到内存，最后在装载到内存的so中找到program header，方便之后的链接过程使用。<br>下面深入<code>ElfReader</code>的这几个成员函数进行详细介绍。</p>
+<h4 id="read-amp-verify-elfheader"><a href="#read-amp-verify-elfheader" class="headerlink" title="read &amp; verify elfheader"></a>read &amp; verify elfheader</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">ElfReader::ReadElfHeader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">ssize_t</span> rc = read(fd_, &amp;header_, <span class="keyword">sizeof</span>(header_));</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (rc != <span class="keyword">sizeof</span>(header_)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ReadElfHeader</code>使用<code>read</code>直接从so文件中将<code>elfheader</code>读取到<code>header_</code>中，<code>header_</code>为<code>ElfReader</code>的成员变量，类型为<code>Elf32_Ehdr</code>，通过<code>header_</code>可以方便的访问elf header中各个字段，elf header中包含有program header table、section header table等重要信息。<br>对elf header的验证包括:</p>
+<ul>
+<li>magic字节</li>
+<li>32/64 bit与当前平台是否一致</li>
+<li>大小端</li>
+<li>类型：可执行文件、so…</li>
+<li>版本：一般为 1，表示当前版本</li>
+<li>平台：ARM、x86、amd64…</li>
+</ul>
+<p>有任何错误都会导致加载失败。</p>
+<h4 id="Read-ProgramHeader"><a href="#Read-ProgramHeader" class="headerlink" title="Read ProgramHeader"></a>Read ProgramHeader</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">ElfReader::ReadProgramHeader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">phdr_num_ = header_.e_phnum; <span class="comment">// program header数量</span></span><br><span class="line"><span class="comment">// mmap 要求页对齐</span></span><br><span class="line">ElfW(Addr) page_min = PAGE_START(header_.e_phoff);</span><br><span class="line">ElfW(Addr) page_max = PAGE_END(header_.e_phoff + (phdr_num_ * <span class="keyword">sizeof</span>(ElfW(Phdr))));</span><br><span class="line">ElfW(Addr) page_offset = PAGE_OFFSET(header_.e_phoff);</span><br><span class="line">phdr_size_ = page_max – page_min;</span><br><span class="line"><span class="comment">// 使用mmap将program header映射到内存</span></span><br><span class="line"><span class="keyword">void</span>* mmap_result = mmap(<span class="literal">NULL</span>, phdr_size_, PROT_READ, MAP_PRIVATE, fd_, page_min);</span><br><span class="line">phdr_mmap_ = mmap_result;</span><br><span class="line"><span class="comment">// ElfReader 的成员变量 phdr_table_ 指向program header table</span></span><br><span class="line">phdr_table_ = <span class="keyword">reinterpret_cast</span>&lt;ElfW(Phdr)*&gt;(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">char</span>*&gt;(mmap_result) + page_offset);</span><br><span class="line"><span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将program header在内存中单独映射一份，用于解析program header时临时使用，在so装载到内存后，便会释放这块内存，转而使用装载后的so中的program header。</p>
+<h4 id="reserve-space-amp-计算load-size"><a href="#reserve-space-amp-计算load-size" class="headerlink" title="reserve space &amp; 计算load size"></a>reserve space &amp; 计算load size</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">ElfReader::ReserveAddressSpace</span><span class="params">(<span class="keyword">const</span> Android_dlextinfo* extinfo)</span> </span>&#123;</span><br><span class="line">  ElfW(Addr) min_vaddr;</span><br><span class="line">  <span class="comment">// 计算加载so需要的空间大小</span></span><br><span class="line">  load_size_ = phdr_table_get_load_size(phdr_table_, phdr_num_, &amp;min_vaddr);</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// min_vaddr一般情况为零，如果不是则表明so指定了加载基址</span></span><br><span class="line">  <span class="keyword">uint8_t</span>* addr = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint8_t</span>*&gt;(min_vaddr);</span><br><span class="line">  <span class="keyword">void</span>* start;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">int</span> mmap_flags = MAP_PRIVATE | MAP_ANONYMOUS;</span><br><span class="line">  start = mmap(addr, load_size_, PROT_NONE, mmap_flags, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">  ...</span><br><span class="line">  load_start_ = start;</span><br><span class="line">  load_bias_ = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint8_t</span>*&gt;(start) – addr;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先调用<code>phdr_table_get_load_size</code>函数获取so在内存中需要的空间load_size，然后使用mmap匿名映射，预留出相应的空间。<br>关于<code>loadbias</code>：so可以指定加载基址，但是so指定的加载基址可能不是页对齐的，这种情况会导致实际映射地址和指定的加载地址有一个偏差，这个偏差便是<code>load_bias_</code>，之后在针对虚拟地址进行计算时需要使用<code>load_bias_</code>修正。普通的so都不会指定加载基址，这时<code>min_vaddr = 0</code>，则<code>load_bias_ = load_start_</code>，即<code>load_bias_</code>等于加载基址，下文会将<code>load_bias_</code>直接称为基址。<br>下面深入<code>phdr_table_get_load_size</code>分析一下<code>load_size</code>的计算：使用成员变量<code>phdr_table</code>遍历所有的<code>program header</code>， 找到所有类型为<code>PT_LOAD</code>的segment的<code>p_vaddr</code>的最小值，<code>p_vaddr + p_memsz</code>的最大值，分别作为<code>min_vaddr</code>和<code>max_vaddr</code>，在将两个值分别对齐到页首和页尾，最终使用对齐后的 <code>max_vaddr – min_vaddr</code>得到<code>load_size</code>。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">phdr_table_get_load_size</span><span class="params">(<span class="keyword">const</span> ElfW(Phdr)* phdr_table, <span class="keyword">size_t</span> phdr_count,</span></span></span><br><span class="line"><span class="function"><span class="params">    ElfW(Addr)* out_min_vaddr,</span></span></span><br><span class="line"><span class="function"><span class="params">    ElfW(Addr)* out_max_vaddr)</span> </span>&#123;</span><br><span class="line">  ElfW(Addr) min_vaddr = UINTPTR_MAX;</span><br><span class="line">  ElfW(Addr) max_vaddr = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">bool</span> found_pt_load = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; phdr_count; ++i) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Phdr)</span>* phdr </span>= &amp;phdr_table[i];</span><br><span class="line">    <span class="keyword">if</span> (phdr-&gt;p_type != PT_LOAD) &#123;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    found_pt_load = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (phdr-&gt;p_vaddr &lt; min_vaddr) &#123;</span><br><span class="line">      min_vaddr = phdr-&gt;p_vaddr;         <span class="comment">// 记录最小的虚拟地址</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (phdr-&gt;p_vaddr + phdr-&gt;p_memsz &gt; max_vaddr) &#123;</span><br><span class="line">      max_vaddr = phdr-&gt;p_vaddr + phdr-&gt;p_memsz;  <span class="comment">// 记录最大的虚拟地址</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!found_pt_load) &#123;</span><br><span class="line">    min_vaddr = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  min_vaddr = PAGE_START(min_vaddr);      <span class="comment">// 页对齐</span></span><br><span class="line">  max_vaddr = PAGE_END(max_vaddr);        <span class="comment">// 页对齐</span></span><br><span class="line">  <span class="keyword">if</span> (out_min_vaddr != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    *out_min_vaddr = min_vaddr;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (out_max_vaddr != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    *out_max_vaddr = max_vaddr;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> max_vaddr – min_vaddr;         <span class="comment">// load_size = max_vaddr – min_vaddr</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Load-Segments"><a href="#Load-Segments" class="headerlink" title="Load Segments"></a>Load Segments</h4><p>遍历program header table，找到类型为<code>PT_LOAD</code>的segment：<br>计算segment在内存空间中的起始地址<code>segstart</code>和结束地址<code>seg_end</code>，<code>seg_start</code>等于虚拟偏移加上基址<code>load_bias</code>，同时由于<code>mmap</code>的要求，都要对齐到页边界得到<code>seg_page_start</code>和<code>seg_page_end</code>。<br>计算segment在文件中的页对齐后的起始地址<code>file_page_start</code>和长度<code>file_length</code>。<br>使用mmap将segment映射到内存，指定映射地址为<code>seg_page_start</code>，长度为<code>file_length</code>，文件偏移为 <code>file_page_start</code>。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">ElfReader::LoadSegments</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; phdr_num_; ++i) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Phdr)</span>* phdr </span>= &amp;phdr_table_[i];</span><br><span class="line">    <span class="keyword">if</span> (phdr-&gt;p_type != PT_LOAD) &#123;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// segment在内存中的地址.</span></span><br><span class="line">    ElfW(Addr) seg_start = phdr-&gt;p_vaddr + load_bias_;</span><br><span class="line">    ElfW(Addr) seg_end   = seg_start + phdr-&gt;p_memsz;</span><br><span class="line">    ElfW(Addr) seg_page_start = PAGE_START(seg_start);</span><br><span class="line">    ElfW(Addr) seg_page_end   = PAGE_END(seg_end);</span><br><span class="line">    ElfW(Addr) seg_file_end   = seg_start + phdr-&gt;p_filesz;</span><br><span class="line">    <span class="comment">// 文件偏移</span></span><br><span class="line">    ElfW(Addr) file_start = phdr-&gt;p_offset;</span><br><span class="line">    ElfW(Addr) file_end   = file_start + phdr-&gt;p_filesz;</span><br><span class="line">    ElfW(Addr) file_page_start = PAGE_START(file_start);</span><br><span class="line">    ElfW(Addr) file_length = file_end – file_page_start;</span><br><span class="line">    <span class="keyword">if</span> (file_length != <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">// 将文件中的segment映射到内存</span></span><br><span class="line">      <span class="keyword">void</span>* seg_addr = mmap(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">void</span>*&gt;(seg_page_start),</span><br><span class="line">        file_length,</span><br><span class="line">        PFLAGS_TO_PROT(phdr-&gt;p_flags),</span><br><span class="line">        MAP_FIXED|MAP_PRIVATE,</span><br><span class="line">        fd_,</span><br><span class="line">        file_page_start);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果segment可写, 并且没有在页边界结束，那么就将segemnt end到页边界的内存清零。</span></span><br><span class="line">    <span class="keyword">if</span> ((phdr-&gt;p_flags &amp; PF_W) != <span class="number">0</span> &amp;&amp; PAGE_OFFSET(seg_file_end) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="built_in">memset</span>(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">void</span>*&gt;(seg_file_end), <span class="number">0</span>, PAGE_SIZE – PAGE_OFFSET(seg_file_end));</span><br><span class="line">    &#125;</span><br><span class="line">    seg_file_end = PAGE_END(seg_file_end);</span><br><span class="line">    <span class="comment">// 将(内存长度 – 文件长度)对应的内存进行匿名映射</span></span><br><span class="line">    <span class="keyword">if</span> (seg_page_end &gt; seg_file_end) &#123;</span><br><span class="line">      <span class="keyword">void</span>* zeromap = mmap(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">void</span>*&gt;(seg_file_end),</span><br><span class="line">        seg_page_end – seg_file_end,</span><br><span class="line">        PFLAGS_TO_PROT(phdr-&gt;p_flags),</span><br><span class="line">        MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE,</span><br><span class="line">        <span class="number">-1</span>,</span><br><span class="line">        <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="分配-soinfo"><a href="#分配-soinfo" class="headerlink" title="分配 soinfo"></a>分配 soinfo</h3><p><code>load_library</code>在调用<code>load_segments</code>完成装载后，接着调用<code>soinfo_alloc</code>函数为目标so分配<code>soinfo</code>，<code>soinfo_alloc</code>函数实现如下：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> soinfo* <span class="title">soinfo_alloc</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* name, struct stat* file_stat)</span> </span>&#123;</span><br><span class="line">  soinfo* si = g_soinfo_allocator.alloc();  <span class="comment">//分配空间，可以简单理解为malloc</span></span><br><span class="line">  <span class="comment">// Initialize the new element.</span></span><br><span class="line">  <span class="built_in">memset</span>(si, <span class="number">0</span>, <span class="keyword">sizeof</span>(soinfo));</span><br><span class="line">  strlcpy(si-&gt;name, name, <span class="keyword">sizeof</span>(si-&gt;name));</span><br><span class="line">  si-&gt;flags = FLAG_NEW_SOINFO;</span><br><span class="line">  sonext-&gt;next = si;    <span class="comment">// 加入到存有所有soinfo的链表中</span></span><br><span class="line">  sonext = si;</span><br><span class="line">  <span class="keyword">return</span> si;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Linker为每个so维护了一个<code>soinfo</code>结构，调用<code>dlopen</code>时，返回的handler其实就是一个指向该so的<code>soinfo</code>指针。<code>soinfo</code>保存了so加载链接以及运行期间所需的各类信息，简单列举一下:<br>装载链接期间主要使用的成员:</p>
+<ul>
+<li>装载信息<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Phdr)</span>* phdr</span>;</span><br><span class="line"><span class="keyword">size_t</span> phnum;</span><br><span class="line">ElfW(Addr) base;</span><br><span class="line"><span class="keyword">size_t</span> size;</span><br></pre></td></tr></table></figure></li>
+<li>符号信息<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* strtab;</span><br><span class="line">ElfW(Sym)* symtab;</span><br></pre></td></tr></table></figure></li>
+<li>重定位信息<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ElfW(Rel)* plt_rel;</span><br><span class="line"><span class="keyword">size_t</span> plt_rel_count;</span><br><span class="line">ElfW(Rel)* rel;</span><br><span class="line"><span class="keyword">size_t</span> rel_count;</span><br></pre></td></tr></table></figure></li>
+<li>init函数和finit函数<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Linker_function_t* init_array;</span><br><span class="line"><span class="keyword">size_t</span> init_array_count;</span><br><span class="line">Linker_function_t* fini_array;</span><br><span class="line"><span class="keyword">size_t</span> fini_array_count;</span><br><span class="line">Linker_function_t init_func;</span><br><span class="line">Linker_function_t fini_func;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>运行期间主要使用的成员：</p>
+<ul>
+<li>导出符号查找（dlsym）<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* strtab;</span><br><span class="line">ElfW(Sym)* symtab;</span><br><span class="line"><span class="keyword">size_t</span> nbucket;</span><br><span class="line"><span class="keyword">size_t</span> nchain;</span><br><span class="line"><span class="keyword">unsigned</span>* bucket;</span><br><span class="line"><span class="keyword">unsigned</span>* chain;</span><br><span class="line">ElfW(Addr) load_bias;</span><br></pre></td></tr></table></figure></li>
+<li>异常处理<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span>* ARM_exidx;</span><br><span class="line"><span class="keyword">size_t</span> ARM_exidx_count;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><code>load_library</code>在为so分配<code>soinfo</code>后，会将装载结果更新到<code>soinfo</code>中，后面的链接过程就可以直接使用<code>soinfo</code>的相关字段去访问so中的信息。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">si-&gt;base = elf_reader.load_start();</span><br><span class="line">si-&gt;size = elf_reader.load_size();</span><br><span class="line">si-&gt;load_bias = elf_reader.load_bias();</span><br><span class="line">si-&gt;phnum = elf_reader.phdr_count();</span><br><span class="line">si-&gt;phdr = elf_reader.loaded_phdr();</span><br></pre></td></tr></table></figure>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://yaq.qq.com/blog/14">http://yaq.qq.com/blog/14</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/" data-id="ckhe7o4jx0004chl7g4r4gtbf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/03/Android-Linker%EF%BC%88%E4%BA%8C%EF%BC%89/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android Linker（二）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">VirtualBox上调试Linux Kernel</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

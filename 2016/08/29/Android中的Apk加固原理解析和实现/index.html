@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android中的Apk加固原理解析和实现 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="原理解析下面看一下Android中加壳的原理：在加固过程中需要三个对象：  需要加密的APK（源程序APK） 壳程序APK（负责解密APK工作） 加密工具（将源APK进行加密和壳程序的DEX合并）  主要步骤用加密算法对源程序APK进行加密，再将其与壳程序APK的DEX文件合并生成新的DEX文件，最后替换壳程序中的原DEX文件即可。得到新的APK也叫做脱壳程序APK，它已经不是一个完整意义上的AP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中的Apk加固原理解析和实现">
+<meta property="og:url" content="http://example.com/2016/08/29/Android%E4%B8%AD%E7%9A%84Apk%E5%8A%A0%E5%9B%BA%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="原理解析下面看一下Android中加壳的原理：在加固过程中需要三个对象：  需要加密的APK（源程序APK） 壳程序APK（负责解密APK工作） 加密工具（将源APK进行加密和壳程序的DEX合并）  主要步骤用加密算法对源程序APK进行加密，再将其与壳程序APK的DEX文件合并生成新的DEX文件，最后替换壳程序中的原DEX文件即可。得到新的APK也叫做脱壳程序APK，它已经不是一个完整意义上的AP">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/packedapk/yuanli.png">
+<meta property="og:image" content="http://example.com/images/packedapk/modifiedapk.png">
+<meta property="og:image" content="http://example.com/images/packedapk/source_apk.png">
+<meta property="og:image" content="http://example.com/images/packedapk/dexpacktool.png">
+<meta property="og:image" content="http://example.com/images/packedapk/packapk.png">
+<meta property="og:image" content="http://example.com/images/packedapk/flow.png">
+<meta property="og:image" content="http://example.com/images/packedapk/result.png">
+<meta property="article:published_time" content="2016-08-29T13:19:28.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.682Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/packedapk/yuanli.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android中的Apk加固原理解析和实现" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/29/Android%E4%B8%AD%E7%9A%84Apk%E5%8A%A0%E5%9B%BA%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2016-08-29T13:19:28.000Z" itemprop="datePublished">2016-08-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android中的Apk加固原理解析和实现
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><p>下面看一下Android中加壳的原理：<br><img src="/images/packedapk/yuanli.png"><br>在加固过程中需要三个对象：</p>
+<ul>
+<li>需要加密的APK（源程序APK）</li>
+<li>壳程序APK（负责解密APK工作）</li>
+<li>加密工具（将源APK进行加密和壳程序的DEX合并）</li>
+</ul>
+<p><strong>主要步骤</strong><br>用加密算法对源程序APK进行加密，再将其与壳程序APK的DEX文件合并生成新的DEX文件，最后替换壳程序中的原DEX文件即可。得到新的APK也叫做脱壳程序APK，它已经不是一个完整意义上的APK程序了，它的主要工作是：负责解密源程序APK，然后加载APK，让其正常运行起来。<br>在这个过程中需要了解的知识是：<strong>如何将源程序APK和壳程序APK进行合并</strong><br>这需要了解DEX文件的格式，下面简单介绍一下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">address</th>
+<th align="center">name</th>
+<th align="center">size/byte</th>
+<th align="center">value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">magic[8]</td>
+<td align="center">8</td>
+<td align="center">0x6465 780a 3033 3500</td>
+</tr>
+<tr>
+<td align="center">8</td>
+<td align="center">checksum</td>
+<td align="center">4</td>
+<td align="center">0xc136 5e17</td>
+</tr>
+<tr>
+<td align="center">c</td>
+<td align="center">signature[20]</td>
+<td align="center">20</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">20</td>
+<td align="center">file_size</td>
+<td align="center">4</td>
+<td align="center">0x02e4</td>
+</tr>
+<tr>
+<td align="center">24</td>
+<td align="center">header_size</td>
+<td align="center">4</td>
+<td align="center">0x70</td>
+</tr>
+<tr>
+<td align="center">28</td>
+<td align="center">endian_tag</td>
+<td align="center">4</td>
+<td align="center">0x12345678</td>
+</tr>
+<tr>
+<td align="center">2C</td>
+<td align="center">link_size</td>
+<td align="center">4</td>
+<td align="center">0x00</td>
+</tr>
+<tr>
+<td align="center">30</td>
+<td align="center">link_off</td>
+<td align="center">4</td>
+<td align="center">0x00</td>
+</tr>
+<tr>
+<td align="center">34</td>
+<td align="center">map_off</td>
+<td align="center">4</td>
+<td align="center">0x0244</td>
+</tr>
+<tr>
+<td align="center">38</td>
+<td align="center">string_ids_size</td>
+<td align="center">4</td>
+<td align="center">0x0e</td>
+</tr>
+<tr>
+<td align="center">3c</td>
+<td align="center">string_ids_off</td>
+<td align="center">4</td>
+<td align="center">0x70</td>
+</tr>
+<tr>
+<td align="center">40</td>
+<td align="center">type_ids_size</td>
+<td align="center">4</td>
+<td align="center">0x07</td>
+</tr>
+<tr>
+<td align="center">44</td>
+<td align="center">type_ids_off</td>
+<td align="center">4</td>
+<td align="center">0xa8</td>
+</tr>
+<tr>
+<td align="center">48</td>
+<td align="center">proto_ids_size</td>
+<td align="center">4</td>
+<td align="center">0x03</td>
+</tr>
+<tr>
+<td align="center">4C</td>
+<td align="center">proto_ids_off</td>
+<td align="center">4</td>
+<td align="center">0xc4</td>
+</tr>
+<tr>
+<td align="center">50</td>
+<td align="center">field_ids_size</td>
+<td align="center">4</td>
+<td align="center">0x01</td>
+</tr>
+<tr>
+<td align="center">54</td>
+<td align="center">field_ids_off</td>
+<td align="center">4</td>
+<td align="center">0xe8</td>
+</tr>
+<tr>
+<td align="center">58</td>
+<td align="center">method_ids_size</td>
+<td align="center">4</td>
+<td align="center">0x04</td>
+</tr>
+<tr>
+<td align="center">5C</td>
+<td align="center">method_ids_off</td>
+<td align="center">4</td>
+<td align="center">0xf0</td>
+</tr>
+<tr>
+<td align="center">60</td>
+<td align="center">class_defs_size</td>
+<td align="center">4</td>
+<td align="center">0x01</td>
+</tr>
+<tr>
+<td align="center">64</td>
+<td align="center">class_defs_off</td>
+<td align="center">4</td>
+<td align="center">0x0110</td>
+</tr>
+<tr>
+<td align="center">68</td>
+<td align="center">data_size</td>
+<td align="center">4</td>
+<td align="center">0x01b4</td>
+</tr>
+<tr>
+<td align="center">6C</td>
+<td align="center">data_off</td>
+<td align="center">4</td>
+<td align="center">0x0130</td>
+</tr>
+</tbody></table>
+<p>现在只要关注其中三个部分：</p>
+<ul>
+<li>checksum（文件校验码）使用alder32算法校验文件，除去magic、checksum外余下的所有文件区域，用于检查文件错误。</li>
+<li>signature 使用SHA-1算法hash出去magic、checksum和signature外余下的所有文件区域，用于唯一识别本文件。</li>
+<li>file_size DEX文件大小。</li>
+</ul>
+<p>我们需要将加密之后的源程序APK文件写入到DEX中，那么就需要修改<code>checksum</code>，因为它的值和文件内容有关。<code>signature</code>也是一样，也是唯一识别文件的算法，还有DEX文件的大小。<br>还需要一个操作，就是标注加密之后的源程序APK文件的大小，因为运行解密的时候，需要知道APK的大小，才能正确得到源程序APK。这个值直接放到文件的末尾就可以了。<br>修改之后的DEX文件的格式如下：<br><img src="/images/packedapk/modifiedapk.png"><br>知道了原理，下面就是代码实现了。这里有三个工程：</p>
+<ul>
+<li>源程序项目（需要加密的APK）</li>
+<li>壳项目（解密源程序APK和加载APK）</li>
+<li>对源APK进行加密和壳项目的DEX的合并</li>
+</ul>
+<h2 id="项目案例"><a href="#项目案例" class="headerlink" title="项目案例"></a>项目案例</h2><p>下面先来看一下源程序<br>1.需要加密的源程序项目：SourceApk<br><img src="/images/packedapk/source_apk.png"><br>需要一个Application类，这个到后面说为什么需要：<br>MyApplication.java  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.sourceapk;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyApplication</span> <span class="keyword">extends</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate();</span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;source apk onCreate:&quot;</span> + <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就是打印一下onCreate方法。<br>MainActivity.java  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.sourceapk;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        </span><br><span class="line">        TextView content = <span class="keyword">new</span> TextView(<span class="keyword">this</span>);</span><br><span class="line">        content.setText(<span class="string">&quot;I am Source Apk&quot;</span>);</span><br><span class="line">        content.setOnClickListener(<span class="keyword">new</span> OnClickListener()&#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View arg0)</span> </span>&#123;</span><br><span class="line">                Intent intent = <span class="keyword">new</span> Intent(MainActivity.<span class="keyword">this</span>, SubActivity.class);</span><br><span class="line">                startActivity(intent);</span><br><span class="line">            &#125;&#125;);</span><br><span class="line">        setContentView(content);</span><br><span class="line">        </span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;app:&quot;</span>+getApplicationContext());   </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.加壳程序项目：DexPackTool<br><img src="/images/packedapk/dexpacktool.png"><br>加壳程序其实就是一个Java工程，它的工作就是加密源程序APK，然后将其写入到壳程序的DEX文件里，修改文件头，得到一个新的DEX文件。<br>看一下代码：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.packdex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">mymain</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            File payloadSrcFile = <span class="keyword">new</span> File(<span class="string">&quot;files/SourceApk.apk&quot;</span>);   <span class="comment">// 需要加壳的源程序</span></span><br><span class="line">            System.out.println(<span class="string">&quot;apk size:&quot;</span>+payloadSrcFile.length());</span><br><span class="line">            File packDexFile = <span class="keyword">new</span> File(<span class="string">&quot;files/SourceApk.dex&quot;</span>);  <span class="comment">// 壳程序dex</span></span><br><span class="line">            <span class="keyword">byte</span>[] payloadArray = encrpt(readFileBytes(payloadSrcFile)); <span class="comment">// 以二进制形式读出源apk，并进行加密处理</span></span><br><span class="line">            <span class="keyword">byte</span>[] packDexArray = readFileBytes(packDexFile); <span class="comment">// 以二进制形式读出dex</span></span><br><span class="line">            <span class="comment">/* 合并文件 */</span></span><br><span class="line">            <span class="keyword">int</span> payloadLen = payloadArray.length;</span><br><span class="line">            <span class="keyword">int</span> packDexLen = packDexArray.length;</span><br><span class="line">            <span class="keyword">int</span> totalLen = payloadLen + packDexLen + <span class="number">4</span>; <span class="comment">// 多出4字节是存放长度的</span></span><br><span class="line">            <span class="keyword">byte</span>[] newdex = <span class="keyword">new</span> <span class="keyword">byte</span>[totalLen]; <span class="comment">// 申请了新的长度</span></span><br><span class="line">            <span class="comment">// 添加解壳代码</span></span><br><span class="line">            System.arraycopy(packDexArray, <span class="number">0</span>, newdex, <span class="number">0</span>, packDexLen); <span class="comment">// 先拷贝dex内容</span></span><br><span class="line">            <span class="comment">// 添加加密后的解壳数据</span></span><br><span class="line">            System.arraycopy(payloadArray, <span class="number">0</span>, newdex, packDexLen, payloadLen); <span class="comment">// 再在dex内容后面拷贝apk的内容</span></span><br><span class="line">            <span class="comment">// 添加解壳数据长度</span></span><br><span class="line">            System.arraycopy(intToByte(payloadLen), <span class="number">0</span>, newdex, totalLen-<span class="number">4</span>, <span class="number">4</span>); <span class="comment">// 最后4字节为长度</span></span><br><span class="line">            <span class="comment">// 修改DEX file size文件头</span></span><br><span class="line">            fixFileSizeHeader(newdex);</span><br><span class="line">            <span class="comment">// 修改DEX SHA1 文件头</span></span><br><span class="line">            fixSHA1Header(newdex);</span><br><span class="line">            <span class="comment">// 修改DEX CheckSum文件头</span></span><br><span class="line">            fixCheckSumHeader(newdex);</span><br><span class="line"></span><br><span class="line">            String str = <span class="string">&quot;files/classes.dex&quot;</span>; <span class="comment">// 创建一个新文件</span></span><br><span class="line">            File file = <span class="keyword">new</span> File(str);</span><br><span class="line">            <span class="keyword">if</span> (!file.exists()) &#123;</span><br><span class="line">                file.createNewFile();</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            FileOutputStream localFileOutputStream = <span class="keyword">new</span> FileOutputStream(str);</span><br><span class="line">            localFileOutputStream.write(newdex); <span class="comment">// 将新计算出的二进制dex数据写入文件</span></span><br><span class="line">            localFileOutputStream.flush();</span><br><span class="line">            localFileOutputStream.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 直接返回数据，读者可以添加自己加密方法</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] encrpt(<span class="keyword">byte</span>[] srcdata)&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; srcdata.length; i++) &#123;</span><br><span class="line">            srcdata[i] = (<span class="keyword">byte</span>)(<span class="number">0xFF</span> ^ srcdata[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> srcdata;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>加密算法很简单，只是对每个字节进行异或一下。</p>
+<blockquote>
+<p>这里是为了简单，所以就用了很简单的加密算法，其实为了增加破解难度，我们应该使用更高效的加密算法，同时最好将加密操作放到native层去做。</p>
+</blockquote>
+<p>这里需要两个输入文件：</p>
+<ul>
+<li>源程序APK文件：SourceApk.apk</li>
+<li>壳程序的DEX文件：SourceApk.dex</li>
+</ul>
+<p>第一个文件就是源程序项目编译之后的APK文件，第二个文件是下面要讲的第三个项目：壳程序项目中的classes.dex文件，修改名称之后得到。<br>3.壳程序项目：PackApk<br><img src="/images/packedapk/packapk.png"><br>先来了解一下壳程序项目的工作：</p>
+<ul>
+<li>通过反射置换android.app.ActivityThread中的mClassLoader为加载解密出APK的DexClassLoader，该DexClassLoader一方面加载了源程序，另一方面以原mClassLoader为父节点，这就保证即加载了源程序，又没有放弃原先加载的资源与系统代码。<br>关于这部分内容不了解的可以看一下<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">Android动态加载之免安装运行程序</a>这篇文章。</li>
+<li>找到源程序的Application，通过反射建立并运行。<br>这里需要注意的是，我们现在是加载一个完整的APK，让他运行起来。一个APK运行的时候都是有一个Application对象的，这个也是一个程序运行之后的全局类，所以我们必须找到解密之后的源程序APK的Application类，运行它的onCreate方法，这样源程序APK才开始它的运行生命周期。后面会说如何得到源程序APK的Application类：使用meta标签进行设置。</li>
+</ul>
+<p>下面看一下整体流程：<br><img src="/images/packedapk/flow.png"><br>下面看一下代码：<br>ProxyApplication.java  </p>
+<ol>
+<li>得到壳程序APK中的DEX文件，然后从这个文件中得到源程序APK进行解密、加载  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这是context赋值</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.attachBaseContext(base);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 创建两个文件夹payload_odex、payload_lib，私有的，可写的文件目录</span></span><br><span class="line">        File odex = <span class="keyword">this</span>.getDir(<span class="string">&quot;payload_odex&quot;</span>, MODE_PRIVATE);</span><br><span class="line">        File libs = <span class="keyword">this</span>.getDir(<span class="string">&quot;payload_lib&quot;</span>, MODE_PRIVATE);</span><br><span class="line">        odexPath = odex.getAbsolutePath();</span><br><span class="line">        libPath = libs.getAbsolutePath();</span><br><span class="line">        apkFileName = odex.getAbsolutePath() + <span class="string">&quot;/payload.apk&quot;</span>;</span><br><span class="line">        File dexFile = <span class="keyword">new</span> File(apkFileName);</span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;apk size:&quot;</span>+dexFile.length());</span><br><span class="line">        <span class="keyword">if</span> (!dexFile.exists())</span><br><span class="line">        &#123;</span><br><span class="line">            dexFile.createNewFile();  <span class="comment">//在payload_odex文件夹内，创建payload.apk</span></span><br><span class="line">            <span class="comment">// 读取程序classes.dex文件</span></span><br><span class="line">            <span class="keyword">byte</span>[] dexdata = <span class="keyword">this</span>.readDexFileFromApk();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 分离出解壳后的apk文件已用于动态加载</span></span><br><span class="line">            <span class="keyword">this</span>.splitPayLoadFromDex(dexdata);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 配置动态加载环境</span></span><br><span class="line">        Object currentActivityThread = RefInvoke.invokeStaticMethod(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, <span class="string">&quot;currentActivityThread&quot;</span>,</span><br><span class="line">                <span class="keyword">new</span> Class[] &#123;&#125;, <span class="keyword">new</span> Object[] &#123;&#125;);<span class="comment">//获取主线程对象 </span></span><br><span class="line">        String packageName = <span class="keyword">this</span>.getPackageName();<span class="comment">//当前apk的包名</span></span><br><span class="line">        ArrayMap mPackages = (ArrayMap) RefInvoke.getFieldOjbect(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">                <span class="string">&quot;mPackages&quot;</span>);</span><br><span class="line">        WeakReference wr = (WeakReference) mPackages.get(packageName);</span><br><span class="line">        <span class="comment">// 创建被加壳apk的DexClassLoader对象  加载apk内的类和本地代码（c/c++代码）</span></span><br><span class="line">        DexClassLoader dLoader = <span class="keyword">new</span> DexClassLoader(apkFileName, odexPath,</span><br><span class="line">                libPath, (ClassLoader) RefInvoke.getFieldOjbect(</span><br><span class="line">                        <span class="string">&quot;android.app.LoadedApk&quot;</span>, wr.get(), <span class="string">&quot;mClassLoader&quot;</span>));</span><br><span class="line">        <span class="comment">//把当前进程的mClassLoader设置成了被加壳apk的DexClassLoader</span></span><br><span class="line">        RefInvoke.setFieldOjbect(<span class="string">&quot;android.app.LoadedApk&quot;</span>, <span class="string">&quot;mClassLoader&quot;</span>,</span><br><span class="line">                wr.get(), dLoader);</span><br><span class="line">        </span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>,<span class="string">&quot;classloader:&quot;</span>+dLoader);</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            Object actObj = dLoader.loadClass(<span class="string">&quot;com.example.sourceapk.MainActivity&quot;</span>);</span><br><span class="line">            Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;actObj:&quot;</span>+actObj);</span><br><span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">            Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;activity:&quot;</span>+Log.getStackTraceString(e));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;error:&quot;</span>+Log.getStackTraceString(e));</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里需要注意的一个问题，就是我们需要找到一个时机，就是在壳程序还没有运行起来的时候，来加载源程序的APK，执行它的onCreate方法，那么这个时机不能太晚，不然的话，就是运行壳程序，而不是源程序了。查看源码我们知道。Application中有一个方法：attachBaseContext这个方法，它在Application的onCreate方法执行前就会执行了，所以我们的工作就需要在这里进行。<br>A) 从APK中获取到DEX文件  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 从apk包里面获取dex文件内容（byte）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] readDexFileFromApk() <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    ByteArrayOutputStream dexByteArrayOutputStream = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">    ZipInputStream localZipInputStream = <span class="keyword">new</span> ZipInputStream(</span><br><span class="line">            <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(</span><br><span class="line">                    <span class="keyword">this</span>.getApplicationInfo().sourceDir)));</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        ZipEntry localZipEntry = localZipInputStream.getNextEntry();</span><br><span class="line">        <span class="keyword">if</span> (localZipEntry == <span class="keyword">null</span>) &#123;</span><br><span class="line">            localZipInputStream.close();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (localZipEntry.getName().equals(<span class="string">&quot;classes.dex&quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">byte</span>[] arrayOfByte = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">int</span> i = localZipInputStream.read(arrayOfByte);</span><br><span class="line">                <span class="keyword">if</span> (i == -<span class="number">1</span>)</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                dexByteArrayOutputStream.write(arrayOfByte, <span class="number">0</span>, i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        localZipInputStream.closeEntry();</span><br><span class="line">    &#125;</span><br><span class="line">    localZipInputStream.close();</span><br><span class="line">    <span class="keyword">return</span> dexByteArrayOutputStream.toByteArray();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+B) 从壳程序DEX中得到源程序APK文件  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 释放被加壳的apk文件，so文件</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> data</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">splitPayLoadFromDex</span><span class="params">(<span class="keyword">byte</span>[] apkdata)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ablen = apkdata.length;</span><br><span class="line">    <span class="comment">//取被加壳apk的长度   这里的长度取值，对应加壳时长度的赋值都可以做些简化</span></span><br><span class="line">    <span class="keyword">byte</span>[] dexlen = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span>];</span><br><span class="line">    System.arraycopy(apkdata, ablen - <span class="number">4</span>, dexlen, <span class="number">0</span>, <span class="number">4</span>);</span><br><span class="line">    ByteArrayInputStream bais = <span class="keyword">new</span> ByteArrayInputStream(dexlen);</span><br><span class="line">    DataInputStream in = <span class="keyword">new</span> DataInputStream(bais);</span><br><span class="line">    <span class="keyword">int</span> readInt = in.readInt();</span><br><span class="line">    System.out.println(Integer.toHexString(readInt));</span><br><span class="line">    <span class="keyword">byte</span>[] newdex = <span class="keyword">new</span> <span class="keyword">byte</span>[readInt];</span><br><span class="line">    <span class="comment">//把被加壳的源程序apk内容拷贝到newdex中</span></span><br><span class="line">    System.arraycopy(apkdata, ablen - <span class="number">4</span> - readInt, newdex, <span class="number">0</span>, readInt);</span><br><span class="line">    <span class="comment">//这里应该加上对于apk的解密操作，若加壳是加密处理的话</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对源程序Apk进行解密</span></span><br><span class="line">    newdex = decrypt(newdex);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 写入apk文件   </span></span><br><span class="line">    File file = <span class="keyword">new</span> File(apkFileName);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        FileOutputStream localFileOutputStream = <span class="keyword">new</span> FileOutputStream(file);</span><br><span class="line">        localFileOutputStream.write(newdex);</span><br><span class="line">        localFileOutputStream.close();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException localIOException) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(localIOException);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 分析被加壳的apk文件</span></span><br><span class="line">    ZipInputStream localZipInputStream = <span class="keyword">new</span> ZipInputStream(</span><br><span class="line">            <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(file)));</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        ZipEntry localZipEntry = localZipInputStream.getNextEntry(); <span class="comment">// 这个也遍历子目录</span></span><br><span class="line">        <span class="keyword">if</span> (localZipEntry == <span class="keyword">null</span>) &#123;</span><br><span class="line">            localZipInputStream.close();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 取出被加壳apk用到的so文件，放到libPath中（data/data/包名/payload_lib)</span></span><br><span class="line">        String name = localZipEntry.getName();</span><br><span class="line">        <span class="keyword">if</span> (name.startsWith(<span class="string">&quot;lib/&quot;</span>) &amp;&amp; name.endsWith(<span class="string">&quot;.so&quot;</span>)) &#123;</span><br><span class="line">            File storeFile = <span class="keyword">new</span> File(libPath + <span class="string">&quot;/&quot;</span></span><br><span class="line">                    + name.substring(name.lastIndexOf(<span class="string">&#x27;/&#x27;</span>)));</span><br><span class="line">            storeFile.createNewFile();</span><br><span class="line">            FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(storeFile);</span><br><span class="line">            <span class="keyword">byte</span>[] arrayOfByte = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">int</span> i = localZipInputStream.read(arrayOfByte);</span><br><span class="line">                <span class="keyword">if</span> (i == -<span class="number">1</span>)</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                fos.write(arrayOfByte, <span class="number">0</span>, i);</span><br><span class="line">            &#125;</span><br><span class="line">            fos.flush();</span><br><span class="line">            fos.close();</span><br><span class="line">        &#125;</span><br><span class="line">        localZipInputStream.closeEntry();</span><br><span class="line">    &#125;</span><br><span class="line">    localZipInputStream.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+C) 解密源程序APK  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//直接返回数据，读者可以添加自己解密方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] decrypt(<span class="keyword">byte</span>[] srcdata) &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;srcdata.length;i++)&#123;</span><br><span class="line">        srcdata[i] = (<span class="keyword">byte</span>)(<span class="number">0xFF</span> ^ srcdata[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> srcdata;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>找到源程序的Application程序，让其运行  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//loadResources(apkFileName);</span></span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;onCreate&quot;</span>);</span><br><span class="line">        <span class="comment">// 如果源应用配置有Appliction对象，则替换为源应用Applicaiton，以便不影响源程序逻辑。</span></span><br><span class="line">        String appClassName = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ApplicationInfo ai = <span class="keyword">this</span>.getPackageManager()</span><br><span class="line">                    .getApplicationInfo(<span class="keyword">this</span>.getPackageName(),</span><br><span class="line">                            PackageManager.GET_META_DATA);</span><br><span class="line">            Bundle bundle = ai.metaData;</span><br><span class="line">            <span class="keyword">if</span> (bundle != <span class="keyword">null</span> &amp;&amp; bundle.containsKey(<span class="string">&quot;APPLICATION_CLASS_NAME&quot;</span>)) &#123;</span><br><span class="line">                appClassName = bundle.getString(<span class="string">&quot;APPLICATION_CLASS_NAME&quot;</span>);<span class="comment">//className 是配置在xml文件中的。</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;have no application class name&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NameNotFoundException e) &#123;</span><br><span class="line">            Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;error:&quot;</span>+Log.getStackTraceString(e));</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//有值的话调用该Applicaiton</span></span><br><span class="line">        Object currentActivityThread = RefInvoke.invokeStaticMethod(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, <span class="string">&quot;currentActivityThread&quot;</span>,</span><br><span class="line">                <span class="keyword">new</span> Class[] &#123;&#125;, <span class="keyword">new</span> Object[] &#123;&#125;);</span><br><span class="line">        Object mBoundApplication = RefInvoke.getFieldOjbect(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">                <span class="string">&quot;mBoundApplication&quot;</span>);</span><br><span class="line">        Object loadedApkInfo = RefInvoke.getFieldOjbect(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread$AppBindData&quot;</span>,</span><br><span class="line">                mBoundApplication, <span class="string">&quot;info&quot;</span>);</span><br><span class="line">        <span class="comment">//把当前进程的mApplication 设置成了null</span></span><br><span class="line">        RefInvoke.setFieldOjbect(<span class="string">&quot;android.app.LoadedApk&quot;</span>, <span class="string">&quot;mApplication&quot;</span>,</span><br><span class="line">                loadedApkInfo, <span class="keyword">null</span>);</span><br><span class="line">        Object oldApplication = RefInvoke.getFieldOjbect(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">                <span class="string">&quot;mInitialApplication&quot;</span>);</span><br><span class="line">        <span class="comment">//http://www.codeceo.com/article/android-context.html</span></span><br><span class="line">        ArrayList&lt;Application&gt; mAllApplications = (ArrayList&lt;Application&gt;) RefInvoke</span><br><span class="line">                .getFieldOjbect(<span class="string">&quot;android.app.ActivityThread&quot;</span>,</span><br><span class="line">                        currentActivityThread, <span class="string">&quot;mAllApplications&quot;</span>);</span><br><span class="line">        mAllApplications.remove(oldApplication); <span class="comment">// 删除oldApplication</span></span><br><span class="line">        </span><br><span class="line">        ApplicationInfo appinfo_In_LoadedApk = (ApplicationInfo) RefInvoke</span><br><span class="line">                .getFieldOjbect(<span class="string">&quot;android.app.LoadedApk&quot;</span>, loadedApkInfo,</span><br><span class="line">                        <span class="string">&quot;mApplicationInfo&quot;</span>);</span><br><span class="line">        ApplicationInfo appinfo_In_AppBindData = (ApplicationInfo) RefInvoke</span><br><span class="line">                .getFieldOjbect(<span class="string">&quot;android.app.ActivityThread$AppBindData&quot;</span>,</span><br><span class="line">                        mBoundApplication, <span class="string">&quot;appInfo&quot;</span>);</span><br><span class="line">        appinfo_In_LoadedApk.className = appClassName;</span><br><span class="line">        appinfo_In_AppBindData.className = appClassName;</span><br><span class="line">        Application app = (Application) RefInvoke.invokeMethod(</span><br><span class="line">                <span class="string">&quot;android.app.LoadedApk&quot;</span>, <span class="string">&quot;makeApplication&quot;</span>, loadedApkInfo,</span><br><span class="line">                <span class="keyword">new</span> Class[] &#123; <span class="keyword">boolean</span>.class, Instrumentation.class &#125;,</span><br><span class="line">                <span class="keyword">new</span> Object[] &#123; <span class="keyword">false</span>, <span class="keyword">null</span> &#125;); <span class="comment">// 执行 makeApplication（false,null）</span></span><br><span class="line">        RefInvoke.setFieldOjbect(<span class="string">&quot;android.app.ActivityThread&quot;</span>,</span><br><span class="line">                <span class="string">&quot;mInitialApplication&quot;</span>, currentActivityThread, app);</span><br><span class="line"></span><br><span class="line">        ArrayMap mProviderMap = (ArrayMap) RefInvoke.getFieldOjbect(</span><br><span class="line">                <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">                <span class="string">&quot;mProviderMap&quot;</span>);</span><br><span class="line">        Iterator it = mProviderMap.values().iterator();</span><br><span class="line">        <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">            Object providerClientRecord = it.next();</span><br><span class="line">            Object localProvider = RefInvoke.getFieldOjbect(</span><br><span class="line">                    <span class="string">&quot;android.app.ActivityThread$ProviderClientRecord&quot;</span>,</span><br><span class="line">                    providerClientRecord, <span class="string">&quot;mLocalProvider&quot;</span>);</span><br><span class="line">            RefInvoke.setFieldOjbect(<span class="string">&quot;android.content.ContentProvider&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;mContext&quot;</span>, localProvider, app);</span><br><span class="line">        &#125;</span><br><span class="line">        Log.i(<span class="string">&quot;demo&quot;</span>, <span class="string">&quot;app:&quot;</span>+app);</span><br><span class="line">        app.onCreate();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+直接在壳程序的Application中的onCreate方法中进行就可以了。这里还可以看到是通过AndroidManifest.xml中的meta标签获取源程序APK中的Application对象的。<br>下面来看一下AndroidManifest.xml文件中的内容：  <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:allowBackup</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:icon</span>=<span class="string">&quot;@drawable/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;com.example.packapk.ProxyApplication&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;APPLICATION_CLASS_NAME&quot;</span> <span class="attr">android:value</span>=<span class="string">&quot;com.example.sourceapk.MyApplication&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+这里我们定义了源程序APK的Application类名。<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1hsjW6HI">项目下载</a></li>
+</ol>
+<h2 id="运行程序"><a href="#运行程序" class="headerlink" title="运行程序"></a>运行程序</h2><p>下面就看看程序的运行步骤：</p>
+<ul>
+<li>第一步：得到源程序APK文件和壳程序的DEX文件<br>运行源程序和壳程序项目，之后得到这两个文件（将壳程序的classes.dex文件改名为SourceApk.dex），然后使用加密工具进行加壳。</li>
+<li>第二步：替换壳程序中的classes.dex文件<br>我们在第一步中得到加壳之后的classes.dex文件之后，将其与PackApk.apk中的原classes.dex文件替换。</li>
+<li>第三步：在第二步的时候得到替换之后的PackApk.apk文件，这个文件因为被修改了，所以我们需要重新对它签名，不然运行也是报错的。<br>签名之后的文件就可以运行了，效果如下：<br><img src="/images/packedapk/result.png"></li>
+</ul>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/jiangwei0910410003/article/details/48415225/">http://blog.csdn.net/jiangwei0910410003/article/details/48415225/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/08/29/Android%E4%B8%AD%E7%9A%84Apk%E5%8A%A0%E5%9B%BA%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/" data-id="ckhe7o4oc0079chl71u5wf9ya" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/10/ELF-Executable-and-Linking-Format-part2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ELF: Executable and Linking Format part2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android动态加载之免安装运行程序</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

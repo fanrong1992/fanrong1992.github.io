@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android逆向基础 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="反编译apk文件1$ apktool d crackme.apk outdir # 反编译apk文件夹 res&#x2F;values&#x2F;strings.xml存储源代码中定义的strings资源，apk文件打包时，strings.xml中的字符串被加密存储为resources.arsc文件中，apk成功反编译后该文件也会被解密出来。源程序R.java中的所有索引值保存在strings.xml同目录下的pub">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向基础">
+<meta property="og:url" content="http://example.com/2016/01/08/Android%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="反编译apk文件1$ apktool d crackme.apk outdir # 反编译apk文件夹 res&#x2F;values&#x2F;strings.xml存储源代码中定义的strings资源，apk文件打包时，strings.xml中的字符串被加密存储为resources.arsc文件中，apk成功反编译后该文件也会被解密出来。源程序R.java中的所有索引值保存在strings.xml同目录下的pub">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androidre/crackme.png">
+<meta property="article:published_time" content="2016-01-08T06:02:52.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.683Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androidre/crackme.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android逆向基础" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/08/Android%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time datetime="2016-01-08T06:02:52.000Z" itemprop="datePublished">2016-01-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android逆向基础
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="反编译apk文件"><a href="#反编译apk文件" class="headerlink" title="反编译apk文件"></a>反编译apk文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ apktool d crackme.apk outdir # 反编译apk文件夹</span><br></pre></td></tr></table></figure>
+<p><code>res/values/strings.xml</code>存储源代码中定义的strings资源，apk文件打包时，strings.xml中的字符串被加密存储为<code>resources.arsc</code>文件中，apk成功反编译后该文件也会被解密出来。源程序R.java中的所有索引值保存在strings.xml同目录下的public.xml文件中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ grep -nr &quot;0x7f05000b&quot; .&#x2F;smali # 在smali文件夹中查找含有“0x7f05000b”内容的文件</span><br><span class="line">$ apktool b outdir # 编译修改后的文件，编译成功后会在outdir下生成dist目录需要使用signapk.jar工具对apk文件进行签名</span><br></pre></td></tr></table></figure>
+
+<h2 id="Android-Dalvik虚拟机"><a href="#Android-Dalvik虚拟机" class="headerlink" title="Android Dalvik虚拟机"></a>Android Dalvik虚拟机</h2><h3 id="Java虚拟机运行的是Java字节码，Dalvik虚拟机运行的是Dalvik字节码"><a href="#Java虚拟机运行的是Java字节码，Dalvik虚拟机运行的是Dalvik字节码" class="headerlink" title="Java虚拟机运行的是Java字节码，Dalvik虚拟机运行的是Dalvik字节码"></a>Java虚拟机运行的是Java字节码，Dalvik虚拟机运行的是Dalvik字节码</h3><p>Dalvik虚拟机通过解释DEX来执行这些字节码</p>
+<h3 id="Dalvik可执行文件体积更小"><a href="#Dalvik可执行文件体积更小" class="headerlink" title="Dalvik可执行文件体积更小"></a>Dalvik可执行文件体积更小</h3><p><code>dx</code>工具负责将Java字节码转换位Dalvik字节码</p>
+<h3 id="Java虚拟机与Dalvik虚拟机架构不同"><a href="#Java虚拟机与Dalvik虚拟机架构不同" class="headerlink" title="Java虚拟机与Dalvik虚拟机架构不同"></a>Java虚拟机与Dalvik虚拟机架构不同</h3><p>Java虚拟机基于栈架构，Dalvik虚拟机基于寄存器架构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ javac -source 1.6 -target 1.6 Hello.java</span><br><span class="line">$ dx --dex --output&#x3D;Hello.dex Hello.class</span><br><span class="line">$ javap -c -classpath . Hello # 查看Java字节码</span><br><span class="line">$ dexdump -d Hello.dex # 查看Dalvik字节码</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>dx和dexdump在/sdk/build_tools/android目录下</p>
+</blockquote>
+<h3 id="DEX文件反汇编工具"><a href="#DEX文件反汇编工具" class="headerlink" title="DEX文件反汇编工具"></a>DEX文件反汇编工具</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar baksmali.jar -o baksmaliout Hello.dex</span><br></pre></td></tr></table></figure>
+
+<h3 id="定位关键代码"><a href="#定位关键代码" class="headerlink" title="定位关键代码"></a>定位关键代码</h3><blockquote>
+<p>信息反馈法<br>特征函数法<br>顺序查看法<br>代码注入法<br>栈跟踪法<br>Method Profiling</p>
+</blockquote>
+<h3 id="smali语法"><a href="#smali语法" class="headerlink" title="smali语法"></a>smali语法</h3><p><code>.registers</code>指令指定函数用到的寄存器数目<br>一条<code>.parameter</code>指令指定函数一个参数<br><code>.prologue</code>指令指定函数代码起始处<br>函数中引入的参数命名从<code>p0</code>开始，依次递增<br>寄存器<code>p0</code>作为<code>this</code>引用，<code>v0</code>开始表示函数的局部变量寄存器<br><strong>1.类型</strong><br>Dalvik字节码只有两种类型，<strong>基本类型</strong>与<strong>引用类型</strong>。除了对象与数组属于引用对象外，其他的Java类型都是基本类型。<br>Dalvik字节码类型描述符</p>
+<table>
+<thead>
+<tr>
+<th align="center">语法</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">V</td>
+<td align="center">void, 只用于返回值类型</td>
+</tr>
+<tr>
+<td align="center">Z</td>
+<td align="center">boolean</td>
+</tr>
+<tr>
+<td align="center">B</td>
+<td align="center">byte</td>
+</tr>
+<tr>
+<td align="center">S</td>
+<td align="center">short</td>
+</tr>
+<tr>
+<td align="center">C</td>
+<td align="center">char</td>
+</tr>
+<tr>
+<td align="center">I</td>
+<td align="center">int</td>
+</tr>
+<tr>
+<td align="center">J</td>
+<td align="center">long</td>
+</tr>
+<tr>
+<td align="center">F</td>
+<td align="center">float</td>
+</tr>
+<tr>
+<td align="center">D</td>
+<td align="center">double</td>
+</tr>
+<tr>
+<td align="center">L</td>
+<td align="center">Java类类型</td>
+</tr>
+<tr>
+<td align="center">[</td>
+<td align="center">数组类型</td>
+</tr>
+</tbody></table>
+<p><strong>2.方法</strong><br>方法调用格式  </p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class">Lpackage/name/ObjectName;</span>-&gt;MethodName(III)Z</span><br></pre></td></tr></table></figure>
+<p><code>Lpackage/name/ObjectName;-</code>应该理解为一个类型，<code>MethodName</code>为具体的方法名，<code>(III)Z</code>是方法的签名部分，<code>III</code>为方法的参数（3个int型参数），<code>Z</code>是方法的返回类型（boolean类型）<br>例：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">method(I[[II<span class="class">Ljava/lang/String;</span>[<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/String;</span></span><br><span class="line">String method(int, int[][], int, String, Object[])</span><br></pre></td></tr></table></figure>
+<p><strong>3.字段</strong><br>字段调用格式</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class">Lpackage/name/ObjectName;</span>-&gt;FieldName:<span class="class">Ljava/lang/String;</span></span><br></pre></td></tr></table></figure>
+<p>字段由类型$Lpackage/name/ObjectName;$、字段名$FieldName$与字段类型$Ljava/lang/String;$组成。字段名与字段类型用<code>:</code>隔开。</p>
+<h3 id="smali文件格式"><a href="#smali文件格式" class="headerlink" title="smali文件格式"></a>smali文件格式</h3><p>smali文件头3行描述了当前类的信息</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.class</span>&lt;访问权限&gt;[修饰关键字]&lt;类名&gt;</span><br><span class="line"><span class="keyword">.super</span>&lt;父类名&gt;</span><br><span class="line"><span class="keyword">.source</span>&lt;源文件名&gt;</span><br></pre></td></tr></table></figure>
+<p>例：MainActivity.smali</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.class</span><span class="keyword"> public</span> <span class="class">Lcom/example/crackme/MainActivity;</span></span><br><span class="line"><span class="keyword">.super</span> <span class="class">Landroid/app/Activity;</span></span><br><span class="line"><span class="keyword">.source</span> <span class="string">&quot;MainActivity.java&quot;</span></span><br></pre></td></tr></table></figure>
+<p>一个类由多个字段和方法组成，字段的声明用<code>.field</code>指令，字段有静态字段和实例字段<br>静态字段声明格式</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># static fields</span></span><br><span class="line"><span class="keyword">.field</span> &lt;访问权限&gt;<span class="keyword"> static</span> [修饰关键字] &lt;字段名&gt;:&lt;字段类型&gt;</span><br></pre></td></tr></table></figure>
+<p>实例字段声明格式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># instance fields</span><br><span class="line">.field &lt;访问权限&gt; [修饰关键字] &lt;字段名&gt;:&lt;字段类型&gt;</span><br></pre></td></tr></table></figure>
+<p>例：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># instance fields</span></span><br><span class="line"><span class="keyword">.field</span><span class="keyword"> private</span> button:<span class="class">Landorid/widget/Button;</span></span><br></pre></td></tr></table></figure>
+<p>方法的声明使用<code>.method</code>指令，方法有直接方法和虚方法<br>直接方法声明格式</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># direct methods</span></span><br><span class="line"><span class="keyword">.method</span> &lt;访问权限&gt; [修饰关键字] &lt;方法原型&gt;</span><br><span class="line">&lt;.locals&gt;</span><br><span class="line">[.parameter]</span><br><span class="line">[.prologue]</span><br><span class="line">[.line]</span><br><span class="line">&lt;代码体&gt;</span><br><span class="line"><span class="keyword">.end method</span></span><br></pre></td></tr></table></figure>
+<p>虚方法的声明格式与直接方法相同，只是起始出的注释为<code>virtual methods</code><br>smali文件中使用<code>.implements</code>指令指出<code>接口</code>，格式声明：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># interfaces</span></span><br><span class="line"><span class="keyword">.implements</span> &lt;接口名&gt;</span><br></pre></td></tr></table></figure>
+<p>smail文件中使用<code>.annotation</code>指令指出<code>注解</code>，格式声明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># annotations</span><br><span class="line">.annotation [注解属性] &lt;注解类名&gt;</span><br><span class="line">    [注解字段 ＝ 值]</span><br><span class="line">.end annotation</span><br></pre></td></tr></table></figure>
+
+<h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><p>baksmali在反编译dex文件时会为每个类单独生成一个smali文件，内部类也有自己独立的smali文件，<code>[外部类]$[内部类].smali</code><br><code>this$0</code>是内部类自动保留的一个指向所在外部类的引用，左边的this表示为父类的引用，右边的数值0表示引用层数<br>例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Outer</span> </span>&#123; <span class="comment">//this$0</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FirstInner</span> </span>&#123; <span class="comment">//this$1</span></span><br><span class="line">        <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecondInner</span> </span>&#123; <span class="comment">//this$2</span></span><br><span class="line">            <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThirdInner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ThirdInner类访问FirstInner类的引用为<code>this$1</code>。<br><code>this$X</code>型字段都被指定为synthetic属性，表示它们是被编译器合成的、虚构的，并不是人为声明的该字段。</p>
+<h2 id="Smali-baksmali"><a href="#Smali-baksmali" class="headerlink" title="Smali/baksmali"></a>Smali/baksmali</h2><p>Apktool其实只是一个将各种工具结合起来的懒人工具而已。最好使用smali/baksmali而不是Apktool，原因如下：首先，Apktool更新并没有smali/baksmali频繁，smali/baksmali更新后要过非长久的时间才会合并到Apktool中，在这之前你可能需要忍受很多诡异的bug。其次，Apktool在反编译或者重打包dex的时候，如果发生错误，仅仅只会提供错误的exception信息而已，但如果你使用smali/baksmali，工具会告诉你具体的出错原因，会对重打包后的调试有巨大的帮助。最后，很多apk为了对付反调试会在资源文件中加入很多junk code从而使得Apktool的解析崩溃掉，造成反编译失败或者无法重打包。但如果你仅对classes.dex操作就不会有这些问题了。<br>smali/baksmali的基本操作如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 将smali-2.1.2.jar和baksmali-2.1.2.jar和解压的classes.dex放到同一目录</span><br><span class="line">$ java -jar baksmali-2.1.2.jar -o classout&#x2F; classes.dex # 反编译dex文件到smali文件</span><br><span class="line">$ java -jar smali-2.1.2.jar classout&#x2F; -o classes.dex # 将smali文件编译成dex文件</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>学习smali最好的方法就是自己先用java写好程序，再用baksmali转换成smali语句，然后对照学习。比如下面就是java代码和用baksmali反编译过后的smali文件的对照分析。<br>BFLog类主要是用Log.d()输出调试信息，Java代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BFLog</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Log</span><span class="params">(String tag, String msg)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Log.d(tag, msg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Log</span><span class="params">(Object someObj)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Log(<span class="string">&quot;bruce&quot;</span>, someObj.toString());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Log</span><span class="params">(Object[] someObj)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Log(<span class="string">&quot;bruce&quot;</span>, Arrays.toString(someObj));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的smali代码如下：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.class</span><span class="keyword"> public</span> <span class="class">Lcom/bruce/BFLog;</span> <span class="comment"># class的名字</span></span><br><span class="line"><span class="keyword">.super</span> <span class="class">Ljava/lang/Object;</span> <span class="comment"># 这个类继承的对象</span></span><br><span class="line"><span class="keyword">.source</span> <span class="string">&quot;BFLog.java&quot;</span> <span class="comment"># java文件名</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># direct methods</span></span><br><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> constructor</span> &lt;init&gt;()V <span class="comment"># class的构造函数</span></span><br><span class="line"><span class="keyword">    .registers</span> 1</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .prologue</span> <span class="comment"># 函数代码起始处</span></span><br><span class="line"><span class="keyword">    .line</span> 9</span><br><span class="line">   <span class="built_in"> invoke-direct </span>&#123;p0&#125;, <span class="class">Ljava/lang/Object;</span>-&gt;&lt;init&gt;()V <span class="comment"># 调用Object的构造方法，p0相当于this指针</span></span><br><span class="line">    return-void</span><br><span class="line"><span class="keyword">.end method</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> static</span> Log(<span class="class">Ljava/lang/Object;</span>)V <span class="comment"># Log(Object)的方法实现</span></span><br><span class="line"><span class="keyword">    .registers</span> 3</span><br><span class="line"><span class="keyword">    .param</span> p0, <span class="string">&quot;someObj&quot;</span>    <span class="comment"># Ljava/lang/Object; 参数信息</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .prologue</span></span><br><span class="line"><span class="keyword">    .line</span> 17</span><br><span class="line">   <span class="built_in"> const-string </span>v0, <span class="string">&quot;bruce&quot;</span> <span class="comment"># 给v0赋值&quot;bruce&quot;</span></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0&#125;, <span class="class">Ljava/lang/Object;</span>-&gt;toString()<span class="class">Ljava/lang/String;</span> <span class="comment"># 调用toString()函数</span></span><br><span class="line">   <span class="built_in"> move-result-object </span>v1 <span class="comment"># toString()的结果保存在v1</span></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v0, v1&#125;, <span class="class">Lcom/bruce/BFLog;</span>-&gt;Log(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)V <span class="comment"># 调用BFLog的一个Log函数，参数是v0和v1</span></span><br><span class="line"><span class="keyword">    .line</span> 18</span><br><span class="line">    return-void</span><br><span class="line"><span class="keyword">.end method</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> static</span> Log(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)V <span class="comment"># Log(String, String)的方法实现</span></span><br><span class="line"><span class="keyword">    .registers</span> 2</span><br><span class="line"><span class="keyword">    .param</span> p0, <span class="string">&quot;tag&quot;</span>    <span class="comment"># Ljava/lang/String;</span></span><br><span class="line"><span class="keyword">    .param</span> p1, <span class="string">&quot;msg&quot;</span>    <span class="comment"># Ljava/lang/String;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .prologue</span></span><br><span class="line"><span class="keyword">    .line</span> 12</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;p0, p1&#125;, <span class="class">Landroid/util/Log;</span>-&gt;d(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)I <span class="comment"># 调用android API里的Log函数实现Log功能</span></span><br><span class="line"><span class="keyword">    .line</span> 13</span><br><span class="line">    return-void</span><br><span class="line"><span class="keyword">.end method</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> static</span> Log([<span class="class">Ljava/lang/Object;</span>)V <span class="comment"># Log(Object[])函数实现 ‘[’符号是数组的意思</span></span><br><span class="line"><span class="keyword">    .registers</span> 3</span><br><span class="line"><span class="keyword">    .param</span> p0, <span class="string">&quot;someObj&quot;</span>    <span class="comment"># [Ljava/lang/Object;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .prologue</span></span><br><span class="line"><span class="keyword">    .line</span> 22</span><br><span class="line">   <span class="built_in"> const-string </span>v0, <span class="string">&quot;bruce&quot;</span></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;p0&#125;, <span class="class">Ljava/util/Arrays;</span>-&gt;toString([<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/lang/String;</span> <span class="comment"># 将Object数组转换为String</span></span><br><span class="line">   <span class="built_in"> move-result-object </span>v1</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v0, v1&#125;, <span class="class">Lcom/bruce/BFLog;</span>-&gt;Log(<span class="class">Ljava/lang/String;</span><span class="class">Ljava/lang/String;</span>)V <span class="comment"># 调用Log(String, String)函数</span></span><br><span class="line"><span class="keyword">    .line</span> 23</span><br><span class="line">    return-void</span><br><span class="line"><span class="keyword">.end method</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Smali插桩"><a href="#Smali插桩" class="headerlink" title="Smali插桩"></a>Smali插桩</h3><p>如果仅仅用Smali来分析代码，效果其实不如用dex2jar和jd-gui更直观，毕竟看反编译的java代码要更容易一些。但Smali强大之处就是可以随心所欲的进行插桩操作。何为插桩，在保证被测程序原有逻辑完整性的基础上在程序中插入一些探针（又称为“探测仪”），通过探针的执行并抛出程序运行的特征数据，通过对这些数据的分析，可以获得程序的控制流和数据流信息，进而得到逻辑覆盖等动态信息，从而实现测试目的的方法。下面我就来结合一个例子来讲解一下何如进行smali插桩。<br>测试程序是一个简单的crackme。输入密码，然后点击check，如果密码正确会输出yes，否则输出no。<br><img src="/images/androidre/crackme.png"><br>首先我们对crackme1这个apk进行解压，然后反编译。我们会在MainActivity中看到一个getkey(String,int)函数。这个函数貌似非常复杂，我们暂时不管。我们首先分析一下点下button后的逻辑。我们发现程序会通过getkey(“mrkxqcroxqtskx”,42)来计算出真正的密码，然后与我们输人的密码进行比较，java代码如下：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">    String str = editText0.getText().toString();</span><br><span class="line">    <span class="keyword">if</span> (str.equals(getkey(<span class="string">&quot;mrkxqcroxqtskx&quot;</span>, <span class="number">42</span>))) &#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">&quot;Yes!&quot;</span>, Toast.LENGTH_LONG).show();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">&quot;No!&quot;</span>, Toast.LENGTH_LONG).show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时候就是smali插桩大显身手的时候了，我们可以通过插桩直接获取getkey(“mrkxqcroxqtskx”, 42)这个函数的返回值，然后Log出来。这样我们就不需要研究getkey这个函数的实现了。具体过程如下：<br>1.首先解压apk然后用baksmali进行反编译。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ unzip -d outdir crackme1.apk</span><br><span class="line">$ cd outdir</span><br><span class="line">$ java -jar baksmali-2.1.2.jar -o classout classes.dex</span><br></pre></td></tr></table></figure>
+<p>2.将上一节BFLog类的BFLog.smali文件拷贝到com/bruce目录下，这个文件有3个LOG函数，分别可以输出String的值，Object的值和Object数组的值。注意，如果原程序中没有com/bruce这个目录，你需要自己用mkdir创建一下。拷贝完后，目录结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">com</span><br><span class="line">└─bruce</span><br><span class="line">    │  BFLog.smali</span><br><span class="line">    │</span><br><span class="line">    └─crackme1</span><br><span class="line">            BuildConfig.smali</span><br><span class="line">            MainActivity$1.smali</span><br><span class="line">            MainActivity.smali</span><br><span class="line">            R$attr.smali</span><br><span class="line">            R$dimen.smali</span><br><span class="line">            R$drawable.smali</span><br><span class="line">            R$id.smali</span><br><span class="line">            R$layout.smali</span><br><span class="line">            R$menu.smali</span><br><span class="line">            R$string.smali</span><br><span class="line">            R$style.smali</span><br><span class="line">            R.smali</span><br></pre></td></tr></table></figure>
+<p>3.用文本编辑器打开MainActivity$1.smali文件进行插桩。为什么是MainActivity$1.smali而不是MainActivity.smali呢？因为主要的判断逻辑是在OnClickListener这个类里，而这个类是MainActivity的一个内部类，同时我们在实现的时候也没有给这个类声明具体的名字，所以这个类用$1表示。加入BFLog.smali这个文件后，我们只需要在MainActivity$1.smali的第71行后面加上一行代码，invoke-static {v1}, Lcom/bruce/BFLog;-&gt;Log(Ljava/lang/Object;)V，就可以输出getkey的值了。Invoke是方法调用的指令，因为我们要调用的类是静态方法，所以使用invoke-static。如果是非静态方法的话，第一个参数应该是该方法的实例，然后依次是各个参数。具体插入情况如下：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">const-string v1, <span class="string">&quot;mrkxqcroxqtskx&quot;</span></span><br><span class="line"></span><br><span class="line">const/16 v2, 0x2a</span><br><span class="line"></span><br><span class="line"><span class="comment"># invokes: Lcom/mzheng/crackme1/MainActivity;-&gt;getkey(Ljava/lang/String;I)Ljava/lang/String;</span></span><br><span class="line"></span><br><span class="line">invoke-static &#123;v1, v2&#125;, <span class="class">Lcom/mzheng/crackme1/MainActivity;</span>-&gt;access$0(<span class="class">Ljava/lang/String;</span>I)<span class="class">Ljava/lang/String;</span></span><br><span class="line"></span><br><span class="line">move-result-object v1</span><br><span class="line"></span><br><span class="line"><span class="comment">############################## begin ##############################</span></span><br><span class="line">invoke-static &#123;v1&#125;, <span class="class">Lcom/bruce/BFLog;</span>-&gt;Log(<span class="class">Ljava/lang/Object;</span>)V</span><br><span class="line"><span class="comment">############################## end ###############################</span></span><br><span class="line">invoke-virtual &#123;v0, v1&#125;, <span class="class">Ljava/lang/String;</span>-&gt;equals(<span class="class">Ljava/lang/Object;</span>)Z</span><br><span class="line"></span><br><span class="line">move-result v1</span><br></pre></td></tr></table></figure>
+<p>4.用smali.jar重新编译修改后的smali文件，把新编译的classes.dex覆盖老的classes.dex，然后再用signapk.jar对apk进行签名。几条关键指令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar smali.jar classout -o classes.dex</span><br><span class="line">$ zip unsigned.apk AndroidManifest.xml classes.dex resources.arsc -r res</span><br><span class="line">  adding: AndroidManifest.xml (deflated 62%)</span><br><span class="line">  adding: classes.dex (deflated 53%)</span><br><span class="line">  adding: resources.arsc (deflated 73%)</span><br><span class="line">  adding: res&#x2F; (stored 0%)</span><br><span class="line">  ...</span><br><span class="line">$ java -jar signapk.jar testkey.x509.pem testkey.pk8 unsigned.apk signed.apk</span><br></pre></td></tr></table></figure>
+<p>5.安装程序到android，随便输入点啥，然后点击check按钮，随后在logcat中就可以看到getkey(“mrkxqcroxqtskx”, 42)这个函数的返回值了。</p>
+<h3 id="Smali修改"><a href="#Smali修改" class="headerlink" title="Smali修改"></a>Smali修改</h3><p>通过Smali/baksmali工具，我们不光可以插桩，还可以修改apk的逻辑。几个需要注意点如下：<br>1.if条件判断以及跳转语句<br>在smali中最常见的就是if这个条件判断跳转语句了，这个判断一共有12条指令：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if-eq vA, VB, cond_** 如果vA等于vB则跳转到cond_**。相当于if (vA&#x3D;&#x3D;vB)</span><br><span class="line">if-ne vA, VB, cond_** 如果vA不等于vB则跳转到cond_**。相当于if (vA!&#x3D;vB)</span><br><span class="line">if-lt vA, VB, cond_** 如果vA小于vB则跳转到cond_**。相当于if (vA&lt;vB)</span><br><span class="line">if-le vA, VB, cond_** 如果vA小于等于vB则跳转到cond_**。相当于if (vA&lt;&#x3D;vB)</span><br><span class="line">if-gt vA, VB, cond_** 如果vA大于vB则跳转到cond_**。相当于if (vA&gt;vB)</span><br><span class="line">if-ge vA, VB, cond_** 如果vA大于等于vB则跳转到cond_**。相当于if (vA&gt;&#x3D;vB)</span><br><span class="line"></span><br><span class="line">if-eqz vA, :cond_** 如果vA等于0则跳转到:cond_** 相当于if (VA&#x3D;&#x3D;0)</span><br><span class="line">if-nez vA, :cond_** 如果vA不等于0则跳转到:cond_**相当于if (VA!&#x3D;0)</span><br><span class="line">if-ltz vA, :cond_** 如果vA小于0则跳转到:cond_**相当于if (VA&lt;0)</span><br><span class="line">if-lez vA, :cond_** 如果vA小于等于0则跳转到:cond_**相当于if (VA&lt;&#x3D;0)</span><br><span class="line">if-gtz vA, :cond_** 如果vA大于0则跳转到:cond_**相当于if (VA&gt;0)</span><br><span class="line">if-gez vA, :cond_** 如果vA大于等于0则跳转到:cond_**相当于if (VA&gt;&#x3D;0)</span><br></pre></td></tr></table></figure>
+<p>比如我们在crackme1里判断密码是否正确的smali代码段：  </p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">invoke-virtual &#123;v0, v1&#125;, <span class="class">Ljava/lang/String;</span>-&gt;equals(<span class="class">Ljava/lang/Object;</span>)Z</span><br><span class="line"></span><br><span class="line">move-result v1</span><br><span class="line"></span><br><span class="line">if-eqz v1,<span class="keyword"> :cond_25</span>  <span class="comment"># if (v1==0)</span></span><br><span class="line"></span><br><span class="line">iget-object v1, p0, <span class="class">Lcom/mzheng/crackme1/MainActivity$1;</span>-&gt;this$0:<span class="class">Lcom/mzheng/crackme1/MainActivity;</span></span><br><span class="line"></span><br><span class="line">const-string v2, <span class="string">&quot;Yes!&quot;</span></span><br><span class="line"></span><br><span class="line">invoke-static &#123;v1, v2, v3&#125;, <span class="class">Landroid/widget/Toast;</span>-&gt;makeText(<span class="class">Landroid/content/Context;</span><span class="class">Ljava/lang/CharSequence;</span>I)<span class="class">Landroid/widget/Toast;</span></span><br><span class="line"></span><br><span class="line">move-result-object v1</span><br><span class="line"></span><br><span class="line">invoke-virtual &#123;v1&#125;, <span class="class">Landroid/widget/Toast;</span>-&gt;show()V</span><br><span class="line"></span><br><span class="line">:cond_25</span><br><span class="line">iget-object v1, p0, <span class="class">Lcom/mzheng/crackme1/MainActivity$1;</span>-&gt;this$0:<span class="class">Lcom/mzheng/crackme1/MainActivity;</span></span><br><span class="line"></span><br><span class="line">const-string v2, <span class="string">&quot;No!&quot;</span></span><br><span class="line"></span><br><span class="line">invoke-static &#123;v1, v2, v3&#125;, <span class="class">Landroid/widget/Toast;</span>-&gt;makeText(<span class="class">Landroid/content/Context;</span><span class="class">Ljava/lang/CharSequence;</span>I)<span class="class">Landroid/widget/Toast;</span></span><br><span class="line"></span><br><span class="line">move-result-object v1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;v1&#125;, <span class="class">Landroid/widget/Toast;</span>-&gt;show()V</span><br></pre></td></tr></table></figure>
+<p>如果我们不关心密码内容，只是希望程序输出”yes”的话。我们可以把<code>if-eqz v1, :cond_25</code>改成<code>if-nez v1, :cond_25</code>。这样逻辑就变为：当输错密码的时候，程序反而会输出”yes”。<br>2.寄存器问题<br>修改Smali时有一件很重要的事情就是要注意寄存器。如果乱用寄存器的话可能会导致程序崩溃。每个方法开头声明了registers的数量，这个数量是参数和本地变量总和。参数统一用P表示。如果是非静态方法p0代表this，p1-pN代表各个参数。如果是静态方法的话，p0-pN代表各个参数。本地变量统一用v表示。如果想要增加的新的本地变量，需要在方法开头的registers数量上增加相应的数值。<br>比如下面这个方法：  </p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> constructor</span> &lt;init&gt;()V</span><br><span class="line"><span class="keyword">    .registers</span> 1</span><br><span class="line"><span class="keyword">    .prologue</span></span><br><span class="line"><span class="keyword">    .line</span> 7</span><br><span class="line">   <span class="built_in"> invoke-direct </span>&#123;p0&#125;, <span class="class">Ljava/lang/Object;</span>-&gt;&lt;init&gt;()V</span><br><span class="line">    return-void</span><br><span class="line"><span class="keyword">.end method</span></span><br></pre></td></tr></table></figure>
+<p>因为这不是静态方法，所以p0代表this。如果想要增加一个新的本地变量，比如v0。就需要把.registers 1改为.registers 2。<br>3.给原程序增加大量逻辑的办法<br>非常不建议在程序原有的方法上增加大量逻辑，这样可能会出现很多寄存器方面的错误导致编译失败。比较好的方法是：把想要增加的逻辑先用java写成一个apk，然后把这个apk反编译成smali文件，随后把反编译后的这部分逻辑的smali文件插入到目标程序的smali文件夹中，然后再在原来的方法上采用invoke的方式调用新加入的逻辑。这样的话不管加入再多的逻辑，也只是修改了原程序的几行代码而已。这个思路也是很多重打包病毒惯用的伎俩，确实非常方便好用。</p>
+<h2 id="APK签名Tricks"><a href="#APK签名Tricks" class="headerlink" title="APK签名Tricks"></a>APK签名Tricks</h2><p>当我们在实战中，有时会碰到某些apk在内部实现了自己的签名检查。这次我们介绍的Smali Instrumentation方法因为需要重打包，所以会改变原有的签名。当然，你可以通过修改apk把签名检查的逻辑删掉，但这又费时又费力。在这里简单介绍两种非常方便的方法来解决签名检查问题。<br>1.Masterkey<br>Masterkey漏洞一共有三个，可以影响android 4.4以下版本。利用这个漏洞，我们可以插入新的classes.dex替换掉原有的classes.dex而不需要对apk本身进行重新签名。如果apk本身有签名校验逻辑的话，利用这个漏洞来进行Smali Instrumentation简直再好不过了。首先，你需要一个android 4.4以下版本的虚拟机或者真机，然后再使用一个masterkey利用工具对apk进行exploit即可。工具下载地址在文章最后，使用的命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar AndroidMasterKeys.jar -a orig.apk -z moddedClassesDex.zip -o out.apk</span><br></pre></td></tr></table></figure>
+<p>orig.apk是原本的apk文件，moddedClassesDex.zip是修改后的classes.dex并压缩成zip文件，out.apk就是利用Masterkey漏洞生成的新的apk文件。如果成功的话用zip打开文件会看到两个classes.dex。通过masterkey打包后的apk文件签名并不会有任何变化，这样也就不用担心签名校验问题了。<br>2.自定义ROM<br>签名的判断其实是调用了android系统密码库的函数，如果我们可以自己定制ROM的话，只需要修改AOSP源码路径下的libcore\luni\src\main\java\java\security\MessageDigest.java文件。将isEqual函数中的判断语句注释掉：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isEqual</span><span class="params">(<span class="keyword">byte</span>[] digesta, <span class="keyword">byte</span>[] digestb)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (digesta.length != digestb.length) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">//        for (int i = 0; i &lt; digesta.length; i++) &#123;</span></span><br><span class="line"><span class="comment">//            if (digesta[i] != digestb[i]) &#123;</span></span><br><span class="line"><span class="comment">//                return false;</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">//        &#125;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样的话，如果在你自定义的ROM上运行apk，无论你怎么修改classes.dex文件，都不需要关心签名问题了，系统会永远返回签名正确的。<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1skSM1y9">下载</a><br><strong>reference</strong><br>安卓动态调试七种武器之长生剑 - Smali Instrumentation</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/01/08/Android%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80/" data-id="ckhe7o4of007hchl79u89bmf2" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/01/13/C-%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E4%B8%8E%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C++动态内存与智能指针
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

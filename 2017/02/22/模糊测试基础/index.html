@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>模糊测试基础 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。用于模糊测试的模糊测试器分为两类：  一类是基于变异（mutation-based）的模糊测试器，这一类测试器通过对已有的数据样本进行变异来创建测试用例 另一类是基于生成（generation-based）的模糊测试器，该类测试器为被测系统使用的协议或是文件格式建模，基于模型生成输入并据此创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模糊测试基础">
+<meta property="og:url" content="http://example.com/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。用于模糊测试的模糊测试器分为两类：  一类是基于变异（mutation-based）的模糊测试器，这一类测试器通过对已有的数据样本进行变异来创建测试用例 另一类是基于生成（generation-based）的模糊测试器，该类测试器为被测系统使用的协议或是文件格式建模，基于模型生成输入并据此创">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-02-22T11:59:53.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.791Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Fuzzing">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-模糊测试基础" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time datetime="2017-02-22T11:59:53.000Z" itemprop="datePublished">2017-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      模糊测试基础
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。<br>用于模糊测试的模糊测试器分为两类：</p>
+<ul>
+<li>一类是<code>基于变异（mutation-based）</code>的模糊测试器，这一类测试器通过对已有的数据样本进行变异来创建测试用例</li>
+<li>另一类是<code>基于生成（generation-based）</code>的模糊测试器，该类测试器为被测系统使用的协议或是文件格式建模，基于模型生成输入并据此创建测试用例。</li>
+</ul>
+<h2 id="模糊测试各阶段"><a href="#模糊测试各阶段" class="headerlink" title="模糊测试各阶段"></a>模糊测试各阶段</h2><ol>
+<li>确定测试目标</li>
+<li>确定输入向量</li>
+<li>生成模糊测试数据</li>
+<li>执行模糊测试数据</li>
+<li>监视异常</li>
+<li>判定发现的漏洞是否可能被利用</li>
+</ol>
+<h2 id="模糊测试方法"><a href="#模糊测试方法" class="headerlink" title="模糊测试方法"></a>模糊测试方法</h2><ol>
+<li><strong>预生成测试用例：</strong>理解规约，生成测试边界条件或是违反规约的测试用例。</li>
+<li><strong>随机生成输入：</strong>简单地向目标应用发送伪随机数据。</li>
+<li><strong>手工协议变异测试：</strong>测试者就是模糊测试器。</li>
+<li><strong>变异或强制性测试：</strong>从一个有效的协议样本或是数据格式开始，持续不断地打乱数据包或是文件中的每一个字节、字、双字或是字符串。</li>
+<li><strong>自动协议生成测试：</strong>理解协议规约或文件定义，创建文法，识别出数据包或文件中的动态和静态部分，动态部分可以被模糊化变量替代。</li>
+</ol>
+<h2 id="模糊测试器类型"><a href="#模糊测试器类型" class="headerlink" title="模糊测试器类型"></a>模糊测试器类型</h2><ol>
+<li>本地模糊器<br>命令行模糊测试器<br>环境变量模糊测试器<br>文件格式模糊测试器  </li>
+<li>远程模糊测试器<br>网络协议模糊测试器<br>Web应用模糊测试器<br>Web浏览器模糊测试器  </li>
+<li>内存模糊测试器  </li>
+</ol>
+<p>网络协议模糊测试：<br><strong>简单协议：</strong>仅有简单认证或没有认证，通常基于可打印的ASCII字符而不是二进制数据；<br><strong>复杂协议：</strong>通常由二进制数据和偶尔包含人可读的ASCII字符串构成，认证可能通过加密或是某种形式的混淆来实现。（SPIKE、Peach模糊测试框架）</p>
+<h2 id="数据表示和分析"><a href="#数据表示和分析" class="headerlink" title="数据表示和分析"></a>数据表示和分析</h2><p><strong>协议：</strong>在两台计算机端点之间控制或使能连接，通信和数据传输的约定或标准。<br><strong>协议中的字段：</strong>协议的主要作用就是定义”协议中各部分数据如何被解释”，设计协议时有三种典型的方法：<code>定长字段</code>，<code>变长字段</code>和<code>分隔字段</code>。<br><strong>简单文本协议：</strong>使用的用于通信的数据值都在可打印字符范围内。<br><strong>二进制协议：</strong>二进制协议数据流中都是原始数据，而不是可读的文本，如果不理解协议，协议数据包就没有任何意义。二进制协议通常使用<code>数据块</code>。块最前面是块大小的值，后面是块中的实际数据。对模糊测试来说，数据块是一个重要的概念。如果打算创建一个模糊测试器来向数据块中注入数据，就必须仔细调整块大小的值，否则，接收到数据的应用就理解不了数据包。</p>
+<h2 id="网络协议模糊测试"><a href="#网络协议模糊测试" class="headerlink" title="网络协议模糊测试"></a>网络协议模糊测试</h2><p>对网络协议进行模糊测试也需要识别出可被攻击的接口，通过变异或生成方式得到能够触发错误的模糊测试值，然后将这些模糊测试值发送给目标应用，监视目标应用的错误。<br>现有的网络协议模糊测试倾向与采用两种风格：</p>
+<ul>
+<li>一种风格是采用<code>通用框架</code>，可以对多种协议进行模糊测试。（SPIKE工具和ProtoFuzz工具）</li>
+<li>另一种网络模糊测试器的风格是<code>面向特定协议</code>。（ircfuzz、dhcpfuzz、InfigoFTPSStressFuzzer）</li>
+</ul>
+<p>面向特定协议的模糊测试器通常只是些小脚本或小应用，通用框架则需要更大的开发工作量。</p>
+<h2 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h2><ul>
+<li><strong>强制（基于变异的）模糊测试</strong><br>在网络模糊测中，测试者通常使用嗅探器，在测试之前使用静态方法或是在运行时使用动态方法抓取合法的协议数据。随后，模糊测试器对抓取到的数据进行变异，将其发送给目标应用。对实现了基本回放攻击保护的协议，简单的强制网络模糊测试除了对初始会话相关的代码（如认证过程）产生效果外，不会有其他任何作用。如果协议包含校验码，模糊测试器还需要能动态更新校验码字段。<br>这种方法适用于私有协议的模糊测试。<br>下一种方法更适合常见的网络协议模糊测试。  </li>
+<li><strong>智能强制（基于生成的）模糊测试</strong><br>首先得花精力实际研究<code>协议规范</code>，智能模糊测试器可以依赖用户提供的配置文件，使得模糊测试的过程更智能。用户提供的配置通常包含描述协议语言的元数据。</li>
+</ul>
+<h2 id="使用SPIKE进行模糊测试"><a href="#使用SPIKE进行模糊测试" class="headerlink" title="使用SPIKE进行模糊测试"></a>使用SPIKE进行模糊测试</h2><p>SPIKE<br>Peach<br>通用目的模糊测试器(GPF)<br>Autodafe</p>
+<h2 id="对第三方私有协议进行模糊测试"><a href="#对第三方私有协议进行模糊测试" class="headerlink" title="对第三方私有协议进行模糊测试"></a>对第三方私有协议进行模糊测试</h2><p>通过对客户端和服务器之间的通信数据进行变异来测试，但无法确切知道该协议还有多大比例的部分没有被观察到。为了更好地分析目标协议，可以对客户端和服务器的二进制代码开展<code>逆向工程</code>。逆向工程的代价非常高，只有具有超高技巧的，有经验的工程师才能执行逆向工程。在逆向之前要确保已经充分利用了他人的工作成果，确保已经通过Google检索过相关信息，可能已经有人写过我们所需的<code>非官方文档</code>。<code>Wireshark</code>和<code>Ethereal</code>的源代码中已经包含了许多被彻底研究过的、较为知名的<code>私有协议</code>的定义。  </p>
+<h2 id="启发式技术"><a href="#启发式技术" class="headerlink" title="启发式技术"></a>启发式技术</h2><p><strong>代理模糊测试</strong> ProxyFuzzer<br>模糊测试器代理转发客户端和服务器之间的数据<br><strong>改进的代理模糊测试</strong><br><strong>反汇编启发式技术</strong>在进行模糊测试时，使用运行时插桩工具（如调试器）监视被测目标上的代码执行。<br>使用PaiMei逆向工程框架PyDbg组件，可以开发出实现了基本概念的目标监视模糊测试器的反馈调试器。从 <a target="_blank" rel="noopener" href="http://www.fuzzing.org/">http://www.fuzzing.org</a> 上可以下载得到相关的源代码。</p>
+<h2 id="生物信息学"><a href="#生物信息学" class="headerlink" title="生物信息学"></a>生物信息学</h2><p><strong>生物信息学：</strong>利用应用数学、信息学、统计学和计算机科学的方法研究生物学问题（通常在分子层上）。<br>生物信息学中最基础的分析是排列两个序列（不管长度是否相同），并找出最大相似度。<br>Protocol Informatics（PI）Python框架是应用生物信息理论进行网络协议分析的框架，它的目标是通过分析大量观察到的数据，自动推断协议的字段边界。<br>PI框架应用了Smith-Waterman（SW）本地序列对齐算法、Needleman-Wunsch（NW）全局序列对齐算法、相似矩阵和进化树方法，成功地从HTTP、TCMP和SMB协议中识别除了协议字段。</p>
+<h2 id="遗传算法"><a href="#遗传算法" class="headerlink" title="遗传算法"></a>遗传算法</h2><p><strong>遗传算法（Genetic Algorithm，GA）</strong>是模拟进化软件使用的一种近似搜索技术。<br>对遗传算法而言，通常需要定义以下三方面的内容：</p>
+<ul>
+<li>表示方法：解决方案（个体）的表示方法。</li>
+<li>适应度函数：用来评估得到的方案（个体）对环境适应度的函数。</li>
+<li>生产函数：负责变异和让两个方案（个体）交配的函数。</li>
+</ul>
+<p><strong>reference</strong><br>《模糊测试 强制发掘安全漏洞的利器》</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" data-id="ckhe7o4ns0066chl7fxrufydf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/02/25/fastbin%E4%B8%8A%E7%9A%84%E5%A0%86%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          fastbin上的堆漏洞利用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Blind Return Oriented Programming (BROP) Attack攻击实践</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

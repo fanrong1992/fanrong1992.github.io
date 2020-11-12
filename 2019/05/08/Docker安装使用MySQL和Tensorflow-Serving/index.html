@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Docker安装使用MySQL和Tensorflow Serving | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Ubuntu18.04安装安装最新版Docker 1$ wget -qO- https:&#x2F;&#x2F;get.docker.com&#x2F; | sh Docker可以在容器内运行应用程序，使用docker run命令在容器内运行应用程序   123456789101112131415161718192021222324$ sudo dockerUsage:  docker [OPTI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker安装使用MySQL和Tensorflow Serving">
+<meta property="og:url" content="http://example.com/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Ubuntu18.04安装安装最新版Docker 1$ wget -qO- https:&#x2F;&#x2F;get.docker.com&#x2F; | sh Docker可以在容器内运行应用程序，使用docker run命令在容器内运行应用程序   123456789101112131415161718192021222324$ sudo dockerUsage:  docker [OPTI">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-05-08T11:23:49.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.702Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Docker安装使用MySQL和Tensorflow-Serving" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/" class="article-date">
+  <time datetime="2019-05-08T11:23:49.000Z" itemprop="datePublished">2019-05-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Docker安装使用MySQL和Tensorflow Serving
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Ubuntu18-04安装"><a href="#Ubuntu18-04安装" class="headerlink" title="Ubuntu18.04安装"></a>Ubuntu18.04安装</h2><p>安装最新版Docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -qO- https:&#x2F;&#x2F;get.docker.com&#x2F; | sh</span><br></pre></td></tr></table></figure>
+<p>Docker可以在容器内运行应用程序，使用docker run命令在容器内运行应用程序  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker</span><br><span class="line"></span><br><span class="line">Usage:  docker [OPTIONS] COMMAND</span><br><span class="line"></span><br><span class="line">A self-sufficient runtime for containers</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">      --config string      Location of client config files (default &quot;&#x2F;home&#x2F;fanrong1&#x2F;.docker&quot;)</span><br><span class="line">  -D, --debug              Enable debug mode</span><br><span class="line">  -H, --host list          Daemon socket(s) to connect to</span><br><span class="line">  -l, --log-level string   Set the logging level (&quot;debug&quot;|&quot;info&quot;|&quot;warn&quot;|&quot;error&quot;|&quot;fatal&quot;) (default &quot;info&quot;)</span><br><span class="line">      --tls                Use TLS; implied by --tlsverify</span><br><span class="line">      --tlscacert string   Trust certs signed only by this CA (default &quot;&#x2F;home&#x2F;fanrong1&#x2F;.docker&#x2F;ca.pem&quot;)</span><br><span class="line">      --tlscert string     Path to TLS certificate file (default &quot;&#x2F;home&#x2F;fanrong1&#x2F;.docker&#x2F;cert.pem&quot;)</span><br><span class="line">      --tlskey string      Path to TLS key file (default &quot;&#x2F;home&#x2F;fanrong1&#x2F;.docker&#x2F;key.pem&quot;)</span><br><span class="line">      --tlsverify          Use TLS and verify the remote</span><br><span class="line">  -v, --version            Print version information and quit</span><br><span class="line"></span><br><span class="line">Management Commands:</span><br><span class="line">  builder     Manage builds</span><br><span class="line">  config      Manage Docker configs</span><br><span class="line">  container   Manage containers</span><br><span class="line">  engine      Manage the docker engine</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<h2 id="使用Docker-MySQL"><a href="#使用Docker-MySQL" class="headerlink" title="使用Docker MySQL"></a>使用Docker MySQL</h2><p>下面以docker mysql为例介绍Docker的使用。<br>查找Docker Hub上的MySQL镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker search mysql</span><br><span class="line">NAME                                                   DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED</span><br><span class="line">mysql                                                  MySQL is a widely used, open-source relation…   8115                [OK]</span><br><span class="line">mariadb                                                MariaDB is a community-developed fork of MyS…   2753                [OK]</span><br><span class="line">mysql&#x2F;mysql-server                                     Optimized MySQL Server Docker images. Create…   607                                     [OK]</span><br><span class="line">zabbix&#x2F;zabbix-server-mysql                             Zabbix Server with MySQL database support       191                                     [OK]</span><br><span class="line">hypriot&#x2F;rpi-mysql                                      RPi-compatible Docker Image with Mysql          113</span><br><span class="line">zabbix&#x2F;zabbix-web-nginx-mysql                          Zabbix frontend based on Nginx web-server wi…   100                                     [OK]</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>拉取官方镜像，Tag为5.7</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker pull mysql:5.7</span><br></pre></td></tr></table></figure>
+<p>查看本地镜像列表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker images</span><br><span class="line">REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">ubuntu               16.04               9361ce633ff1        8 weeks ago         118MB</span><br><span class="line">tensorflow&#x2F;serving   latest              38bee21b2ca0        2 months ago        229MB</span><br><span class="line">mysql                5.7                 e47e309f72c8        3 months ago        372MB</span><br></pre></td></tr></table></figure>
+<p>启动mysql docker容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker run --name test_docker_mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD&#x3D;123456 -d mysql:5.7</span><br><span class="line">65b2b644555b3730ac936caab2ccf9ad451b6e31f2509ed3e2333c9e20079873</span><br></pre></td></tr></table></figure>
+<p>查看docker启动情况</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker ps</span><br><span class="line">CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                               NAMES</span><br><span class="line">65b2b644555b        mysql:5.7            &quot;docker-entrypoint.s…&quot;   5 minutes ago       Up 5 minutes        33060&#x2F;tcp, 0.0.0.0:3307-&gt;3306&#x2F;tcp   test_docker_mysql</span><br></pre></td></tr></table></figure>
+<p>到这已经可以使用docker的mysql容器提供的服务了，由于本地没有安装mysql客户端，所以这里用python去连接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#coding:utf-8</span><br><span class="line"></span><br><span class="line">import pymysql</span><br><span class="line"></span><br><span class="line">db &#x3D; pymysql.connect(&quot;localhost&quot;, &quot;root&quot;, &quot;123456&quot;, &quot;mysql&quot;, port&#x3D;3307)</span><br><span class="line">cursor &#x3D; db.cursor()</span><br><span class="line">sql &#x3D; &quot;select * from user&quot;</span><br><span class="line">cursor.execute(sql)</span><br><span class="line">results &#x3D; cursor.fetchall()</span><br><span class="line">for row in results:</span><br><span class="line">    print(row)</span><br><span class="line"></span><br><span class="line">db.close()</span><br></pre></td></tr></table></figure>
+<p>运行脚本结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ python mysql_test.py</span><br><span class="line">(&#39;localhost&#39;, &#39;root&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;&#39;, b&#39;&#39;, b&#39;&#39;, b&#39;&#39;, 0, 0, 0, 0, &#39;mysql_native_password&#39;, &#39;*6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9&#39;, &#39;N&#39;, datetime.datetime(2019, 5, 9, 8, 47, 32), None, &#39;N&#39;)</span><br><span class="line">(&#39;localhost&#39;, &#39;mysql.session&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;Y&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;&#39;, b&#39;&#39;, b&#39;&#39;, b&#39;&#39;, 0, 0, 0, 0, &#39;mysql_native_password&#39;, &#39;*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE&#39;, &#39;N&#39;, datetime.datetime(2019, 5, 9, 8, 47, 20), None, &#39;Y&#39;)</span><br><span class="line">(&#39;localhost&#39;, &#39;mysql.sys&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;N&#39;, &#39;&#39;, b&#39;&#39;, b&#39;&#39;, b&#39;&#39;, 0, 0, 0, 0, &#39;mysql_native_password&#39;, &#39;*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE&#39;, &#39;N&#39;, datetime.datetime(2019, 5, 9, 8, 47, 20), None, &#39;Y&#39;)</span><br><span class="line">(&#39;%&#39;, &#39;root&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;Y&#39;, &#39;&#39;, b&#39;&#39;, b&#39;&#39;, b&#39;&#39;, 0, 0, 0, 0, &#39;mysql_native_password&#39;, &#39;*6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9&#39;, &#39;N&#39;, datetime.datetime(2019, 5, 9, 8, 47, 32), None, &#39;N&#39;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用Docker-Tensorflow-Serving部署模型"><a href="#使用Docker-Tensorflow-Serving部署模型" class="headerlink" title="使用Docker Tensorflow Serving部署模型"></a>使用Docker Tensorflow Serving部署模型</h2><p>下载Tensorflow Serving的Docker镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker pull tensorflow&#x2F;serving</span><br><span class="line">$ git clone https:&#x2F;&#x2F;github.com&#x2F;tensorflow&#x2F;serving</span><br></pre></td></tr></table></figure>
+<p>设置demo模型的路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ TESTDATA&#x3D;&quot;$(pwd)&#x2F;serving&#x2F;tensorflow_serving&#x2F;servables&#x2F;tensorflow&#x2F;testdata&quot;</span><br></pre></td></tr></table></figure>
+<p>启动Tensorflow Serving容器，打开REST API端口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker run -t -p 8501:8501 -v &quot;$TESTDATA&#x2F;saved_model_half_plus_two_cpu:&#x2F;models&#x2F;half_plus_two&quot; -e MODEL_NAME&#x3D;half_plus_two tensorflow&#x2F;serving</span><br></pre></td></tr></table></figure>
+<p>用命令行请求模型的预测API</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ curl -d &#39;&#123;&quot;instances&quot;: [1.0, 2.0, 5.0]&#125;&#39; -X POST http:&#x2F;&#x2F;localhost:8501&#x2F;v1&#x2F;models&#x2F;half_plus_two:predict</span><br><span class="line">&#123; &quot;predictions&quot;: [2.5, 3.0, 4.5] &#125;</span><br><span class="line">$ curl -d &#39;&#123;&quot;inputs&quot;: 1.0&#125;&#39; -X POST http:&#x2F;&#x2F;localhost:8501&#x2F;v1&#x2F;models&#x2F;half_plus_two:predict</span><br><span class="line">&#123; &quot;predictions&quot;: 2.5 &#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/" data-id="ckhe7o4l1001pchl7fcvv8hij" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          用Tensorflow Serving部署自己的模型
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/07/14/gdb%E8%B0%83%E8%AF%95AOSP%E4%BB%A3%E7%A0%81/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">gdb调试AOSP代码</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>gdb调试AOSP代码 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这次主要是调试Android system&#x2F;bt目录下的代码，也就是蓝牙相关的代码，是源于对几个CVE（cve-2018-9355~cve-2018-9362）的学习，这几个CVE是蓝牙相关的漏洞。 蓝牙相关代码分析因为之前对蓝牙相关代码没有了解过，所以先对AOSP中关于蓝牙的代码进行学习。首先是从Android应用层编程开始，几个基本操作： 12345678910111213&#x2F;&#x2F; 获取设备Ada">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gdb调试AOSP代码">
+<meta property="og:url" content="http://example.com/2018/07/14/gdb%E8%B0%83%E8%AF%95AOSP%E4%BB%A3%E7%A0%81/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这次主要是调试Android system&#x2F;bt目录下的代码，也就是蓝牙相关的代码，是源于对几个CVE（cve-2018-9355~cve-2018-9362）的学习，这几个CVE是蓝牙相关的漏洞。 蓝牙相关代码分析因为之前对蓝牙相关代码没有了解过，所以先对AOSP中关于蓝牙的代码进行学习。首先是从Android应用层编程开始，几个基本操作： 12345678910111213&#x2F;&#x2F; 获取设备Ada">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androiddebug/startdisnative.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/gdbblue.png">
+<meta property="og:image" content="http://example.com/images/androiddebug/debugsys.png">
+<meta property="article:published_time" content="2018-07-14T12:24:00.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.757Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androiddebug/startdisnative.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-gdb调试AOSP代码" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/07/14/gdb%E8%B0%83%E8%AF%95AOSP%E4%BB%A3%E7%A0%81/" class="article-date">
+  <time datetime="2018-07-14T12:24:00.000Z" itemprop="datePublished">2018-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      gdb调试AOSP代码
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这次主要是调试Android system/bt目录下的代码，也就是蓝牙相关的代码，是源于对几个CVE（cve-2018-9355~cve-2018-9362）的学习，这几个CVE是蓝牙相关的漏洞。</p>
+<h2 id="蓝牙相关代码分析"><a href="#蓝牙相关代码分析" class="headerlink" title="蓝牙相关代码分析"></a>蓝牙相关代码分析</h2><p>因为之前对蓝牙相关代码没有了解过，所以先对AOSP中关于蓝牙的代码进行学习。首先是从Android应用层编程开始，几个基本操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取设备Adapter</span></span><br><span class="line">BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();</span><br><span class="line"><span class="comment">// 表明此手机不支持蓝牙</span></span><br><span class="line"><span class="keyword">if</span>(mBluetoothAdapter == <span class="keyword">null</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 蓝牙未开启，则开启蓝牙</span></span><br><span class="line"><span class="keyword">if</span>(!mBluetoothAdapter.isEnabled()) &#123;</span><br><span class="line">    mBluetoothAdapter.enable();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 查询已绑定设备，发现新设备</span></span><br><span class="line">mBluetoothAdapter.getBondedDevices();</span><br><span class="line">mBluetoothAdapter.startDiscovery();</span><br></pre></td></tr></table></figure>
+<p>还有一些读写之类的操作先不赘述。这些API调用的是frameworks里的代码，如getDefaultAdapter()函数对应<br><code>frameworks/base/core/java/android/bluetooth/BluetoothAdapter.java</code>文件里的getDefaultAdapter()函数:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> BluetoothAdapter <span class="title">getDefaultAdapter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (sAdapter == <span class="keyword">null</span>) &#123;</span><br><span class="line">       IBinder b = ServiceManager.getService(BLUETOOTH_MANAGER_SERVICE); <span class="comment">// 这里通过Binder通信调用packages里的Android应用程序的服务</span></span><br><span class="line">       <span class="keyword">if</span> (b != <span class="keyword">null</span>) &#123;</span><br><span class="line">           IBluetoothManager managerService = IBluetoothManager.Stub.asInterface(b);</span><br><span class="line">           sAdapter = <span class="keyword">new</span> BluetoothAdapter(managerService);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           Log.e(TAG, <span class="string">&quot;Bluetooth binder is null&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> sAdapter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码片段中的<code>BLUETOOTH_MANAGER_SERVICE</code>是在<br><code>frameworks/base/services/core/java/com/android/server/BluetoothService.java</code>中注册的，会通过Binder机制调用到<br><code>packages/apps/Bluetooth/src/com/android/bluetooth/btservice/AdapterService.java</code>，AdapterService.enableNative()在<br><code>packages/apps/Bluetooth/jni/com_android_bluetooth_btservice_AdapterService.cpp</code>中声明，通过jni调用HAL(hardware)里的代码。hardware里的代码会调用system里的代码实现，具体代码我就不分析了，主要介绍一下如何调试。</p>
+<h2 id="调试system中蓝牙相关代码"><a href="#调试system中蓝牙相关代码" class="headerlink" title="调试system中蓝牙相关代码"></a>调试system中蓝牙相关代码</h2><p>首先需要编译Android的源码，烧录到真机上，可以参考我之前的<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/03/03/%E7%BC%96%E8%AF%91Android6-0-1%E6%BA%90%E7%A0%81%EF%BC%8C%E7%83%A7%E5%BD%95%E5%88%B0nexus5%E7%9C%9F%E6%9C%BA%E4%B8%8A/">一篇文章</a>，我的系统是Android6.0.1和Ubuntu 16.04。<br>前面分析了system的代码会由packages里的bluetooth应用程序调用，所以可以先尝试调试bluetooth的应用程序，跟踪代码到system层。接下来就是对Android应用native代码调试的操作，先手动打开蓝牙，打开一个终端（需要adb root）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell</span><br><span class="line">root@hammerhead:&#x2F; # ps | grep bluetooth</span><br><span class="line">bluetooth 9134  2265  907552 46368 sys_epoll_ b6ce9894 S com.android.bluetooth</span><br><span class="line">root@hammerhead:&#x2F; # gdbserver :1234 --attach 9134</span><br><span class="line">Attached; pid &#x3D; 9134</span><br><span class="line">Listening on port 1234</span><br></pre></td></tr></table></figure>
+<p>另一个终端：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ cd Android6.0.1_r20</span><br><span class="line">$ source build&#x2F;envsetup.h</span><br><span class="line">$ lunch 19</span><br><span class="line">$ adb forward tcp:1234 tcp:1234</span><br><span class="line">$ gdbclient 9134</span><br><span class="line">(gdb) target remote :1234</span><br><span class="line">Remote debugging using :1234</span><br><span class="line">warning: Could not load shared library symbols for 9 libraries, e.g. &#x2F;data&#x2F;dalvik-cache&#x2F;arm&#x2F;system@framework@boot.oat.</span><br><span class="line">Use the &quot;info sharedlibrary&quot; command to see the complete listing.</span><br><span class="line">Do you need &quot;set solib-search-path&quot; or &quot;set sysroot&quot;?</span><br><span class="line">Reading symbols from &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;bin&#x2F;linker...done.</span><br><span class="line">Loaded symbols for &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;bin&#x2F;linker</span><br><span class="line">Reading symbols from &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;lib&#x2F;libcutils.so...done.</span><br><span class="line">Loaded symbols for &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;lib&#x2F;libcutils.so</span><br><span class="line">...</span><br><span class="line">Loaded symbols for &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;vendor&#x2F;lib&#x2F;libbt-vendor.so</span><br><span class="line">__epoll_pwait () at bionic&#x2F;libc&#x2F;arch-arm&#x2F;syscalls&#x2F;__epoll_pwait.S:16</span><br><span class="line">16      ldmfd   sp!, &#123;r4, r5, r6, r7&#125;</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+<p>比如我们调试蓝牙搜索的相关代码，<br><code>/packages/apps/Bluetooth/src/com/android/bluetooth/btservice/AdapterService.java</code>中的<code>startDiscovery()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">boolean</span> <span class="title">startDiscovery</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,</span><br><span class="line">                                   <span class="string">&quot;Need BLUETOOTH ADMIN permission&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> startDiscoveryNative();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>jni调用<br><code>/packages/apps/Bluetooth/jni/com_android_bluetooth_btservice_AdapterService.cpp</code>中的<code>startDiscoveryNative()</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> jboolean <span class="title">startDiscoveryNative</span><span class="params">(JNIEnv* env, jobject obj)</span> </span>&#123;</span><br><span class="line">    ALOGV(<span class="string">&quot;%s:&quot;</span>,__FUNCTION__);</span><br><span class="line"></span><br><span class="line">    jboolean result = JNI_FALSE;</span><br><span class="line">    <span class="keyword">if</span> (!sBluetoothInterface) <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> ret = sBluetoothInterface-&gt;start_discovery();</span><br><span class="line">    result = (ret == BT_STATUS_SUCCESS) ? JNI_TRUE : JNI_FALSE;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过查看<code>/packages/apps/Bluetooth/jni/Android.mk</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LOCAL_MODULE :&#x3D; libbluetooth_jni</span><br></pre></td></tr></table></figure>
+<p>可以知道bluetooth的jni代码被编译成了<code>libbluetooth_jni.so</code>库，在<br><code>Android6.0.1-r20/out/target/product/hammerhead/symbols/system/lib/libbluetooth_jni.so</code>，这个是带符号的，用IDA打开它。<br>打开一个终端，查看系统中so库加载的基址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell</span><br><span class="line"># cat &#x2F;proc&#x2F;2286&#x2F;maps | grep libbluetooth</span><br><span class="line">b39e7000-b39fe000 r-xp 00000000 b3:19 921        &#x2F;system&#x2F;lib&#x2F;libbluetooth_jni.so</span><br><span class="line">b39ff000-b3a00000 r--p 00017000 b3:19 921        &#x2F;system&#x2F;lib&#x2F;libbluetooth_jni.so</span><br><span class="line">b3a00000-b3a01000 rw-p 00018000 b3:19 921        &#x2F;system&#x2F;lib&#x2F;libbluetooth_jni.so</span><br></pre></td></tr></table></figure>
+<p>在IDA-&gt;Edit-&gt;Segments-&gt;Rebase program…，将Value改成0xb39e7000，找到android::startDiscoveryNative()函数：<br><img src="/images/androiddebug/startdisnative.png"><br>在这个函数的起始地址是0xb39e9a80，在gdb中下断点，继续运行，让蓝牙对周围设备进行搜索，即可触发断点：<br><img src="/images/androiddebug/gdbblue.png"><br>单步运行，可以运行到<code>system/bt/btif/src/bluetooth.c</code>中的<code>start_discovery()</code>函数（gdb中按ctrl+x+a）：<br><img src="/images/androiddebug/debugsys.png">  </p>
+<h2 id="system-bin中的可执行文件调试"><a href="#system-bin中的可执行文件调试" class="headerlink" title="/system/bin中的可执行文件调试"></a>/system/bin中的可执行文件调试</h2><h3 id="对于未启动进程：调试进程keystore"><a href="#对于未启动进程：调试进程keystore" class="headerlink" title="对于未启动进程：调试进程keystore"></a>对于未启动进程：调试进程keystore</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell gdbserver :1234 &#x2F;system&#x2F;bin&#x2F;keystore</span><br><span class="line">Process &#x2F;system&#x2F;bin&#x2F;keystore created; pid &#x3D; 3990</span><br><span class="line">Listening on port 1234</span><br></pre></td></tr></table></figure>
+<p>另一个终端（需要先source、lunch）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ adb forward tcp:1234 tcp:1234</span><br><span class="line">$ gdbclient 3990</span><br><span class="line">Reading symbols from &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;Android6.0.1-r20&#x2F;out&#x2F;target&#x2F;product&#x2F;hammerhead&#x2F;symbols&#x2F;system&#x2F;bin&#x2F;keystore...done.</span><br><span class="line">(gdb) target remote :1234</span><br><span class="line">__dl__start () at bionic&#x2F;linker&#x2F;arch&#x2F;arm&#x2F;begin.S:32</span><br><span class="line">32    mov r0, sp</span><br><span class="line">(gdb) si</span><br><span class="line">33    bl __linker_init</span><br></pre></td></tr></table></figure>
+
+<h3 id="对于已经启动的进程"><a href="#对于已经启动的进程" class="headerlink" title="对于已经启动的进程"></a>对于已经启动的进程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell</span><br><span class="line"># gdbserver :1234 --attach pid</span><br></pre></td></tr></table></figure>
+<p>另一个终端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ adb forward tcp:1234 tcp:1234</span><br><span class="line">$ gdbclient pid</span><br><span class="line">(gdb) target remote :1234</span><br></pre></td></tr></table></figure>
+
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ffmpeg4976/article/details/49048469">蓝牙流程介绍</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/4ab864caefb2">Android FrameWork学习（二）Android系统源码调试</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/07/14/gdb%E8%B0%83%E8%AF%95AOSP%E4%BB%A3%E7%A0%81/" data-id="ckhe7o4n1004vchl72e335t2i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Docker安装使用MySQL和Tensorflow Serving
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/06/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%BA%8C%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">用Python实现简单的区块链（二）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

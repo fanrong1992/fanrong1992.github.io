@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Java反射机制 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="反射机制反射是Java语言的一个特性，是Java被视为动态语言的一个关键性质。这个机制允许程序在运行时透过Reflection APIs取得任何一个已知名称的class的内部信息，包括modifiers（如public，static等）、superclass（如Object）、实现之interfaces（例如Cloneable），也包括fields和methods的所有信息，并可于运行时改变fie">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java反射机制">
+<meta property="og:url" content="http://example.com/2016/04/19/Java%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="反射机制反射是Java语言的一个特性，是Java被视为动态语言的一个关键性质。这个机制允许程序在运行时透过Reflection APIs取得任何一个已知名称的class的内部信息，包括modifiers（如public，static等）、superclass（如Object）、实现之interfaces（例如Cloneable），也包括fields和methods的所有信息，并可于运行时改变fie">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-04-19T03:13:53.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.710Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Java反射机制" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/19/Java%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2016-04-19T03:13:53.000Z" itemprop="datePublished">2016-04-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java反射机制
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="反射机制"><a href="#反射机制" class="headerlink" title="反射机制"></a>反射机制</h3><p>反射是Java语言的一个特性，是Java被视为动态语言的一个关键性质。这个机制允许程序在运行时透过Reflection APIs取得任何一个已知名称的class的内部信息，包括modifiers（如public，static等）、superclass（如Object）、实现之interfaces（例如Cloneable），也包括fields和methods的所有信息，并可于运行时改变fields内容或唤起methods。Java可以加载一个运行时才得知名称的class，获得其完整结构。<br><strong>A Simple Example</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.reflect.*;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DumpMethods</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Class c = Class.forName(args[<span class="number">0</span>]);</span><br><span class="line">            Method m[] = c.getDeclaredMethods();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m.length; i++)</span><br><span class="line">                System.out.println(m[i].toString());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">            System.err.println(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ java DumpMethods java.util.Stack</span><br><span class="line">public java.lang.Object java.util.Stack.push(java.lang.Object)</span><br><span class="line">public synchronized java.lang.Object java.util.Stack.pop()</span><br><span class="line">public synchronized java.lang.Object java.util.Stack.peek()</span><br><span class="line">public boolean java.util.Stack.empty()</span><br><span class="line">public synchronized int java.util.Stack.search(java.lang.Object)</span><br></pre></td></tr></table></figure>
+<p>列出了<code>java.util.Stack</code>类的所有方法名和签名。<br>这个程序用<code>class.forName</code>加载特定的类，然后调用<code>getDeclaredMethods</code>取出类中定义的方法列表。<code>java.lang.reflect.Method</code>是一个代表类方法的类。</p>
+<h3 id="JDK中提供的Reflection-API"><a href="#JDK中提供的Reflection-API" class="headerlink" title="JDK中提供的Reflection API"></a>JDK中提供的Reflection API</h3><blockquote>
+<p><strong>Interfaces</strong><br>AnnotatedElement<br>GenericArrayType<br>GenericDeclaration<br>InvocationHandler<br>Member<br>ParameterizedType<br>Type<br>TypeVariable<br>WildcardType<br><strong>Classes</strong><br>AccessibleObject<br>Array<br>Constructor<br>Field<br>Method<br>Modifier<br>Proxy<br>ReflectPermission<br><strong>Exceptions</strong><br>InvocationTargetException<br>MalformedParameterizedTypeException<br>UndeclaredThrowableException<br><strong>Errors</strong><br>GenericSignatureFormatError</p>
+</blockquote>
+<h3 id="Java反射机制提供的功能"><a href="#Java反射机制提供的功能" class="headerlink" title="Java反射机制提供的功能"></a>Java反射机制提供的功能</h3><ul>
+<li>在运行时判断任意一个对象所属的类</li>
+<li>在运行时构造任意一个类的对象</li>
+<li>在运行时判断任意一个类所具有的成员变量和方法</li>
+<li>在运行时调用任一个对象的方法</li>
+<li>在运行时创建新类对象</li>
+</ul>
+<p>在使用Java的反射功能时，基本首先都要获取类的Class对象，再通过Class对象获取其他的对象。<br>用于测试的类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> pubIntField;</span><br><span class="line">    <span class="keyword">public</span> String pubStringField;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> prvIntField;</span><br><span class="line">     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Type</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Log(<span class="string">&quot;Default Constructor&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Type(<span class="keyword">int</span> arg1, String arg2) &#123;</span><br><span class="line">        pubIntField = arg1;</span><br><span class="line">        pubStringField = arg2;</span><br><span class="line">        Log(<span class="string">&quot;Constructor with parameters&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIntField</span><span class="params">(<span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.prvIntField = val;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIntField</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> prvIntField;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Log</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Type:&quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExtendType</span> <span class="keyword">extends</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> pubIntExtendField;</span><br><span class="line">    <span class="keyword">public</span> String pubStringExtendField;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> prvIntExtendField;</span><br><span class="line">     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ExtendType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Log(<span class="string">&quot;Default Constructor&quot;</span>);</span><br><span class="line">    &#125;   </span><br><span class="line">    ExtendType(<span class="keyword">int</span> arg1, String arg2) &#123;</span><br><span class="line">        pubIntExtendField = arg1;</span><br><span class="line">        pubStringExtendField = arg2;</span><br><span class="line">        Log(<span class="string">&quot;Constructor with parameters&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIntExtendField</span><span class="params">(<span class="keyword">int</span> field7)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.prvIntExtendField = field7;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIntExtendField</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> prvIntExtendField;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Log</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ExtendType:&quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>1.获取类的Class对象<br>Class类的实例表示正在运行的Java应用程序中的类和接口。</p>
+<ul>
+<li>调用getClass<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Boolean var1 = <span class="keyword">new</span> Boolean(<span class="string">&quot;true&quot;</span>);</span><br><span class="line">Class classType1 = var1.getClass();</span><br><span class="line">System.out.println(classType1);</span><br></pre></td></tr></table></figure></li>
+<li>运用.class语法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class classType2 = Boolean.class;</span><br><span class="line">System.out.println(ClassType2)</span><br></pre></td></tr></table></figure></li>
+<li>运用static method Class.forName()<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class classType3 = Class.forName(<span class="string">&quot;java.lang.Boolean&quot;</span>);</span><br><span class="line">System.out.println(classType3);</span><br></pre></td></tr></table></figure></li>
+<li>运用primitive wrapper classes的TYPE语法（这里返回的是原生类型，和Boolean.class返回的不同）<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class classType4 = Boolean.TYPE;</span><br><span class="line">System.out.println(classType4);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>2.获取类的Fields<br>可以通过反射机制得到某个类的某个属性，然后改变对应于这个类的某个实例的该属性值。Java的Class类提供了几个方法获取类的属性。</p>
+<ul>
+<li><code>public Field getField(String name)</code><br>返回一个Field对象，它反映此Class对象所表示的类或接口的指定public成员字段。</li>
+<li><code>public Field[] getFields()</code><br>返回Field对象的数组，这些对象反映此Class对象所表示的类或接口的所有可访问public字段。</li>
+<li><code>public Field getDeclaredField(String name)</code><br>返回一个Field对象，它反映此Class对象所表示的类或接口的指定已声明字段。</li>
+<li><code>public Field[] getDeclaredFields()</code><br>返回Field对象的数组，这些对象反映出此Class对象所表示的类或接口声明的所有字段。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Field[] fields = classType.getFields();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; fields.length; i++) &#123;</span><br><span class="line">    System.out.println(fields[i]);</span><br><span class="line">&#125;</span><br><span class="line">System.out.println();</span><br><span class="line">fields = classType.getDeclaredFields();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; fields.length; i++) &#123;</span><br><span class="line">    System.out.println(fields[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>可见getFields和getDeclaredFields区别：</strong><br>getFields返回的是声明为public的属性，包括父类中定义，<br>getDeclaredFields返回的是指定类定义的所有定义的属性，不包括父类的。</p>
+</blockquote>
+<p>3.获取类的Method<br>通过反射机制得到某个类的某个方法，然后调用对应于这个类的某个实例的该方法。Class类提供了几个获取类方法的方法。</p>
+<ul>
+<li><code>public Method getMethod(String name, Class&lt;?&gt;... parameterTypes)</code><br>返回一个Method对象，它反映此Class对象所表示的类或接口的指定public成员方法。</li>
+<li><code>public Method[] getMethods()</code><br>返回Method对象的数组，这些对象反映此Class对象所表示的类或接口的public成员方法，包括继承的方法。</li>
+<li><code>public Method getDeclaredMethod(String name, Class&lt;?&gt;... parameterTypes)</code><br>返回一个Method对象，该对象反映此Class对象所表示的类或接口的指定已声明方法。</li>
+<li><code>public Method[] getDeclaredMethods()</code><br>返回Method对象的数组，这些对象反映此Class对象表示的类或接口声明的所有方法，但不包括继承的方法。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Method[] methods = classType.getMethods();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; methods.length; i++) &#123;</span><br><span class="line">    System.out.println(methods[i]);</span><br><span class="line">&#125;</span><br><span class="line">System.out.println();</span><br><span class="line">methods = classType.getDeclaredMethods();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; methods.length; i++) &#123;</span><br><span class="line">    System.out.println(methods[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4.获取类的Constructor<br>通过反射机制得到某个类的构造器，然后调用该构造器创建该类的一个实例，Class类提供了几个方法获取类的构造器。</p>
+<ul>
+<li><code>public Constructor&lt;T&gt; getConstructor(Class&lt;?&gt;... parameterType)</code><br>返回一个Constructor对象，它反映此Class对象所表示的类的指定public构造方法。</li>
+<li><code>public Constructor&lt;?&gt;[] getConstructors()</code><br>返回Constructor对象的数组，这些对象反映此Class对象所表示的类的所有public构造方法。</li>
+<li><code>public Constructor&lt;T&gt; getDeclaredConstructor(Class&lt;?&gt;... parameterTypes)</code><br>返回一个Constructor对象，它反映此Class对象所表示的类或接口的指定构造方法。</li>
+<li><code>public Constructor&lt;?&gt;[] getDeclaredConstructors()</code><br>返回Constructor对象的数组，这些对象反映此Class对象表示的类声明的所有构造方法。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Constructor[] constructors = classType.getConstructors();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; constructors.length; i++) &#123;</span><br><span class="line">    System.out.println(constructors[i]);</span><br><span class="line">&#125;</span><br><span class="line">System.out.println();</span><br><span class="line">constructors = classType.getDeclaredConstructors();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; constructors.length; i++) &#123;</span><br><span class="line">    System.out.println(constructors[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>5.新建类的实例<br>通过反射机制创建新类的实例，有几种方法可以创建。</p>
+<ul>
+<li>调用无自变量ctor</li>
+</ul>
+<p>(1)调用类的Class对象的newInstance方法，该方法会调用对象的默认构造函数，如果没有默认构造函数，会调用失败。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Object inst = classType.newInstance();</span><br><span class="line">System.out.println(inst);</span><br></pre></td></tr></table></figure>
+<p>(2)调用默认Constructor对象的newInstance方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Constructor ctor = classType.getConstructor(<span class="keyword">null</span>);</span><br><span class="line">Object inst = ctor.newInstance(<span class="keyword">null</span>);</span><br><span class="line">System.out.println(inst);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>调用带参数ctor</li>
+</ul>
+<p>(3)调用带参数Constructor对象的newInstance方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Class[] params = &#123;<span class="keyword">int</span>.class, String.class&#125;; <span class="comment">// 可以使用匿名类，下一个例子中可以看到</span></span><br><span class="line">Constructor ctor = classType.getDeclaredConstructor(params);</span><br><span class="line">Object[] arg = &#123;<span class="keyword">new</span> Integer(<span class="number">1</span>), <span class="string">&quot;123&quot;</span>&#125;;</span><br><span class="line">Object inst = ctor.newInstance(arg);</span><br><span class="line">System.out.println(inst);</span><br></pre></td></tr></table></figure>
+<p>6.调用类的函数<br>通过反射获取类Method对象，调用其Invoke方法调用此函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Object inst = classType.newInstance();</span><br><span class="line">Method logMethod = classType.getDeclaredMethod(<span class="string">&quot;Log&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class&#125;);</span><br><span class="line">logMethod.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">logMethod.invoke(inst, <span class="keyword">new</span> Object[] &#123;<span class="string">&quot;test&quot;</span>&#125;);</span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line">Type:Default Constructor</span><br><span class="line">ExtendType:Default Constructor</span><br><span class="line">ExtendType:test</span><br></pre></td></tr></table></figure>
+<p>7.设置/获取类的属性值<br>通过反射获取类的Field对象，调用Field方法设置或获取值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Class classType = ExtendType.class;</span><br><span class="line">Object inst = classType.newInstance();</span><br><span class="line">Field intField = classType.getField(<span class="string">&quot;pubIntExtendField&quot;</span>);</span><br><span class="line">intField.setInt(inst, <span class="number">100</span>);</span><br><span class="line"><span class="keyword">int</span> value = intField.getInt(inst);</span><br><span class="line">System.out.println(value);</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/04/19/Java%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" data-id="ckhe7o4lf0028chl7amev7qpn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/19/gcc%E6%89%8B%E5%8A%A8%E7%BC%96%E8%AF%91Android%E5%8E%9F%E7%94%9F%E7%A8%8B%E5%BA%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          gcc手动编译Android原生程序
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/11/Dalvik%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Dalvik类加载模块</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

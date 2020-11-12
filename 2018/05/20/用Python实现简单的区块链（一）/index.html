@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>用Python实现简单的区块链（一） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这篇文章用python实现一下区块链的基本概念，主要目的是凑热闹学习区块链相关知识，没有太大实际用途。   创建区块链区块链就是许多区块的链表，区块链里的每个链表都有自己的签名，包含前一个区块的数字签名和一些数据（例如交易）。每个区块有前一个区块的hash，也有自己的hash，自己的hash包含了自己的数据和前一个区块的hash。如果前一个区块的数据改变了，那么前一个区块的hash就会改变，后面的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用Python实现简单的区块链（一）">
+<meta property="og:url" content="http://example.com/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这篇文章用python实现一下区块链的基本概念，主要目的是凑热闹学习区块链相关知识，没有太大实际用途。   创建区块链区块链就是许多区块的链表，区块链里的每个链表都有自己的签名，包含前一个区块的数字签名和一些数据（例如交易）。每个区块有前一个区块的hash，也有自己的hash，自己的hash包含了自己的数据和前一个区块的hash。如果前一个区块的数据改变了，那么前一个区块的hash就会改变，后面的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/blockchain/basic.png">
+<meta property="article:published_time" content="2018-05-20T15:23:44.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.770Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Blockchain">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/blockchain/basic.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-用Python实现简单的区块链（一）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
+  <time datetime="2018-05-20T15:23:44.000Z" itemprop="datePublished">2018-05-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      用Python实现简单的区块链（一）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇文章用python实现一下区块链的基本概念，主要目的是凑热闹学习区块链相关知识，没有太大实际用途。  </p>
+<h2 id="创建区块链"><a href="#创建区块链" class="headerlink" title="创建区块链"></a>创建区块链</h2><p>区块链就是许多区块的链表，区块链里的每个链表都有自己的签名，包含前一个区块的数字签名和一些数据（例如交易）。<br><img src="/images/blockchain/basic.png"><br>每个区块有前一个区块的hash，也有自己的hash，自己的hash包含了自己的数据和前一个区块的hash。如果前一个区块的数据改变了，那么前一个区块的hash就会改变，后面的区块都会受到影响。计算和比较hash可以检查一个区块链是否合法。<br><strong>改变链表里的任何数据，都会改变签名，破坏链。</strong><br>首先创建组成区块链的Block类：<br><strong>代码清单</strong> block.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Block</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, data, previousHash</span>):</span></span><br><span class="line">        self.data = data</span><br><span class="line">        self.previousHash = previousHash</span><br><span class="line">        self.timeStamp = time.time()</span><br><span class="line">        self.nonce = <span class="number">0</span></span><br><span class="line">        self.<span class="built_in">hash</span> = self.calculateHash()</span><br></pre></td></tr></table></figure>
+<p>基本的Block包含了一个<code>hash</code>来保存数字签名，<code>previousHash</code>变量保存了前一个Block的hash，<code>data</code>保存该区块的数据。<br>下面需要一个方法来产生数字签名，这里使用sha256加密算法，调用Python的hashlib库，非常简单：<br><strong>代码清单</strong> strutils.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StringUtils</span>:</span></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">sha256</span>(<span class="params">msg</span>):</span></span><br><span class="line">        sh = hashlib.sha256()</span><br><span class="line">        sh.update(msg)</span><br><span class="line">        <span class="keyword">return</span> sh.hexdigest()</span><br></pre></td></tr></table></figure>
+<p>下面为Block类添加一个计算hash的方法：<br><strong>代码清单</strong> block.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> strutils <span class="keyword">import</span> StringUtils</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculateHash</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> StringUtils.sha256(self.previousHash+self.data+<span class="built_in">str</span>(self.nonce)+<span class="built_in">str</span>(self.timeStamp))</span><br></pre></td></tr></table></figure>
+<p>创建几个区块打印hash测试一下是否能正确运行：<br><strong>代码清单</strong> noobchain.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> block <span class="keyword">import</span> Block</span><br><span class="line"></span><br><span class="line">genesisBlock = Block(<span class="string">&quot;Hi im the first block&quot;</span>, <span class="string">&quot;0&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;Hash for block 1: &quot;</span> + genesisBlock.<span class="built_in">hash</span></span><br><span class="line">secondBlock = Block(<span class="string">&quot;Hi im the second block&quot;</span>, genesisBlock.<span class="built_in">hash</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;Hash for block 2: &quot;</span> + secondBlock.<span class="built_in">hash</span></span><br><span class="line">thirdBlock = Block(<span class="string">&quot;Hi im the third block&quot;</span>, secondBlock.<span class="built_in">hash</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;Hash for block 3: &quot;</span> + thirdBlock.<span class="built_in">hash</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python noobchain.py</span><br><span class="line">Hash for block 1: 9dbe25df31f62ecdda90aac0ab7b25603fcdada1f890c910a7e8007560ef9689</span><br><span class="line">Hash for block 2: bb2983a4837cdd83acdf398929babb592c8f9d4165b3eec07279d1bfcc49d199</span><br><span class="line">Hash for block 3: 1e2b74ee552ae2a59b5215eaab87e896e11c33e94541917323d1f2e58f47fa87</span><br></pre></td></tr></table></figure>
+<p>现在每个区块都有自己的数字签名，基于自己的数据和前一个区块的签名。现在不太像一个区块链，所以我们用一个列表来存放这些区块。<br><strong>代码清单</strong> noobchain.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line">blockchain = []</span><br><span class="line"></span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Hi im the first block&#x27;</span>, <span class="string">&#x27;0&#x27;</span>))</span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Yo im the second block&#x27;</span>, blockchain[<span class="built_in">len</span>(blockchain)<span class="number">-1</span>].<span class="built_in">hash</span>))</span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Hey im the third block&#x27;</span>, blockchain[<span class="built_in">len</span>(blockchain)<span class="number">-1</span>].<span class="built_in">hash</span>))</span><br><span class="line"></span><br><span class="line">blockdict = []</span><br><span class="line"><span class="keyword">for</span> b <span class="keyword">in</span> blockchain:</span><br><span class="line">    blockdict.append(b.__dict__)</span><br><span class="line"></span><br><span class="line">blockjson = json.dumps(blockdict, indent=<span class="number">4</span>)</span><br><span class="line"><span class="built_in">print</span> blockjson</span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ python noobchain.py</span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 0,</span><br><span class="line">        &quot;timeStamp&quot;: 1526824346.983302,</span><br><span class="line">        &quot;data&quot;: &quot;Hi im the first block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;6120bc136ad7d77d462ad7142864739035e66548bdb26104a4716e3c29690e89&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;0&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 0,</span><br><span class="line">        &quot;timeStamp&quot;: 1526824346.983333,</span><br><span class="line">        &quot;data&quot;: &quot;Yo im the second block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;b08a3eb3838c8897c55c107defcd758f094b3d4c0865c15820fcf93bd0fced96&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;6120bc136ad7d77d462ad7142864739035e66548bdb26104a4716e3c29690e89&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 0,</span><br><span class="line">        &quot;timeStamp&quot;: 1526824346.98334,</span><br><span class="line">        &quot;data&quot;: &quot;Hey im the third block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;31e787cb6ad0cb3a92922e61a525f47e1023ed426b30b17dc2d6efc58e020733&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;b08a3eb3838c8897c55c107defcd758f094b3d4c0865c15820fcf93bd0fced96&quot;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>下面我们需要检查我们区块链的完整性，创建一个<code>isChainValid()</code>方法，这个方法循环整个链中的区块，比较hash，这个方法需要检查<code>hash</code>变量确实与计算的hash相等，前一个区块的hash与<code>previousHash</code>变量相等。<br><strong>代码清单</strong> noobchain.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">isChainValid</span>():</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(blockchain)):</span><br><span class="line">        curblock = blockchain[i]</span><br><span class="line">        preblock = blockchain[i<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">if</span> curblock.<span class="built_in">hash</span> != curblock.calculateHash():</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&#x27;Current Hashes not equal&#x27;</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> preblock.<span class="built_in">hash</span> != curblock.previousHash:</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&#x27;Previous Hashes not equal&#x27;</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<p>任何对区块链中区块的改动都会让这个方法返回错误。<br>当人们将自己的区块链分享到比特币网络节点时，网络会接收其最长的有效链。如何阻止有人篡改一个旧区块中的数据，然后创建一整个新的更长的区块链到网络中。<code>工作量证明</code>——哈希现金工作量证明系统意味着它花费了可观的时间和计算量来创建新的区块。因此，攻击者会用到比其他人加起来还要多的计算量。  </p>
+<h2 id="开始采矿"><a href="#开始采矿" class="headerlink" title="开始采矿"></a>开始采矿</h2><p>我们让矿工通过尝试区块中不同的变量，直到它的hash由一定数量的0开头来做工作量证明。<br>在<code>calculateHash()</code>方法中加入<code>nonce</code>变量，还需要<code>mineBlock()</code>方法：<br><strong>代码清单</strong> block.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Block</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, data, previousHash</span>):</span></span><br><span class="line">        self.data = data</span><br><span class="line">        self.previousHash = previousHash</span><br><span class="line">        self.timeStamp = time.time()</span><br><span class="line">        self.nonce = <span class="number">0</span></span><br><span class="line">        self.<span class="built_in">hash</span> = self.calculateHash()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculateHash</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> sha256(self.previousHash+self.data+<span class="built_in">str</span>(self.nonce)+<span class="built_in">str</span>(self.timeStamp))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mineBlock</span>(<span class="params">self, difficulty</span>):</span></span><br><span class="line">        target = <span class="string">&#x27;0&#x27;</span>*difficulty</span><br><span class="line">        <span class="keyword">while</span> self.<span class="built_in">hash</span>[<span class="number">0</span>:difficulty] != target:</span><br><span class="line">            self.nonce += <span class="number">1</span></span><br><span class="line">            self.<span class="built_in">hash</span> = self.calculateHash()</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Block Mined!!! : &quot;</span> + self.<span class="built_in">hash</span></span><br></pre></td></tr></table></figure>
+<p><code>mineBlock()</code>方法需要一个<code>difficulty</code>参数，来指定他们需要产生0的个数。<br><strong>代码清单</strong> noobchain.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">difficulty = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Hi im the first block&#x27;</span>, <span class="string">&#x27;0&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Trying to mine block 1...&#x27;</span></span><br><span class="line">blockchain[<span class="number">0</span>].mineBlock(difficulty)</span><br><span class="line"></span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Yo im the second block&#x27;</span>, blockchain[<span class="built_in">len</span>(blockchain)<span class="number">-1</span>].<span class="built_in">hash</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Trying to mine block 2...&#x27;</span></span><br><span class="line">blockchain[<span class="number">1</span>].mineBlock(difficulty)</span><br><span class="line"></span><br><span class="line">blockchain.append(Block(<span class="string">&#x27;Hey im the third block&#x27;</span>, blockchain[<span class="built_in">len</span>(blockchain)<span class="number">-1</span>].<span class="built_in">hash</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Trying to mine block 3...&#x27;</span></span><br><span class="line">blockchain[<span class="number">2</span>].mineBlock(difficulty)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Blockchain is Valid:&#x27;</span> + <span class="built_in">str</span>(isChainValid())</span><br><span class="line"></span><br><span class="line">blockdict = []</span><br><span class="line"><span class="keyword">for</span> b <span class="keyword">in</span> blockchain:</span><br><span class="line">    blockdict.append(b.__dict__)</span><br><span class="line"></span><br><span class="line">blockjson = json.dumps(blockdict, indent=<span class="number">4</span>)</span><br><span class="line"><span class="built_in">print</span> blockjson</span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">$ python noobchain.py</span><br><span class="line">Trying to mine block 1...</span><br><span class="line">Block Mined!!! : 00000ecb9f53da95a26ee8316131bda984bc3afb037a8bdf29074004261b839b</span><br><span class="line">Trying to mine block 2...</span><br><span class="line">Block Mined!!! : 00000e576c0879015c408e6ec870a25745d7049588aef35fcc28c4f071524f8f</span><br><span class="line">Trying to mine block 3...</span><br><span class="line">Block Mined!!! : 00000137d52d6a04821f5aa3bc77dd0c51b768e415e8b44115b36b80f62b9b2c</span><br><span class="line">Blockchain is Valid:True</span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 392303,</span><br><span class="line">        &quot;timeStamp&quot;: 1526829543.310173,</span><br><span class="line">        &quot;data&quot;: &quot;Hi im the first block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;00000ecb9f53da95a26ee8316131bda984bc3afb037a8bdf29074004261b839b&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;0&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 1228895,</span><br><span class="line">        &quot;timeStamp&quot;: 1526829544.882065,</span><br><span class="line">        &quot;data&quot;: &quot;Yo im the second block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;00000e576c0879015c408e6ec870a25745d7049588aef35fcc28c4f071524f8f&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;00000ecb9f53da95a26ee8316131bda984bc3afb037a8bdf29074004261b839b&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;nonce&quot;: 3053359,</span><br><span class="line">        &quot;timeStamp&quot;: 1526829550.066907,</span><br><span class="line">        &quot;data&quot;: &quot;Hey im the third block&quot;,</span><br><span class="line">        &quot;hash&quot;: &quot;00000137d52d6a04821f5aa3bc77dd0c51b768e415e8b44115b36b80f62b9b2c&quot;,</span><br><span class="line">        &quot;previousHash&quot;: &quot;00000e576c0879015c408e6ec870a25745d7049588aef35fcc28c4f071524f8f&quot;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>挖矿每个区块大约要花费3秒。  </p>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa">https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/" data-id="ckhe7o4nt006achl70xn8awbq" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          k-近邻算法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习基础</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Android逆向之脱壳 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文主要介绍一下APK简单加固的破解方法，以及一些其他的逆向技巧和知识。现在市场中加固APK的方式一般有两种：一种是对源APK整体做一个加固，放到指定位置，运行的时候再解密动态加载；另一种是对so进行加固，在so加载内存的时候进行解密释放。本文主要针对第一种方式。 题目介绍用一个案例来讲解，阿里CTF2014的第三题：题目要求：要求自己构造一个网页，并把网页对应的URL输入到URL输入框控件，然后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向之脱壳">
+<meta property="og:url" content="http://example.com/2017/04/04/Android%E9%80%86%E5%90%91%E4%B9%8B%E8%84%B1%E5%A3%B3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本文主要介绍一下APK简单加固的破解方法，以及一些其他的逆向技巧和知识。现在市场中加固APK的方式一般有两种：一种是对源APK整体做一个加固，放到指定位置，运行的时候再解密动态加载；另一种是对so进行加固，在so加载内存的时候进行解密释放。本文主要针对第一种方式。 题目介绍用一个案例来讲解，阿里CTF2014的第三题：题目要求：要求自己构造一个网页，并把网页对应的URL输入到URL输入框控件，然后">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/androidre/main.png">
+<meta property="og:image" content="http://example.com/images/androidre/stubapplication.png">
+<meta property="og:image" content="http://example.com/images/androidre/androidmani.png">
+<meta property="og:image" content="http://example.com/images/androidre/attach.png">
+<meta property="og:image" content="http://example.com/images/androidre/openpartial.png">
+<meta property="og:image" content="http://example.com/images/androidre/register.png">
+<meta property="og:image" content="http://example.com/images/androidre/onclick.png">
+<meta property="og:image" content="http://example.com/images/androidre/jsinterface.png">
+<meta property="og:image" content="http://example.com/images/androidre/addjsinterface.png">
+<meta property="og:image" content="http://example.com/images/androidre/decrypt_native.png">
+<meta property="article:published_time" content="2017-04-04T14:20:34.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.684Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/androidre/main.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Android逆向之脱壳" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/04/Android%E9%80%86%E5%90%91%E4%B9%8B%E8%84%B1%E5%A3%B3/" class="article-date">
+  <time datetime="2017-04-04T14:20:34.000Z" itemprop="datePublished">2017-04-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android逆向之脱壳
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文主要介绍一下APK简单加固的破解方法，以及一些其他的逆向技巧和知识。现在市场中加固APK的方式一般有两种：一种是对源APK整体做一个加固，放到指定位置，运行的时候再解密动态加载；另一种是对so进行加固，在so加载内存的时候进行解密释放。本文主要针对第一种方式。</p>
+<h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a>题目介绍</h3><p>用一个案例来讲解，阿里CTF2014的第三题：<br><img src="/images/androidre/main.png"><br><strong>题目要求：</strong>要求自己构造一个网页，并把网页对应的URL输入到URL输入框控件，然后，点击”进入”按钮，jscrack会打开webview浏览你的网页，如果jscrack能弹出一个Toast，就证明已经成功破解，同时Toast显示的内容就是这个题目的flag。<br><strong>题目的大致思路：</strong>输入的url会传递给一个WebView控件，进行网页展示，应该是网页中的JS会调用本地的一个Java方法，然后弹出相应的提示。</p>
+<h3 id="初步分析"><a href="#初步分析" class="headerlink" title="初步分析"></a>初步分析</h3><p>按照破解的一般步骤：<br>（1）用JEB打开APK文件，对Java代码进行分析：<br><img src="/images/androidre/stubapplication.png"><br>这里只有一个Application类，所以这个APK应该是被加固了。加固一个APK，外面一定得套一个壳，这个壳必须是自定义的Application类（初始化操作）。因为没有其他类了，无处下手，只能从其他地方再分析。<br>（2）对AndroidManifest.xml文件进行分析：<br><img src="/images/androidre/androidmani.png"><br>不管APK如何加固，即使代码中看不到四大组件的定义，但是肯定会在AndroidManifest.xml中声明，因为不声明运行会报错。<br>当发现APK中主要的类都没有了，肯定是APK被加固了，加固的源程序肯定是在本地，一般会有这么几个地方需要注意的：</p>
+<ul>
+<li>应用程序的assert目录，我们知道这个目录是不参与apk的资源编译过程的，所以很多加固的应用喜欢把加密之后的源apk放到这里</li>
+<li>把源apk加密放到壳的dex文件的尾部，这个肯定不是我们这里的案例，但是也有这样的加固方式，这种加固方式会发现使用dex2jar工具解析dex是失败的，我们这时候就知道了，肯定对dex做了手脚</li>
+<li>把源apk加密放到so文件中，这个就比较难了，一般都是把源apk进行拆分，存到so文件中，分析难度会加大的。</li>
+</ul>
+<p>在assert/目录中发现了<code>cls.jar</code>和<code>fak.jar</code>两个jar文件，JD-GUI打开失败，猜想这个jar是加密过的，很有可能是存放源APK的地方。<br>刚刚分析过DEX文件，第二种方式肯定不可能。<br>在lib/目录中发现了<code>libhack.so</code>、<code>libmobisec.so</code>和<code>libtranslate.so</code>三个so文件，Application中加载的只有libmobisec.so，其他两个so文件可能存放了拆分的apk文件。<br>通过上面的分析之后，我们大致知道了两个地方很有可能是源apk的藏身地方，一个是assert目录，一个是libs目录，那么分析完了之后，我们发现现在面临两个问题：<br>第一个问题：assert/目录中的jar文件被处理了，打不开，也不知道处理逻辑；<br>第二个问题：lib/目录中的三个so文件，唯一加载了libmobisec.so文件，因为没有上层代码，没法分析。  </p>
+<p>@JavascriptInterface这个注解是在SDK17加上的，也就是Android4.2版本中，那么在之前的版本中没有这个注解，任何public的方法都可以在JS代码中访问，而Java对象继承关系会导致很多public的方法都可以在JS中访问，其中一个重要的方法就是getClass()。然后JS可以通过反射来访问其他一些内容。这个也算是WebView的一个漏洞了。所以通过引入@JavascriptInterface注解，则在JS中只能访问@JavascriptInterface注解的函数。这样就可以增强安全性。  </p>
+<h3 id="dump内存中的DEX内容"><a href="#dump内存中的DEX内容" class="headerlink" title="dump内存中的DEX内容"></a>dump内存中的DEX内容</h3><p>不管源程序如何加固，放到哪里，最终都是需要被加载到内存中，只要从内存中把这部分数据dump出来就可以了。在libdvm.so中的函数：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dvmDexFileOpenPartial</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *addr, <span class="keyword">int</span> len, DvmDex **ppDvmDex)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>函数的前两个参数就给出了dex文件在内存中的起始地址和大小，在这个函数下断点用IDC脚本dump内存即可。<br>dump过程：<br>（1）在设备中运行android_server，主机上进行adb forward端口转发：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@hammerhead:&#x2F;data&#x2F;local&#x2F;tmp # .&#x2F;android_server</span><br><span class="line">IDA Android 32-bit remote debug server(ST) v1.19. Hex-Rays (c) 2004-2015</span><br><span class="line">Listening on port #23946...</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ adb forward tcp:23946 tcp:23946</span><br></pre></td></tr></table></figure>
+<p>（2）打开Monitor  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ monitor</span><br></pre></td></tr></table></figure>
+<p>（3）使用adb命令以Debug模式启动APK  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell am start -D -n com.ali.tg.testapp&#x2F;.MainActivity</span><br><span class="line">WARNING: linker: app_process has text relocations. This is wasting memory and is a security risk. Please fix.</span><br><span class="line">WARNING: linker: app_process has text relocations. This is wasting memory and is a security risk. Please fix.</span><br><span class="line">Starting: Intent &#123; cmp&#x3D;com.ali.tg.testapp&#x2F;.MainActivity &#125;</span><br></pre></td></tr></table></figure>
+<p>（4）打开IDA：Debugger-&gt;Attach-&gt;Remote ARMLinux/Android debugger附加到进程<br><img src="/images/androidre/attach.png"><br>（5）使用jdb命令启动连接attach调试器  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ jdb -connect com.sun.jdi.SocketAttach:hostname&#x3D;127.0.0.1,port&#x3D;8700</span><br></pre></td></tr></table></figure>
+<p>（6）在IDA的Modules窗口中找到libdvm.so模块，双击打开，在模块中找到dvmDexFileOpenPartial函数并右键下断点：<br><img src="/images/androidre/openpartial.png"><br>（7）点击运行，Cancel掉弹出的窗口，程序就会运行到dvmDexFileOpenPartial()函数<br>（8）R0~R4寄存器一般是用来存放一个函数的参数值的，dvmDexFileOpenPartial()的第一个参数是dex内存起始地址，第二个参数是dex大小：<br><img src="/images/androidre/register.png"><br>下面就使用IDC脚本进行内存dump：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> fp, dex_addr, end_addr;</span><br><span class="line">    fp = fopen(<span class="string">&quot;/User/fan/dump.dex&quot;</span>, <span class="string">&quot;wb&quot;</span>);</span><br><span class="line">    end_addr = r0 + r1;</span><br><span class="line">    <span class="keyword">for</span> (dex_addr = r0; dex_addr &lt; end_addr; dex_addr++)</span><br><span class="line">        fputc(Byte(dex_addr), fp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是dump内存中DEX的通用代码，在IDA的File-&gt;Script command…界面中运行这段代码，等一段时间就可以得到dump.dex文件了。</p>
+<h3 id="分析正确的DEX文件"><a href="#分析正确的DEX文件" class="headerlink" title="分析正确的DEX文件"></a>分析正确的DEX文件</h3><p>用JEB打开dump出来的DEX文件，首先分析MainActivity，找到button的点击事件：<br><img src="/images/androidre/onclick.png"><br>这里把输入的url内容传递给WebViewActivity，但是这里的intent中的key是通过native方法decrypt_native加密了的，内容是dV.<br>接着分析WebViewActivity类：<br><img src="/images/androidre/jsinterface.png"><br>其中有一个JavaScriptInterface类，下面会通过addJavascriptInterface方法，添加Javascript接口：<br><img src="/images/androidre/addjsinterface.png"></p>
+<blockquote>
+<p> addJavascriptInterface方法一般用法：<br>mWebView.addJavascriptInterface(new JavaScriptObject(this), “objName”);<br>第一个参数是本地的Java对象，第二个参数是给Js中使用的对象的名称。然后js得到这个对象的名称就可以调用本地的Java对象中的方法了。<br>将js中的名称（objName）进行混淆加密，是为了防止恶意的网站来拦截url，然后调用我们本地的Java中的方法。</p>
+</blockquote>
+<p>比如，现在有一个程序有一个获取设备重要信息的方法，比如获取设备的imei，如果没有名称混淆的话，破解者得到这个JS名称和方法名，然后伪造一个恶意url来调用我们程序中的这个方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaScriptObject</span> </span>&#123;</span><br><span class="line">    Context mContxt;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">JavaScriptObject</span><span class="params">(Context mContxt)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.mContxt = mContxt;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* sdk17以上加注解，JS中能够访问设置了这个注解的方法，</span></span><br><span class="line"><span class="comment">     * 没有这个注解的本地Java方法JS是访问不了的。*/</span></span><br><span class="line">    <span class="meta">@JavascriptInterface</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getimei</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);</span><br><span class="line">        <span class="keyword">return</span> tm.getDeviceId();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后再设置js名称：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mWebView.addJavascriptInterface(<span class="keyword">new</span> JavaScriptObject(<span class="keyword">this</span>), <span class="string">&quot;objName&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>下面就可以伪造一个恶意的url页面来访问这个方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta http-equiv=<span class="string">&quot;Content-Type&quot;</span> content=<span class="string">&quot;text/html; charset=UTF-8&quot;</span>&gt;</span><br><span class="line">    &lt;script type=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">crackali</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> objName.getimei();</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    Crack...</span><br><span class="line">    &lt;script type=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><br><span class="line">        <span class="keyword">var</span> imei = crackali();</span><br><span class="line">        alert(<span class="string">&quot;I am cracked...&quot;</span> + imei);</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>但是由于兼容性和安全性问题，基本上我们不会再用Android系统提供的addJavascriptInterface方法或@JavascriptInterface注解了，不多介绍，可以查JSBridge。</p>
+</blockquote>
+<p>到这里就分析完了apk的逻辑了，下面来整理一下：<br>1、在MainActivity中输入一个页面的url，跳转到WebViewActivity进行展示；<br>2、WebViewActivity有Js交互，需要调用本地Java对象中的showToast方法展示消息。<br>问题：<br>因为这里的js对象名称进行了加密，所以这里我们自己编写一个网页，但是不知道这个js对象名称，无法完成showToast方法的调用。</p>
+<h3 id="破解的方法"><a href="#破解的方法" class="headerlink" title="破解的方法"></a>破解的方法</h3><p>破解的方法有以下几种：<br>1.修改smali源码，将上面的js对象名称改成任意其他值，如”objName”，然后用smali工具编译成DEX文件，重打包，再在自己编写的页面中调用：objName.showToast方法即可。<br>2.利用Android4.2中的WebView漏洞，直接使用如下Js代码：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">    &lt;head&gt;</span><br><span class="line">    &lt;meta http-equiv&#x3D;&quot;Content-Type&quot; content&#x3D;&quot;text&#x2F;html; charset&#x3D;UTF-8&quot;&gt;</span><br><span class="line">        &lt;script&gt;</span><br><span class="line">            function findobj() &#123;</span><br><span class="line">                for (var obj in window) &#123;</span><br><span class="line">                    if (&quot;getClass&quot; in window[obj]) &#123;</span><br><span class="line">                        return window[obj]</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &lt;&#x2F;script&gt;</span><br><span class="line">    &lt;&#x2F;head&gt;</span><br><span class="line">    &lt;body&gt;</span><br><span class="line">        hello world!</span><br><span class="line">        &lt;script type&#x3D;&quot;text&#x2F;javascript&quot;&gt;</span><br><span class="line">            var obj &#x3D; findobj()</span><br><span class="line">            obj.showToast()</span><br><span class="line">        &lt;&#x2F;script&gt;</span><br><span class="line">    &lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+<p>3.自己写一个程序，调用那个加密方法，就能得到正确的js对象名称。<br>这里使用第三种方法：<br><img src="/images/androidre/decrypt_native.png"><br>可以看到加密方法是translate库中的，因此新建一个Android项目，将translate库放到项目中，写一段代码调用native方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String val = ListViewAutoScrollHelpern.decrypt_native(<span class="string">&quot;BQ1$*[w6G_&quot;</span>, <span class="number">2</span>);</span><br><span class="line">Log.i(<span class="string">&quot;objName&quot;</span>, <span class="string">&quot;val:&quot;</span>+val);</span><br></pre></td></tr></table></figure>
+<p>运行会报错，原因是少了两个类，根据错误提示构造这两个类，再运行：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objName: val:SmokeyBear</span><br></pre></td></tr></table></figure>
+<p>解密之后的JS对象的名称是SmokeyBear，下面构造一个url页面，直接调用：SmokeyBear.showToast即可。</p>
+<blockquote>
+<p>如果知道了Java层的native方法的定义，就可以调用这个native方法了，这是很不安全的，可以在so中的native函数做一个应用的签名校验，只有属于自己的签名应用才能调用，否则直接退出。</p>
+</blockquote>
+<h3 id="开始破解"><a href="#开始破解" class="headerlink" title="开始破解"></a>开始破解</h3><p>构造页面：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">    &lt;head&gt;</span><br><span class="line">    &lt;meta http-equiv&#x3D;&quot;Content-Type&quot; content&#x3D;&quot;text&#x2F;html; charset&#x3D;UTF-8&quot;&gt;</span><br><span class="line">        &lt;script type&#x3D;&quot;text&#x2F;javascript&quot;&gt;</span><br><span class="line">            function alicrack() &#123;</span><br><span class="line">                SmokeyBear.showToast()</span><br><span class="line">            &#125;</span><br><span class="line">        &lt;&#x2F;script&gt;</span><br><span class="line">    &lt;&#x2F;head&gt;</span><br><span class="line">    &lt;body&gt;</span><br><span class="line">        Crack...</span><br><span class="line">        &lt;script type&#x3D;&quot;text&#x2F;javascript&quot;&gt;</span><br><span class="line">            alicrack();</span><br><span class="line">        &lt;&#x2F;script&gt;</span><br><span class="line">    &lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+<p>构造好的页面可以放到服务器上或存到本地，WebView的loadUrl方法是可以加载本地页面的，但不能存到SD卡上，因为这个应用没有读取SD卡的权限。放到/data/data/com.ali.tg.testapp/目录下即可。WebView加载本地页面的格式是：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;&#x2F;data&#x2F;data&#x2F;com.ali.tg.testapp&#x2F;crack.html</span><br></pre></td></tr></table></figure>
+<p>在手机上输入这么多内容比较麻烦，这里有一个技巧，用命令行输入：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell input text &quot;content to input&quot;</span><br></pre></td></tr></table></figure>
+<p>点击按钮运行，成功！<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://www.wjdiankong.cn/android%E9%80%86%E5%90%91%E4%B9%8B%E6%97%85-%E5%8A%A8%E6%80%81%E6%96%B9%E5%BC%8F%E7%A0%B4%E8%A7%A3apk%E7%BB%88%E6%9E%81%E7%AF%87%E5%BA%94%E5%AF%B9%E5%8A%A0%E5%9B%BAapk%E7%A0%B4%E8%A7%A3%E6%96%B9/">Android逆向之旅—动态方式破解apk终极篇(应对加固apk破解方式)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/04/04/Android%E9%80%86%E5%90%91%E4%B9%8B%E8%84%B1%E5%A3%B3/" data-id="ckhe7o4kc000lchl7bw6pd7tt" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/12/%E4%BD%BF%E7%94%A8sulley-framework/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          使用sulley framework
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/04/01/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88%E4%B8%80%EF%BC%89%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Java反序列化漏洞（一）基础知识</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>朴素贝叶斯 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="基于贝叶斯决策理论的分类方法 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。 假设我们有一个数据集，由两类数据组成： 假设已知图中两类数据的统计参数。我们现在用p1(x, y)表示数据点(x, y)属于类别1的概率，用p2(x, y)表示数据点(x, y)数据类别2的概率，那么对于一个新数据点(x, y)，可以用下面的规则判断它的类别：    如果p1(x,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="朴素贝叶斯">
+<meta property="og:url" content="http://example.com/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="基于贝叶斯决策理论的分类方法 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。 假设我们有一个数据集，由两类数据组成： 假设已知图中两类数据的统计参数。我们现在用p1(x, y)表示数据点(x, y)属于类别1的概率，用p2(x, y)表示数据点(x, y)数据类别2的概率，那么对于一个新数据点(x, y)，可以用下面的规则判断它的类别：    如果p1(x,">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/machinelearning/dataset.png">
+<meta property="article:published_time" content="2018-05-24T06:42:42.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.788Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Machine Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/machinelearning/dataset.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-朴素贝叶斯" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" class="article-date">
+  <time datetime="2018-05-24T06:42:42.000Z" itemprop="datePublished">2018-05-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      朴素贝叶斯
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="基于贝叶斯决策理论的分类方法"><a href="#基于贝叶斯决策理论的分类方法" class="headerlink" title="基于贝叶斯决策理论的分类方法"></a>基于贝叶斯决策理论的分类方法</h2><p> 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。<br> 假设我们有一个数据集，由两类数据组成：<br> <img src="/images/machinelearning/dataset.png" alt="两个参数已知的概率分布，参数决定了分布的形状"><br>假设已知图中两类数据的统计参数。我们现在用p1(x, y)表示数据点(x, y)属于类别1的概率，用p2(x, y)表示数据点(x, y)数据类别2的概率，那么对于一个新数据点(x, y)，可以用下面的规则判断它的类别：  </p>
+<ul>
+<li>如果p1(x, y) &gt; p2(x, y)，那么类别为1。</li>
+<li>如果p2(x, y) &gt; p1(x, y)，那么类别为2。</li>
+</ul>
+<p>我们会选择高概率对应的类别，这就是贝叶斯决策理论的核心思想，即选择具有最高概率的决策。<br>但这两个准则并不是贝叶斯决策理论的所有内容，p1()和p2()是为了简化描述，而真正需要比较的是$p(c_1|x, y)$和$p(c_2|x, y)$。这些符号的具体意义是：给定某个由x、y表示的数据点，那么该数据点来自类别$c_1$和$c_2$的概率。<br>如果已知概率$p(x, y|c_1)$，可以使用贝叶斯准则来交换概率中的条件与结果：<br>$$<br>p(c_i|x, y) = \frac{p(x, y|c_i)p(c_i)}{p(x, y)}<br>$$</p>
+<h2 id="使用朴素贝叶斯进行文档分类"><a href="#使用朴素贝叶斯进行文档分类" class="headerlink" title="使用朴素贝叶斯进行文档分类"></a>使用朴素贝叶斯进行文档分类</h2><p>朴素贝叶斯的一个假设是样本的特征之间相互<code>独立</code>，即一个特征或者单词出现的可能性与它和其他单词相邻没有关系。当然，这种假设不正确，这个假设正是朴素贝叶斯分类器中<code>朴素</code>的含义。朴素贝叶斯分类器的另一个假设是，每个特征同等重要。其实这个假设也有问题，尽管上述假设存在一些小瑕疵，但朴素贝叶斯的实际效果却很好。<br>现在我们要维护一个在线社区留言板，为了不影响社区的发展，我们要屏蔽侮辱性言论，对此问题建立两个类别，侮辱类和非侮辱类，使用1和0分别表示。  </p>
+<h3 id="准备数据：从文本中构建词向量"><a href="#准备数据：从文本中构建词向量" class="headerlink" title="准备数据：从文本中构建词向量"></a>准备数据：从文本中构建词向量</h3><p>下面我们将先建立词汇表，然后将每一篇文档转换为词汇表上的向量：<br><strong>代码清单</strong> bayes.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loadDataSet</span>():</span></span><br><span class="line">    postingList = [[<span class="string">&#x27;my&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;has&#x27;</span>, <span class="string">&#x27;flea&#x27;</span>, <span class="string">&#x27;problems&#x27;</span>, <span class="string">&#x27;help&#x27;</span>, <span class="string">&#x27;please&#x27;</span>],</span><br><span class="line">            [<span class="string">&#x27;maybe&#x27;</span>, <span class="string">&#x27;not&#x27;</span>, <span class="string">&#x27;take&#x27;</span>, <span class="string">&#x27;him&#x27;</span>, <span class="string">&#x27;to&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;park&#x27;</span>, <span class="string">&#x27;stupid&#x27;</span>],</span><br><span class="line">            [<span class="string">&#x27;my&#x27;</span>, <span class="string">&#x27;dalmation&#x27;</span>, <span class="string">&#x27;is&#x27;</span>, <span class="string">&#x27;so&#x27;</span>, <span class="string">&#x27;cute&#x27;</span>, <span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;love&#x27;</span>, <span class="string">&#x27;him&#x27;</span>],</span><br><span class="line">            [<span class="string">&#x27;stop&#x27;</span>, <span class="string">&#x27;posting&#x27;</span>, <span class="string">&#x27;stupid&#x27;</span>, <span class="string">&#x27;worthless&#x27;</span>, <span class="string">&#x27;garbage&#x27;</span>],</span><br><span class="line">            [<span class="string">&#x27;mr&#x27;</span>, <span class="string">&#x27;licks&#x27;</span>, <span class="string">&#x27;ate&#x27;</span>, <span class="string">&#x27;my&#x27;</span>, <span class="string">&#x27;steak&#x27;</span>, <span class="string">&#x27;how&#x27;</span>, <span class="string">&#x27;to&#x27;</span>, <span class="string">&#x27;stop&#x27;</span>, <span class="string">&#x27;him&#x27;</span>],</span><br><span class="line">            [<span class="string">&#x27;quit&#x27;</span>, <span class="string">&#x27;buying&#x27;</span>, <span class="string">&#x27;worthless&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;food&#x27;</span>, <span class="string">&#x27;stupid&#x27;</span>]] <span class="comment"># 列表中的每个列表表示一篇文档</span></span><br><span class="line">    classVec = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>] <span class="comment"># 1表示侮辱性文字，0代表正常言论</span></span><br><span class="line">    <span class="keyword">return</span> postingList, classVec</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createVocabList</span>(<span class="params">dataSet</span>):</span></span><br><span class="line">    vocabSet = <span class="built_in">set</span>([])</span><br><span class="line">    <span class="keyword">for</span> document <span class="keyword">in</span> dataSet:</span><br><span class="line">        vocabSet = vocabSet | <span class="built_in">set</span>(document)</span><br><span class="line">    <span class="comment"># 返回不重复词列表，即词汇表</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">list</span>(vocabSet)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">setOfWords2Vec</span>(<span class="params">vocabList, inputSet</span>):</span></span><br><span class="line">    returnVec = [<span class="number">0</span>]*<span class="built_in">len</span>(vocabList) <span class="comment"># 建立一个词汇表长度的0列表</span></span><br><span class="line">    <span class="comment"># 将输入的文档转换为词汇表上的向量</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> inputSet:</span><br><span class="line">        <span class="keyword">if</span> word <span class="keyword">in</span> vocabList:</span><br><span class="line">            returnVec[vocabList.index(word)] = <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>: <span class="built_in">print</span> <span class="string">&quot;the word: %s is not in my Vocabulary!&quot;</span> % word</span><br><span class="line">    <span class="keyword">return</span> returnVec</span><br><span class="line"></span><br><span class="line">listOPosts, listClasses = loadDataSet()</span><br><span class="line">myVocabList = createVocabList(listOPosts)</span><br><span class="line"><span class="built_in">print</span> myVocabList</span><br><span class="line"><span class="built_in">print</span> setOfWords2Vec(myVocabList, listOPosts[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python bayes.py</span><br><span class="line">[&#39;cute&#39;, &#39;love&#39;, &#39;help&#39;, &#39;garbage&#39;, &#39;quit&#39;, &#39;I&#39;, &#39;problems&#39;, &#39;is&#39;, &#39;park&#39;, &#39;stop&#39;, &#39;flea&#39;, &#39;dalmation&#39;, &#39;licks&#39;, &#39;food&#39;, &#39;not&#39;, &#39;him&#39;, &#39;buying&#39;, &#39;posting&#39;, &#39;has&#39;, &#39;worthless&#39;, &#39;ate&#39;, &#39;to&#39;, &#39;maybe&#39;, &#39;please&#39;, &#39;dog&#39;, &#39;how&#39;, &#39;stupid&#39;, &#39;so&#39;, &#39;take&#39;, &#39;mr&#39;, &#39;steak&#39;, &#39;my&#39;]</span><br><span class="line">[0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1]</span><br></pre></td></tr></table></figure>
+
+<h3 id="训练算法：从词向量计算概率"><a href="#训练算法：从词向量计算概率" class="headerlink" title="训练算法：从词向量计算概率"></a>训练算法：从词向量计算概率</h3><p>重写贝叶斯准则，将之前的x、y替换为$\boldsymbol{w}$。$\boldsymbol{w}$表示一个向量，由多个数值组成，这里数值个数即词汇表中的词个数。所要求的概率即为：<br>$$<br>p(c_i|\boldsymbol{w}) = \frac{p(\boldsymbol{w}|c_i)p(c_i)}{p(\boldsymbol{w})}<br>$$<br>$p(c_i)$可以用类别i的文档数除以总的文档数求得。$p(\boldsymbol{w}|c_i)$的计算就要用到朴素贝叶斯假设了，假设所有词相互独立，将$\boldsymbol{w}$展开为一个个独立特征$p(w_0, w_1, w_2..w_n|c_i)$，它可以使用$p(w_0|c_i)p(w_1|c_i)p(w_2|c_i)…p(w_N|c_i)$来计算。<br>在bayes.py文件中继续添加代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">trainNB0</span>(<span class="params">trainMatrix, trainCategory</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    trainMatrix: 文档转换成的词汇表向量</span></span><br><span class="line"><span class="string">    trainCategory: 文档的分类标签</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    numTrainDocs = <span class="built_in">len</span>(trainMatrix) <span class="comment"># 文档数6</span></span><br><span class="line">    numWords = <span class="built_in">len</span>(trainMatrix[<span class="number">0</span>]) <span class="comment"># 词汇表长度32</span></span><br><span class="line">    pAbusive = <span class="built_in">sum</span>(trainCategory)/<span class="built_in">float</span>(numTrainDocs) <span class="comment"># 侮辱性文档概率0.5</span></span><br><span class="line">    p0Num = zeros(numWords); p1Num = zeros(numWords) <span class="comment"># 分子向量</span></span><br><span class="line">    p0Denom = <span class="number">0.0</span>; p1Denom = <span class="number">0.0</span> <span class="comment"># 分母</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(numTrainDocs):</span><br><span class="line">        <span class="keyword">if</span> trainCategory[i] == <span class="number">1</span>: <span class="comment"># 侮辱性文档</span></span><br><span class="line">            p1Num += trainMatrix[i] <span class="comment"># 向量相加，每个词出现的次数（numpy的array加列表，自动转换为array）</span></span><br><span class="line">            p1Denom += <span class="built_in">sum</span>(trainMatrix[i]) <span class="comment"># 出现的所有词的个数</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            p0Num += trainMatrix[i]</span><br><span class="line">            p0Denom += <span class="built_in">sum</span>(trainMatrix[i])</span><br><span class="line">    p1Vect = p1Num/p1Denom <span class="comment"># 在侮辱性文档中，每个词出现的概率</span></span><br><span class="line">    p0Vect = p0Num/p0Denom</span><br><span class="line">    <span class="keyword">return</span> p0Vect, p1Vect, pAbusive</span><br><span class="line">    </span><br><span class="line">listOPosts, listClasses = loadDataSet()</span><br><span class="line">myVocabList = createVocabList(listOPosts)</span><br><span class="line">trainMat = []</span><br><span class="line"><span class="keyword">for</span> postinDoc <span class="keyword">in</span> listOPosts:</span><br><span class="line">    trainMat.append(setOfWords2Vec(myVocabList, postinDoc))</span><br><span class="line"></span><br><span class="line">p0V, p1V, pAb = trainNB0(trainMat, listClasses)</span><br><span class="line"><span class="built_in">print</span> p0V</span><br><span class="line"><span class="built_in">print</span> p1V</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ python bayes.py</span><br><span class="line">[0.04166667 0.04166667 0.04166667 0.         0.         0.04166667</span><br><span class="line"> 0.04166667 0.04166667 0.         0.04166667 0.04166667 0.04166667</span><br><span class="line"> 0.04166667 0.         0.         0.08333333 0.         0.</span><br><span class="line"> 0.04166667 0.         0.04166667 0.04166667 0.         0.04166667</span><br><span class="line"> 0.04166667 0.04166667 0.         0.04166667 0.         0.04166667</span><br><span class="line"> 0.04166667 0.125     ]</span><br><span class="line">[0.         0.         0.         0.05263158 0.05263158 0.</span><br><span class="line"> 0.         0.         0.05263158 0.05263158 0.         0.</span><br><span class="line"> 0.         0.05263158 0.05263158 0.05263158 0.05263158 0.05263158</span><br><span class="line"> 0.         0.10526316 0.         0.05263158 0.05263158 0.</span><br><span class="line"> 0.10526316 0.         0.15789474 0.         0.05263158 0.</span><br><span class="line"> 0.         0.        ]</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试算法：根据现实情况修改分类器"><a href="#测试算法：根据现实情况修改分类器" class="headerlink" title="测试算法：根据现实情况修改分类器"></a>测试算法：根据现实情况修改分类器</h3><p>要计算多个概率的乘积以获得文档属于某个类别的概率，即计算$p(w_0|1)p(w_1|1)p(w_2|1)…$。如果其中一个概率为0，那么最后的乘积也为0，为消除这种影响，将所有词的出现数初始化为1，并将分母初始化为2。<br>修改bayes.py中trainNB0()：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p0Num = ones(numWords); p1Num = ones(numWords)</span><br><span class="line">p0Denom = <span class="number">2.0</span>; p1Denom = <span class="number">2.0</span></span><br></pre></td></tr></table></figure>
+<p>另一个遇到的问题是下溢，这是由于太多很小的数相乘造成的。当计算乘积$p(w_0|c_i)p(w_1|c_i)p(w_2|c_i)…p(w_N|c_i)$时，由于大部分因子都非常小，所以程序会下溢，一种解决办法是对乘积取自然对数。在代数中有$ln(a*b) = ln(a)+ln(b)$，修改return前的两行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p1Vect = log(p1Num/p1Denom)</span><br><span class="line">p0Vect = log(p0Num/p0Denom)</span><br></pre></td></tr></table></figure>
+<p>下面将分类函数添加到bayes.py中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">classifyNB</span>(<span class="params">vec2Classify, p0Vec, p1Vec, pClass1</span>):</span></span><br><span class="line">    p1 = <span class="built_in">sum</span>(vec2Classify * p1Vec) + log(pClass1) <span class="comment"># 向量相乘的和</span></span><br><span class="line">    p0 = <span class="built_in">sum</span>(vec2Classify * p0Vec) + log(<span class="number">1.0</span> - pClass1)</span><br><span class="line">    <span class="keyword">if</span> p1 &gt; p0:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">testingNB</span>():</span></span><br><span class="line">    listOPosts, listClasses = loadDataSet()</span><br><span class="line">    myVocabList = createVocabList(listOPosts)</span><br><span class="line">    trainMat = []</span><br><span class="line">    <span class="keyword">for</span> postinDoc <span class="keyword">in</span> listOPosts:</span><br><span class="line">        trainMat.append(setOfWords2Vec(myVocabList, postinDoc))</span><br><span class="line"></span><br><span class="line">    p0V, p1V, pAb = trainNB0(trainMat, listClasses)</span><br><span class="line">    testEntry = [<span class="string">&#x27;love&#x27;</span>, <span class="string">&#x27;my&#x27;</span>, <span class="string">&#x27;dalmation&#x27;</span>]</span><br><span class="line">    thisDoc = setOfWords2Vec(myVocabList, testEntry)</span><br><span class="line">    <span class="built_in">print</span> testEntry, <span class="string">&#x27;classified as: &#x27;</span>, classifyNB(thisDoc, p0V, p1V, pAb)</span><br><span class="line">    </span><br><span class="line">    testEntry = [<span class="string">&#x27;stupid&#x27;</span>, <span class="string">&#x27;garbage&#x27;</span>]</span><br><span class="line">    thisDoc = setOfWords2Vec(myVocabList, testEntry)</span><br><span class="line">    <span class="built_in">print</span> testEntry, <span class="string">&#x27;classified as: &#x27;</span>, classifyNB(thisDoc, p0V, p1V, pAb)</span><br><span class="line"></span><br><span class="line">testingNB()</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python bayes.py</span><br><span class="line">[&#39;love&#39;, &#39;my&#39;, &#39;dalmation&#39;] classified as:  0</span><br><span class="line">[&#39;stupid&#39;, &#39;garbage&#39;] classified as:  1</span><br></pre></td></tr></table></figure>
+<p><strong>条件概率</strong><br>$$<br>P(A|B) = \frac{P(AB)}{P(B)}<br>$$<br><strong>贝叶斯准则</strong><br>$$<br>p(c|x) = \frac{p(x|c)p(c)}{p(x)}<br>$$<br><strong>reference</strong><br>《机器学习实战》</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" data-id="ckhe7o4no0060chl755tu1ekx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          前向传播和反向传播
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Logistic回归</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

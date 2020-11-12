@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Syzkaller Fuzz Android Kernel | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在Syzkaller官网上有关于如何对Android Kernel进行fuzz的方法，但是按照上面的步骤有很多不清楚的地方。我的环境如下：Android设备：PixelAndroid系统：Anroid9.0.0_r33   编译Android版Syzkaller官网上是这么操作的：以防你有旧的Android &#x2F;dev&#x2F;ion 驱动： 12345$ cp sys&#x2F;android&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Syzkaller Fuzz Android Kernel">
+<meta property="og:url" content="http://example.com/2019/10/29/Syzkaller-Fuzz-Android-Kernel/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在Syzkaller官网上有关于如何对Android Kernel进行fuzz的方法，但是按照上面的步骤有很多不清楚的地方。我的环境如下：Android设备：PixelAndroid系统：Anroid9.0.0_r33   编译Android版Syzkaller官网上是这么操作的：以防你有旧的Android &#x2F;dev&#x2F;ion 驱动： 12345$ cp sys&#x2F;android&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-29T13:16:25.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.729Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Syzkaller-Fuzz-Android-Kernel" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/29/Syzkaller-Fuzz-Android-Kernel/" class="article-date">
+  <time datetime="2019-10-29T13:16:25.000Z" itemprop="datePublished">2019-10-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Syzkaller Fuzz Android Kernel
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm64-kernel.md">Syzkaller官网</a>上有关于如何对Android Kernel进行fuzz的方法，但是按照上面的步骤有很多不清楚的地方。<br>我的环境如下：<br>Android设备：Pixel<br>Android系统：Anroid9.0.0_r33  </p>
+<h2 id="编译Android版Syzkaller"><a href="#编译Android版Syzkaller" class="headerlink" title="编译Android版Syzkaller"></a>编译Android版Syzkaller</h2><p>官网上是这么操作的：<br>以防你有旧的Android /dev/ion 驱动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cp sys&#x2F;android&#x2F;* sys&#x2F;linux</span><br><span class="line">$ make generate</span><br><span class="line">...</span><br><span class="line">Makefile:196: recipe for target &#39;generate_sys&#39; failed</span><br><span class="line">make: *** [generate_sys] Error 1</span><br></pre></td></tr></table></figure>
+<p>会报错，现在还没找到解决方法。<br>编译arm64版syzkaller：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make TARGETOS&#x3D;linux TARGETARCH&#x3D;arm64</span><br></pre></td></tr></table></figure>
+<p>坑1：缺少交叉编译环境<br>aarch64-linux-gnu-gcc: Command not found<br>解决：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-aarch64-linux-gnu</span><br><span class="line">sudo apt install g++-aarch64-linux-gnu</span><br></pre></td></tr></table></figure>
+<h2 id="编译Pixel-Kernel-with-KASAN-KCOV"><a href="#编译Pixel-Kernel-with-KASAN-KCOV" class="headerlink" title="编译Pixel Kernel with KASAN+KCOV"></a>编译Pixel Kernel with KASAN+KCOV</h2><p><a target="_blank" rel="noopener" href="https://source.android.com/devices/tech/debug/kasan-kcov">官网</a>的操作方法：<br>首先需要下载编译AOSP，我下载编译的是Android9.0.0_r33，支持Pixel XL和Pixel。然后下载kernel：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https:&#x2F;&#x2F;android.googlesource.com&#x2F;kernel&#x2F;msm</span><br><span class="line">$ cd msm</span><br><span class="line">$ git checkout TAG_NAME</span><br></pre></td></tr></table></figure>
+<p>从<a target="_blank" rel="noopener" href="https://source.android.com/setup/build/building-kernels">官网</a>上查到pixel(sailfish)对应的repo branch是android-msm-marlin-3.18-pie-qpr2，所以执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git checkout android-msm-marlin-3.18-pie-qpr2</span><br></pre></td></tr></table></figure>
+<p>执行完之后目录中就会有内容了。<br>编译过程如下：<br>1.设置交叉编译环境</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>按照官网介绍的方法对内核进行插桩之后，需要重新编译boot.img:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ export TARGET_PREBUILT_KERNEL&#x3D;&#x2F;path&#x2F;to&#x2F;msm&#x2F;arch&#x2F;arm64&#x2F;boot&#x2F;Image.lz4-dtb</span><br><span class="line">$ rm out&#x2F;target&#x2F;product&#x2F;sailfish&#x2F;boot.img &amp;&amp; make bootimage</span><br></pre></td></tr></table></figure>
+<p>编译完的内核太大，make bootimage时会报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error:+out&#x2F;target&#x2F;product&#x2F;sailfish&#x2F;boot.img too large (*** &gt; 335544432)</span><br></pre></td></tr></table></figure>
+<p>修改device/google/marlin/sailfish/BoardConfig.mk里的BOARD_BOOTIMAGE_PARTITION_SIZE。之后可以编译出boot.img，用如下命令刷入手机：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ fastboot flash boot boot.img</span><br></pre></td></tr></table></figure>
+<p>但是刷到手机上时也会报boot.img太大的错误。在编译之前去掉.config文件里的SLUB_DEBUG选项，编译之后可以刷到手机上，但是手机会不断重启，目前还没有找到解决方法。<br><strong>new</strong><br>官网的KASAN+KCOV编译方法过时了，看<a target="_blank" rel="noopener" href="https://source.android.com/setup/build/building-kernels">官网编译Kernel的方法</a>，新版内核都自带编译工具，使用<code>./build/build.sh</code>一键编译，查看根目录的build.config(symbolic link to private/msm-google/build.config):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">KERNEL_DIR&#x3D;private&#x2F;msm-google</span><br><span class="line">. $&#123;ROOT_DIR&#125;&#x2F;$&#123;KERNEL_DIR&#125;&#x2F;build.config.common</span><br><span class="line">POST_DEFCONFIG_CMDS&#x3D;&quot;check_defconfig &amp;&amp; compression_tool_and_files lz4&quot;</span><br><span class="line">EXTRA_CMDS&#x3D;&#39;python build&#x2F;buildinfo&#x2F;buildinfo.py&#39;</span><br><span class="line">STOP_SHIP_TRACEPRINTK&#x3D;1</span><br></pre></td></tr></table></figure>
+<p>这个是Kernel的配置文件，包含了private/msm-google/build.config.common配置文件，并执行了check_defconfig和compression_tool_and_files两个函数，其中compress函数是build.config.common里定义的。<br>发现private/msm-google/目录下还有一个build.config.kasan配置文件，里面包含了build.config.common文件，还enable了Kernel的插桩选项，于是将根目录的build.config文件里的build.config.common替换为build.config.kasan:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">KERNEL_DIR&#x3D;private&#x2F;msm-google</span><br><span class="line">. $&#123;ROOT_DIR&#125;&#x2F;$&#123;KERNEL_DIR&#125;&#x2F;build.config.kasan</span><br><span class="line">#. $&#123;ROOT_DIR&#125;&#x2F;$&#123;KERNEL_DIR&#125;&#x2F;build.config.common</span><br><span class="line">#POST_DEFCONFIG_CMDS&#x3D;&quot;check_defconfig &amp;&amp; compression_tool_and_files lz4&quot;</span><br><span class="line">#EXTRA_CMDS&#x3D;&#39;python build&#x2F;buildinfo&#x2F;buildinfo.py&#39;</span><br><span class="line">STOP_SHIP_TRACEPRINTK&#x3D;1</span><br></pre></td></tr></table></figure>
+<p>因为没有build/buildinfo/buildinfo.py文件，因此把它注释掉了。  </p>
+<h2 id="运行Syzkaller"><a href="#运行Syzkaller" class="headerlink" title="运行Syzkaller"></a>运行Syzkaller</h2><p>接下来就需要编写配置文件，运行Syzkaller了，配置文件adb.cfg如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;target&quot;: &quot;linux&#x2F;arm64&quot;,</span><br><span class="line">    &quot;http&quot;: &quot;localhost:50000&quot;,</span><br><span class="line">    &quot;workdir&quot;: &quot;&#x2F;home&#x2F;fanrong&#x2F;gopath&#x2F;src&#x2F;github.com&#x2F;google&#x2F;syzkaller&#x2F;androidir&quot;,</span><br><span class="line">    &quot;syzkaller&quot;: &quot;&#x2F;home&#x2F;fanrong&#x2F;gopath&#x2F;src&#x2F;github.com&#x2F;google&#x2F;syzkaller&quot;,</span><br><span class="line">    &quot;sandbox&quot;: &quot;none&quot;,</span><br><span class="line">    &quot;procs&quot;: 8,</span><br><span class="line">    &quot;cover&quot;: false,</span><br><span class="line">    &quot;type&quot;: &quot;adb&quot;,</span><br><span class="line">    &quot;vm&quot;: &#123;</span><br><span class="line">        &quot;devices&quot;: [&quot;FA6880300195&quot;],</span><br><span class="line">        &quot;battery_check&quot;: false</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>“cover”: false是指测试目标是未插桩的。<br>其中的devices是usb连接手机后通过如下命令获取：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb devices</span><br><span class="line">List of devices attached</span><br><span class="line">FA6880300195	device</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>之后常规启动syzkaller：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;bin&#x2F;syz-manager -config adb.cfg</span><br><span class="line">...</span><br><span class="line">failed to associate adb device FA6880300195 with console: no unassociated console devices left</span><br></pre></td></tr></table></figure>
+<p>会报一个没有console的错误，查看源码需要用到/dev/ttyUSB0的设备，然后我在/etc/udev/rules.d/51-android.rules里添加SYMLINK=”ttyUSB0”:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUBSYSTEM&#x3D;&#x3D;&quot;usb&quot;,ATTRS&#123;idVendor&#125;&#x3D;&#x3D;&quot;18d1&quot;,ATTRS&#123;idProduct&#125;&#x3D;&#x3D;&quot;4ee7&quot;,MODE&#x3D;&quot;0666&quot;,SYSLINK&#x3D;&quot;ttyUSB0&quot;</span><br></pre></td></tr></table></figure>
+<p>启动syzkaller：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;bin&#x2F;syz-manager -config adb.cfg</span><br><span class="line">...</span><br><span class="line">failed to associate adb device FA6880300195 with console: failed to get console termios: operation not permitted</span><br></pre></td></tr></table></figure>
+<p>目前关于console的这个错误还不知道怎么解决。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/10/29/Syzkaller-Fuzz-Android-Kernel/" data-id="ckhe7o4mh003wchl71vdq39xh" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          复现思科IOS系统远程代码执行漏洞CVE-2017-6736
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android10内核调试</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

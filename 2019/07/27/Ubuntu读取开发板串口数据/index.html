@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Ubuntu读取开发板串口数据 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="我的stm32l431开发板使用的是CH340 USB转串口芯片，Linux默认有这个驱动程序，将设备插到电脑上后在&#x2F;dev目录下会多一个ttyUSB0设备，用dmesg查看驱动内核log： 123456$ dmesg...[91912.510126] usbcore: registered new interface driver ch341[91912.510142] usbserial: U">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu读取开发板串口数据">
+<meta property="og:url" content="http://example.com/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="我的stm32l431开发板使用的是CH340 USB转串口芯片，Linux默认有这个驱动程序，将设备插到电脑上后在&#x2F;dev目录下会多一个ttyUSB0设备，用dmesg查看驱动内核log： 123456$ dmesg...[91912.510126] usbcore: registered new interface driver ch341[91912.510142] usbserial: U">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-07-27T03:05:59.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.734Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="IoT">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Ubuntu读取开发板串口数据" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/" class="article-date">
+  <time datetime="2019-07-27T03:05:59.000Z" itemprop="datePublished">2019-07-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Ubuntu读取开发板串口数据
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>我的stm32l431开发板使用的是CH340 USB转串口芯片，Linux默认有这个驱动程序，将设备插到电脑上后在/dev目录下会多一个ttyUSB0设备，用dmesg查看驱动内核log：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ dmesg</span><br><span class="line">...</span><br><span class="line">[91912.510126] usbcore: registered new interface driver ch341</span><br><span class="line">[91912.510142] usbserial: USB Serial support registered for ch341-uart</span><br><span class="line">[91912.510157] ch341 3-3.1:1.0: ch341-uart converter detected</span><br><span class="line">[91912.524719] usb 3-3.1: ch341-uart converter now attached to ttyUSB0</span><br></pre></td></tr></table></figure>
+<p>下面就编写读取串口数据的程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;      &#x2F;*标准输入输出定义*&#x2F;</span><br><span class="line">#include &lt;stdlib.h&gt;     &#x2F;*标准函数库定义*&#x2F;</span><br><span class="line">#include &lt;unistd.h&gt;     &#x2F;*Unix标准函数定义*&#x2F;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;  &#x2F;**&#x2F;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;   &#x2F;**&#x2F;</span><br><span class="line">#include &lt;fcntl.h&gt;      &#x2F;*文件控制定义*&#x2F;</span><br><span class="line">#include &lt;termios.h&gt;    &#x2F;*PPSIX终端控制定义*&#x2F;</span><br><span class="line">#include &lt;errno.h&gt;      &#x2F;*错误号定义*&#x2F;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#define TRUE 1</span><br><span class="line">#define FALSE 0</span><br><span class="line"></span><br><span class="line">&#x2F;***@brief  设置串口通信速率</span><br><span class="line"> *@param  fd     类型 int  打开串口的文件句柄</span><br><span class="line"> *@param  speed  类型 int  串口速度</span><br><span class="line"> *@return  void*&#x2F;</span><br><span class="line"></span><br><span class="line">void set_speed(int fd, int speed) &#123;</span><br><span class="line">	int i;</span><br><span class="line">	int status;</span><br><span class="line">	struct termios Opt;</span><br><span class="line">	tcgetattr(fd, &amp;Opt);</span><br><span class="line">	tcflush(fd, TCIOFLUSH);</span><br><span class="line">	cfsetispeed(&amp;Opt, speed);</span><br><span class="line">	cfsetospeed(&amp;Opt, speed);</span><br><span class="line">	status &#x3D; tcsetattr(fd, TCSANOW, &amp;Opt);</span><br><span class="line">	if (status !&#x3D; 0)</span><br><span class="line">		perror(&quot;tcsetattr fd1&quot;);</span><br><span class="line">	return;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief   设置串口数据位，停止位和效验位</span><br><span class="line"> *@param  fd     类型  int  打开的串口文件句柄*</span><br><span class="line"> *@param  databits 类型  int 数据位   取值 为 7 或者8*</span><br><span class="line"> *@param  stopbits 类型  int 停止位   取值为 1 或者2*</span><br><span class="line"> *@param  parity  类型  int  效验类型 取值为N,E,O,,S</span><br><span class="line"> *&#x2F;</span><br><span class="line">int set_Parity(int fd, int databits, int stopbits, int parity) &#123;</span><br><span class="line">	struct termios options;</span><br><span class="line">	if (tcgetattr(fd, &amp;options) !&#x3D; 0) &#123;</span><br><span class="line">		perror(&quot;SetupSerial 1&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	options.c_cflag &amp;&#x3D; ~CSIZE;</span><br><span class="line">	switch (databits) &#x2F;*设置数据位数*&#x2F;</span><br><span class="line">	&#123;</span><br><span class="line">	case 7:</span><br><span class="line">		options.c_cflag |&#x3D; CS7;</span><br><span class="line">		break;</span><br><span class="line">	case 8:</span><br><span class="line">		options.c_cflag |&#x3D; CS8;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported data size\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	switch (parity) &#123;</span><br><span class="line">	case &#39;n&#39;:</span><br><span class="line">	case &#39;N&#39;:</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARENB; &#x2F;* Clear parity enable *&#x2F;</span><br><span class="line">		options.c_iflag &amp;&#x3D; ~INPCK; &#x2F;* Enable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;o&#39;:</span><br><span class="line">	case &#39;O&#39;:</span><br><span class="line">		options.c_cflag |&#x3D; (PARODD | PARENB); &#x2F;* 设置为奇效验*&#x2F;</span><br><span class="line">		options.c_iflag |&#x3D; INPCK; &#x2F;* Disnable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;e&#39;:</span><br><span class="line">	case &#39;E&#39;:</span><br><span class="line">		options.c_cflag |&#x3D; PARENB; &#x2F;* Enable parity *&#x2F;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARODD; &#x2F;* 转换为偶效验*&#x2F;</span><br><span class="line">		options.c_iflag |&#x3D; INPCK; &#x2F;* Disnable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;S&#39;:</span><br><span class="line">	case &#39;s&#39;: &#x2F;*as no parity*&#x2F;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARENB;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported parity\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* 设置停止位*&#x2F;</span><br><span class="line">	switch (stopbits) &#123;</span><br><span class="line">	case 1:</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	case 2:</span><br><span class="line">		options.c_cflag |&#x3D; CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported stop bits\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* Set input parity option *&#x2F;</span><br><span class="line">	if (parity !&#x3D; &#39;n&#39;)</span><br><span class="line">		options.c_iflag |&#x3D; INPCK;</span><br><span class="line">	options.c_cc[VTIME] &#x3D; 150; &#x2F;&#x2F; 15 seconds</span><br><span class="line">	options.c_cc[VMIN] &#x3D; 0;</span><br><span class="line"></span><br><span class="line">	tcflush(fd, TCIFLUSH); &#x2F;* Update the options and do it NOW *&#x2F;</span><br><span class="line">	if (tcsetattr(fd, TCSANOW, &amp;options) !&#x3D; 0) &#123;</span><br><span class="line">		perror(&quot;SetupSerial 3&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	return (TRUE);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief 打开串口</span><br><span class="line"> *&#x2F;</span><br><span class="line">int OpenDev(char *Dev) &#123;</span><br><span class="line">	int fd &#x3D; open(Dev, O_RDWR);         &#x2F;&#x2F;| O_NOCTTY | O_NDELAY</span><br><span class="line">	if (-1 &#x3D;&#x3D; fd) &#123; &#x2F;*设置数据位数*&#x2F;</span><br><span class="line">		perror(&quot;Can&#39;t Open Serial Port&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125; else</span><br><span class="line">		return fd;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief 	main()</span><br><span class="line"> *&#x2F;</span><br><span class="line">int main(int argc, char **argv) &#123;</span><br><span class="line">	int fd;</span><br><span class="line">	int nread;</span><br><span class="line">	char prev[512], buf[512];</span><br><span class="line">	char *dev &#x3D; &quot;&#x2F;dev&#x2F;ttyUSB0&quot;;</span><br><span class="line">	FILE *fp;</span><br><span class="line"></span><br><span class="line">	fd &#x3D; OpenDev(dev);</span><br><span class="line">	if (fd &gt; 0)</span><br><span class="line">		set_speed(fd, B115200);</span><br><span class="line">	else &#123;</span><br><span class="line">		printf(&quot;Can&#39;t Open Serial Port!\n&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	if (set_Parity(fd, 8, 1, &#39;N&#39;) &#x3D;&#x3D; FALSE) &#123;</span><br><span class="line">		printf(&quot;Set Parity Error\n&quot;);</span><br><span class="line">		exit(1);</span><br><span class="line">	&#125;</span><br><span class="line">	while ((nread &#x3D; read(fd, buf, 512)) &gt; 0) &#123;</span><br><span class="line">		buf[nread + 1] &#x3D; &#39;\0&#39;;</span><br><span class="line">		printf(&quot;buf: %s\n&quot;, buf);</span><br><span class="line">	&#125;</span><br><span class="line">	close(fd);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要就是打开设备，设置一些通信速率等参数，然后像普通程序一样编译即可。这时还不能读设备的数据，需要先修改设备权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd &#x2F;dev</span><br><span class="line">$ sudo chmod 666 ttyUSB0</span><br></pre></td></tr></table></figure>
+<p>然后再运行程序即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;read_ch340                </span><br><span class="line">buf: Welcome to IoT-Club, This is EVB-M1 Board.</span><br><span class="line"></span><br><span class="line">buf: </span><br><span class="line">e</span><br><span class="line">buf: LOS_TaskCreate: 0</span><br><span class="line">b</span><br><span class="line">buf: input:</span><br><span class="line">k</span><br><span class="line">buf: recv: W</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/" data-id="ckhe7o4mn0048chl75wiacmre" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          移植AFL到ARM架构
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">JTAG调试STM32开发板</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

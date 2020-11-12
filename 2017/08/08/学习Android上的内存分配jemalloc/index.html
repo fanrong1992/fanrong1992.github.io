@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>学习Android上的内存分配jemalloc | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="之前写过一篇文章介绍过libc malloc，主要是PC上的malloc机制。这篇文章要介绍的是jemalloc，Android早在5.0就切换到了jemalloc。所以想要学习Android上堆相关的漏洞利用就要对jemalloc有所了解。 jemalloc基础jemalloc内部结构如下图所示：1.regionregion是调用malloc返回给用户的实际内存，在内存中连续分布，不包含元数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习Android上的内存分配jemalloc">
+<meta property="og:url" content="http://example.com/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="之前写过一篇文章介绍过libc malloc，主要是PC上的malloc机制。这篇文章要介绍的是jemalloc，Android早在5.0就切换到了jemalloc。所以想要学习Android上堆相关的漏洞利用就要对jemalloc有所了解。 jemalloc基础jemalloc内部结构如下图所示：1.regionregion是调用malloc返回给用户的实际内存，在内存中连续分布，不包含元数据。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/jemalloc/memory-org.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/je-chunk.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/chunk-md.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/smallregion.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/runoverflow.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/chunkoverflow.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/tcache.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/arena_alloc.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/arena_free.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/tcache2.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/fillstack.png">
+<meta property="og:image" content="http://example.com/images/jemalloc/pushstack.png">
+<meta property="article:published_time" content="2017-08-08T14:25:10.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.776Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/jemalloc/memory-org.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-学习Android上的内存分配jemalloc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/" class="article-date">
+  <time datetime="2017-08-08T14:25:10.000Z" itemprop="datePublished">2017-08-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      学习Android上的内存分配jemalloc
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>之前写过<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/04/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3glibc-malloc/">一篇文章</a>介绍过libc malloc，主要是PC上的malloc机制。这篇文章要介绍的是jemalloc，Android早在5.0就切换到了jemalloc。所以想要学习Android上堆相关的漏洞利用就要对jemalloc有所了解。</p>
+<h2 id="jemalloc基础"><a href="#jemalloc基础" class="headerlink" title="jemalloc基础"></a>jemalloc基础</h2><p>jemalloc内部结构如下图所示：<br><img src="/images/jemalloc/memory-org.png"><br><strong>1.region</strong><br>region是调用malloc返回给用户的实际内存，在内存中连续分布，不包含元数据。根据大小不同，划分为三种类型：</p>
+<ul>
+<li>small 最大0x3800字节，相同大小的small region在同一个run里；</li>
+<li>large 最大0x3E000字节（Android6），规整到页大小的整数倍；</li>
+<li>huge 大于0x3E000字节（Android6），规整到chunk大小（4MB）的整数倍。</li>
+</ul>
+<p><strong>2.run</strong><br>run是存放连续的大小相同的region的容器，大小为页大小的整数倍，内部存放small/large类型的region，也不包含元数据。<br><strong>3.chunk</strong><br>chunk是存放run的容器，大小为4MB（可调）或其倍数，且为4MB对齐，操作系统返回的内存被划分到chunk中管理。chunk中存储着关于自身以及它管理的run的元数据。<br>chunk中的元数据结构，mapbit[0]与mapmisc[0]指向chunk中的第一个run：<br><img src="/images/jemalloc/je-chunk.png"><br>chunk元数据中mapmisc中的bitmap结构管理着run中的region的分配使用：<br><img src="/images/jemalloc/chunk-md.png"><br>Android6 -&gt; Android7的变化<br>1.chunk大小：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Arch</th>
+<th align="left">32-bit</th>
+<th align="left">64-bit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Android6</td>
+<td align="left">0x40000</td>
+<td align="left">0x40000</td>
+</tr>
+<tr>
+<td align="left">Android7</td>
+<td align="left">0x80000</td>
+<td align="left">0x200000</td>
+</tr>
+</tbody></table>
+<p>2.元数据的变化<br>增加了mapbias与mapbits flags</p>
+<h2 id="堆溢出"><a href="#堆溢出" class="headerlink" title="堆溢出"></a>堆溢出</h2><p><strong>1.small region溢出</strong><br><img src="/images/jemalloc/smallregion.png"><br><strong>2.run溢出</strong><br><img src="/images/jemalloc/runoverflow.png"><br><strong>3.chunk溢出</strong><br><img src="/images/jemalloc/chunkoverflow.png"></p>
+<h2 id="jemalloc内存管理"><a href="#jemalloc内存管理" class="headerlink" title="jemalloc内存管理"></a>jemalloc内存管理</h2><p><strong>arena内存分配器</strong><br>用来缓解线程间分配memory时的竞争问题，每个进程中有多个arena（arena数量由jemalloc配置决定，在Android上硬编码为两个）。每一个arena彼此独立，管理各自的chunk。每个线程在第一次malloc时，建立起与各自的arena的联系，一个线程只指向一个arena。<br>在malloc申请内存中，arena与线程缓存的关系：<br><img src="/images/jemalloc/tcache.png"><br>申请的内存在jemalloc内部实际是通过arena分配的，且在每一个线程中都有一个缓存（tcache）。<br>每个arena都有一个bin数组，每一个bin中存放着对应size的run（有size相同的small region），用红黑树按地址排序存储未满的run。runcur指向目前正在使用的run。<br>通过arena分配内存流程：</p>
+<ul>
+<li>找到对应的bin</li>
+<li>从bin中选择一个run（runcur）</li>
+<li>从run中分配出一个region</li>
+</ul>
+<p><img src="/images/jemalloc/arena_alloc.png"><br>通过arena释放内存流程，找到存放region的run，然后释放这个region。<br><img src="/images/jemalloc/arena_free.png"><br><strong>线程缓存（tcache）</strong><br>每一个线程维护着一个对small/large内存分配的缓存tcache，tcache有一个tbin数组，每一个tbin存放着对应size的region缓存栈。分配内存时，没有直接去通过arena要region，而是先去查找对应的tbin存栈avail：<br><img src="/images/jemalloc/tcache2.png"><br>线程申请内存时，会从缓存栈顶pop出一个最近被free到缓存栈上的内存地址，作为新malloc的返回地址。直至缓存栈为空，再向arena申请对应size的region，arena向缓存栈中填充，将内存地址压入缓存栈。<br><img src="/images/jemalloc/fillstack.png"><br>线程缓存在释放内存时的作用：将释放的内存地址压入缓存栈。<br><img src="/images/jemalloc/pushstack.png"><br>同样，缓存栈满了之后，也会将对应的region还给arena，还的数量是缓存栈的一半。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里只讲了一些比较基础的东西，还有很多细节没有讲到，比如分配和释放时的函数流程，对应的结构等，因为我看的文章讲的都有一些不同，这是因为jemalloc版本更新很快。所以真正想要深入理解jemalloc只能看jemalloc的源码喽。<br>后面有空的话会找一些jemalloc相关的练习，结合参考文献中提到的shadow工具来具体调试学习。<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://github.com/jemalloc/jemalloc">https://github.com/jemalloc/jemalloc</a><br>Exploit Android jemalloc<br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3786.html">基于jemalloc的Android漏洞利用技巧—-CENSUS</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/koozxcv/article/details/50973217"> jemalloc内存分配器详解</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/" data-id="ckhe7o4nh005tchl72zsxf57c" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/08/15/Linux-Kernel-UAF/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Linux Kernel UAF
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/08/03/CVE-2015-3636%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CVE-2015-3636漏洞分析</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

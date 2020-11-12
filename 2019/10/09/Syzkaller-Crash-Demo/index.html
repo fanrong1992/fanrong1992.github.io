@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Syzkaller Crash Demo | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="基于前一篇Syzkaller Fuzz Linux AMD64的文章，这里用一个自己写的驱动（有一个堆溢出）做演示。 在Syzkaller中添加规则在syzkaller&#x2F;sys&#x2F;linux目录编辑proc_operation.txt。proc_operation.txt 123456789include &lt;linux&#x2F;fs.h&gt;open$proc(file ptr[in, s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Syzkaller Crash Demo">
+<meta property="og:url" content="http://example.com/2019/10/09/Syzkaller-Crash-Demo/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="基于前一篇Syzkaller Fuzz Linux AMD64的文章，这里用一个自己写的驱动（有一个堆溢出）做演示。 在Syzkaller中添加规则在syzkaller&#x2F;sys&#x2F;linux目录编辑proc_operation.txt。proc_operation.txt 123456789include &lt;linux&#x2F;fs.h&gt;open$proc(file ptr[in, s">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-09T02:35:32.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.728Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Fuzzing">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Syzkaller-Crash-Demo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/09/Syzkaller-Crash-Demo/" class="article-date">
+  <time datetime="2019-10-09T02:35:32.000Z" itemprop="datePublished">2019-10-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Syzkaller Crash Demo
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>基于前一篇Syzkaller Fuzz Linux AMD64的文章，这里用一个自己写的驱动（有一个堆溢出）做演示。</p>
+<h2 id="在Syzkaller中添加规则"><a href="#在Syzkaller中添加规则" class="headerlink" title="在Syzkaller中添加规则"></a>在Syzkaller中添加规则</h2><p>在syzkaller/sys/linux目录编辑proc_operation.txt。<br><strong>proc_operation.txt</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">include &lt;linux&#x2F;fs.h&gt;</span><br><span class="line"></span><br><span class="line">open$proc(file ptr[in, string[&quot;&#x2F;proc&#x2F;test&quot;]], flags flags[proc_open_flags], mode flags[proc_open_mode]) fd</span><br><span class="line">read$proc(fd fd, buf buffer[out], count len[buf])</span><br><span class="line">write$proc(fd fd, buf buffer[in], count len[buf])</span><br><span class="line">close$proc(fd fd)</span><br><span class="line"></span><br><span class="line">proc_open_flags &#x3D; O_RDONLY, O_WRONLY, O_RDWR, O_APPEND, FASYNC, O_CLOEXEC, O_CREAT, O_DIRECT, O_DIRECTORY, O_EXCL, O_LARGEFILE, O_NOATIME, O_NOCTTY, O_NOFOLLOW, O_NONBLOCK, O_PATH, O_SYNC, O_TRUNC, __O_TMPFILE</span><br><span class="line">proc_open_mode &#x3D; S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, S_IWOTH, S_IXOTH</span><br></pre></td></tr></table></figure>
+<p>syzkaller/sys/linux目录下的sys.txt中有通用的调用形式可以参考。</p>
+<blockquote>
+<p>syzkaller使用它自己的声明式语言来描述系统调用模板，docs目录下的syscall_descriptions.md中可以找到相关的说明。这些系统调用模板被翻译成syzkaller使用的代码需要经过两个步骤。第一步是使用syz-extract从linux源代码中提取符号常量的值，结果被存储在.const文件中，例如/sys/linux/tty.txt被转换为sys/linux/tty_amd64.const。第二步是根据系统调用模板和第一步中生成的const文件使用syz-sysgen生成syzkaller用的go代码。可以在/sys/linux/gen/amd64.go和/executor/syscalls.h中看到结果。最后，重新编译生成带有相应规则的syzkaller二进制可执行文件。</p>
+</blockquote>
+<p>编译生成syz-extract、syz-sysgen</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd syzkaller</span><br><span class="line">$ make bin&#x2F;syz-extract</span><br><span class="line">$ make bin&#x2F;syz-sysgen</span><br></pre></td></tr></table></figure>
+<p>用syz-extract生成.const文件，接着运行syz-sysgen，最后重编译syzkaller</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;syz-extract -os linux -arch amd64 -sourcedir &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;kernel&#x2F;linux-5.1 proc_operation.txt</span><br><span class="line">$ bin&#x2F;syz-sysgen</span><br><span class="line">$ make clean</span><br><span class="line">$ make all</span><br></pre></td></tr></table></figure>
+<h2 id="编译有堆溢出的内核驱动"><a href="#编译有堆溢出的内核驱动" class="headerlink" title="编译有堆溢出的内核驱动"></a>编译有堆溢出的内核驱动</h2><p>这里采用将驱动编译进内核的方式，将test.c驱动程序放到linux-5.1/drivers/char目录：<br><strong>linux-5.1/drivers/char/test.c</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/proc_fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MY_DEV_NAME <span class="meta-string">&quot;test&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEBUG_FLAG <span class="meta-string">&quot;PROC_DEV&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">ssize_t</span> <span class="title">proc_read</span> <span class="params">(struct file *proc_file, <span class="keyword">char</span> __user *proc_user, <span class="keyword">size_t</span> n, <span class="keyword">loff_t</span> *loff)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">ssize_t</span> <span class="title">proc_write</span> <span class="params">(struct file *proc_file, <span class="keyword">const</span> <span class="keyword">char</span> __user *proc_user, <span class="keyword">size_t</span> n, <span class="keyword">loff_t</span> *loff)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">proc_open</span> <span class="params">(struct inode *proc_inode, struct file *proc_file)</span></span>;</span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">a</span> =</span> &#123;</span><br><span class="line">                                .open = proc_open,</span><br><span class="line">                                .read = proc_read,</span><br><span class="line">                                .write = proc_write,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __init <span class="title">mod_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc_dir_entry</span> *<span class="title">test_entry</span>;</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> *<span class="title">proc_fops</span> =</span> &amp;a;</span><br><span class="line">    printk(DEBUG_FLAG<span class="string">&quot;:proc init start!\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    test_entry = proc_create(MY_DEV_NAME, S_IRUGO|S_IWUGO, <span class="literal">NULL</span>, proc_fops);</span><br><span class="line">    <span class="keyword">if</span>(!test_entry)</span><br><span class="line">       printk(DEBUG_FLAG<span class="string">&quot;:there is somethings wrong!\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    printk(DEBUG_FLAG<span class="string">&quot;:proc init over!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">ssize_t</span> <span class="title">proc_read</span> <span class="params">(struct file *proc_file, <span class="keyword">char</span> __user *proc_user, <span class="keyword">size_t</span> n, <span class="keyword">loff_t</span> *loff)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(DEBUG_FLAG<span class="string">&quot;:finish copy_from_use,the string of newbuf is&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">ssize_t</span> <span class="title">proc_write</span> <span class="params">(struct file *proc_file, <span class="keyword">const</span> <span class="keyword">char</span> __user *proc_user, <span class="keyword">size_t</span> n, <span class="keyword">loff_t</span> *loff)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> *c = kmalloc(<span class="number">512</span>, GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    copy_from_user(c, proc_user, <span class="number">4096</span>);</span><br><span class="line">    printk(DEBUG_FLAG<span class="string">&quot;:into write!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">proc_open</span> <span class="params">(struct inode *proc_inode, struct file *proc_file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(DEBUG_FLAG<span class="string">&quot;:into open!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(mod_init);</span><br></pre></td></tr></table></figure>
+<p>修改该目录下的Kconfig，照着其他条目的样子添加即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">config PROC_OP</span><br><span class="line">	bool &quot;&#x2F;proc&#x2F;test virtual device support&quot;</span><br><span class="line">	default y</span><br><span class="line">	help</span><br><span class="line">	  This is a Syzkaller test case device driver.</span><br></pre></td></tr></table></figure>
+<p>修改该目录下的Makefile，也是参照其他条目即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-$(CONFIG_PROC_OP) +&#x3D; test.o</span><br></pre></td></tr></table></figure>
+<p>在Linux内核根目录执行<code>make menuconfig</code>会出现.config文件的配置界面，在<code>Device Drivers-&gt;Character devices</code>选项中可以看到<code>[*] /proc/test virtual device support</code>，即刚才在Kconfig里添加的条目。保存退出，.config会比原来增加一条<code>CONFIG_PROC_OP=y</code>，执行<code>make clean</code>和<code>make -j8</code>重新编译内核即可将驱动编译进内核。</p>
+<h2 id="修改配置文件运行Syzkaller"><a href="#修改配置文件运行Syzkaller" class="headerlink" title="修改配置文件运行Syzkaller"></a>修改配置文件运行Syzkaller</h2><p>下面需要修改配置文件，只允许某些调用，速度更快：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	&quot;target&quot;: &quot;linux&#x2F;amd64&quot;,</span><br><span class="line">	&quot;http&quot;: &quot;127.0.0.1:56741&quot;,</span><br><span class="line">	&quot;workdir&quot;: &quot;workdir&quot;,</span><br><span class="line">	&quot;kernel_obj&quot;: &quot;&#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;kernel&#x2F;linux-5.1&quot;,</span><br><span class="line">	&quot;image&quot;: &quot;&#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;kernel&#x2F;IMAGE&#x2F;stretch.img&quot;,</span><br><span class="line">	&quot;sshkey&quot;: &quot;&#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;kernel&#x2F;IMAGE&#x2F;stretch.id_rsa&quot;,</span><br><span class="line">	&quot;syzkaller&quot;: &quot;.&quot;,</span><br><span class="line">	&quot;procs&quot;: 8,</span><br><span class="line">	&quot;type&quot;: &quot;qemu&quot;,</span><br><span class="line">	&quot;enable_syscalls&quot;: [</span><br><span class="line">		&quot;open$proc&quot;,</span><br><span class="line">		&quot;read$proc&quot;,</span><br><span class="line">		&quot;write$proc&quot;,</span><br><span class="line">		&quot;close$proc&quot;</span><br><span class="line">	],</span><br><span class="line">	&quot;vm&quot;: &#123;</span><br><span class="line">		&quot;count&quot;: 4,</span><br><span class="line">		&quot;kernel&quot;: &quot;$KERNEL&#x2F;arch&#x2F;x86&#x2F;boot&#x2F;bzImage&quot;,</span><br><span class="line">		&quot;cpu&quot;: 2,</span><br><span class="line">		&quot;mem&quot;: 2048</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后运行syzkaller：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;syz-manager -config my.cfg -vv 10</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loading corpus...</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 serving http on http:&#x2F;&#x2F;127.0.0.1:56741</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 serving rpc on tcp:&#x2F;&#x2F;[::]:33307</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 booting test machines...</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 wait for the connection from test machine...</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loop: phase&#x3D;0 shutdown&#x3D;false instances&#x3D;4&#x2F;4 [3 2 1 0] repro: pending&#x3D;0 reproducing&#x3D;0 queued&#x3D;0</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loop: starting instance 0</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loop: starting instance 1</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loop: starting instance 2</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:10 loop: starting instance 3</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 fuzzer vm-3 connected</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 fuzzer vm-1 connected</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 fuzzer vm-0 connected</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 fuzzer vm-2 connected</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 machine check:</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 syscalls                : 4&#x2F;2765</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 code coverage           : enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 comparison tracing      : CONFIG_KCOV_ENABLE_COMPARISONS is not enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 extra coverage          : extra coverage is not supported by the kernel</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 setuid sandbox          : enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 namespace sandbox       : &#x2F;proc&#x2F;self&#x2F;ns&#x2F;user does not exist</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 Android sandbox         : enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 fault injection         : CONFIG_FAULT_INJECTION is not enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 leak checking           : CONFIG_DEBUG_KMEMLEAK is not enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 net packet injection    : &#x2F;dev&#x2F;net&#x2F;tun does not exist</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 net device setup        : enabled</span><br><span class="line">2019&#x2F;10&#x2F;15 10:02:23 corpus                  : 67 (0 deleted)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>crash报告如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">BUG: KASAN: slab-out-of-bounds in _copy_from_user+0x83&#x2F;0xd0 lib&#x2F;usercopy.c:12</span><br><span class="line">Write of size 4096 at addr ffff88806bce3b80 by task syz-executor680&#x2F;1974</span><br><span class="line"></span><br><span class="line">CPU: 1 PID: 1974 Comm: syz-executor680 Not tainted 5.1.5 #2</span><br><span class="line">Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04&#x2F;01&#x2F;2014</span><br><span class="line">Call Trace:</span><br><span class="line"> __dump_stack lib&#x2F;dump_stack.c:77 [inline]</span><br><span class="line"> dump_stack+0x75&#x2F;0xae lib&#x2F;dump_stack.c:113</span><br><span class="line"> print_address_description+0x65&#x2F;0x270 mm&#x2F;kasan&#x2F;report.c:187</span><br><span class="line"> kasan_report+0x149&#x2F;0x18d mm&#x2F;kasan&#x2F;report.c:317</span><br><span class="line"> _copy_from_user+0x83&#x2F;0xd0 lib&#x2F;usercopy.c:12</span><br><span class="line"> copy_from_user include&#x2F;linux&#x2F;uaccess.h:144 [inline]</span><br><span class="line"> proc_write+0x4d&#x2F;0x70 drivers&#x2F;char&#x2F;test.c:45</span><br><span class="line"> proc_reg_write+0x1a7&#x2F;0x250 fs&#x2F;proc&#x2F;inode.c:241</span><br><span class="line"> __vfs_write+0x7c&#x2F;0x100 fs&#x2F;read_write.c:485</span><br><span class="line"> vfs_write+0x168&#x2F;0x4a0 fs&#x2F;read_write.c:549</span><br><span class="line"> ksys_write+0xfc&#x2F;0x230 fs&#x2F;read_write.c:599</span><br><span class="line"> do_syscall_64+0x9a&#x2F;0x2d0 arch&#x2F;x86&#x2F;entry&#x2F;common.c:293</span><br><span class="line"> entry_SYSCALL_64_after_hwframe+0x44&#x2F;0xa9</span><br></pre></td></tr></table></figure>
+<p>syzkaller在发现crash之后还会尝试产生poc，下面是针对这个bug产生的poc：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// autogenerated by syzkaller (https://github.com/google/syzkaller)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;endian.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/syscall.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">uint64_t</span> r[<span class="number">1</span>] = &#123;<span class="number">0xffffffffffffffff</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		syscall(__NR_mmap, <span class="number">0x20000000</span>, <span class="number">0x1000000</span>, <span class="number">3</span>, <span class="number">0x32</span>, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">				<span class="keyword">intptr_t</span> res = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">void</span>*)<span class="number">0x20000200</span>, <span class="string">&quot;/proc/test\000&quot;</span>, <span class="number">11</span>);</span><br><span class="line">	res = syscall(__NR_open, <span class="number">0x20000200</span>, <span class="number">1</span>, <span class="number">0x78ae05816e61a376</span>);</span><br><span class="line">	<span class="keyword">if</span> (res != <span class="number">-1</span>)</span><br><span class="line">		r[<span class="number">0</span>] = res;</span><br><span class="line">	syscall(__NR_write, r[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/790b733f80a2">https://www.jianshu.com/p/790b733f80a2</a><br><a target="_blank" rel="noopener" href="https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syzkaller_crash_demo.md">https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_qa/fuzz_testing/syzkaller_crash_demo.md</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/10/09/Syzkaller-Crash-Demo/" data-id="ckhe7o4mg003tchl70c4r3tbp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android10内核调试
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">gcc编译 替换库函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

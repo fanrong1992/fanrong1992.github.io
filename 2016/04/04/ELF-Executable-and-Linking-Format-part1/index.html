@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ELF: Executable and Linking Format part1 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="OBJECT FILESpreface文件格式分析可以借助具体例子学习，用010editor的ELF Template加载任意一个ELF文件：可以通过010editor分析出的文件格式找到对应的二进制数据。 File FormatELF header描述了文件的组织结构。Sections保存了目标文件Linking View的大量信息：指令、数据、符号表和重定位信息等。Program header">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ELF: Executable and Linking Format part1">
+<meta property="og:url" content="http://example.com/2016/04/04/ELF-Executable-and-Linking-Format-part1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="OBJECT FILESpreface文件格式分析可以借助具体例子学习，用010editor的ELF Template加载任意一个ELF文件：可以通过010editor分析出的文件格式找到对应的二进制数据。 File FormatELF header描述了文件的组织结构。Sections保存了目标文件Linking View的大量信息：指令、数据、符号表和重定位信息等。Program header">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/elfpart1/010editor.png">
+<meta property="og:image" content="http://example.com/images/elfpart1/fileformat.png">
+<meta property="og:image" content="http://example.com/images/elfpart1/datapre.png">
+<meta property="og:image" content="http://example.com/images/elfpart1/sh_types.png">
+<meta property="og:image" content="http://example.com/images/elfpart1/sh_flag.png">
+<meta property="og:image" content="http://example.com/images/elfpart1/specialsec.png">
+<meta property="article:published_time" content="2016-04-04T03:00:11.000Z">
+<meta property="article:modified_time" content="2020-11-12T02:26:14.703Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Reverse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/elfpart1/010editor.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ELF-Executable-and-Linking-Format-part1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/04/ELF-Executable-and-Linking-Format-part1/" class="article-date">
+  <time datetime="2016-04-04T03:00:11.000Z" itemprop="datePublished">2016-04-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ELF: Executable and Linking Format part1
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="OBJECT-FILES"><a href="#OBJECT-FILES" class="headerlink" title="OBJECT FILES"></a>OBJECT FILES</h2><h3 id="preface"><a href="#preface" class="headerlink" title="preface"></a>preface</h3><p>文件格式分析可以借助具体例子学习，用010editor的ELF Template加载任意一个<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1slBqULn">ELF文件</a>：<br><img src="/images/elfpart1/010editor.png"><br>可以通过010editor分析出的文件格式找到对应的二进制数据。</p>
+<h3 id="File-Format"><a href="#File-Format" class="headerlink" title="File Format"></a>File Format</h3><p><img src="/images/elfpart1/fileformat.png"><br><code>ELF header</code>描述了文件的组织结构。<br><code>Sections</code>保存了目标文件Linking View的大量信息：指令、数据、符号表和重定位信息等。<br><code>Program header table</code>告诉系统如何创建一个进程映像。<br><code>Section header table</code>包含了描述文件sections的信息。每一个section在表中都有一个条目，每一个条目包含了section name、section size等信息。</p>
+<h3 id="Data-Representation"><a href="#Data-Representation" class="headerlink" title="Data Representation"></a>Data Representation</h3><p><img src="/images/elfpart1/datapre.png"></p>
+<h3 id="ELF-Header"><a href="#ELF-Header" class="headerlink" title="ELF Header"></a>ELF Header</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> e_ident[EI_NIDENT];</span><br><span class="line">    Elf32_Half    e_type;</span><br><span class="line">    Elf32_Half    e_machine;</span><br><span class="line">    Elf32_Word    e_version;</span><br><span class="line">    Elf32_Addr    e_entry;</span><br><span class="line">    Elf32_Off     e_phoff;</span><br><span class="line">    Elf32_Off     e_shoff;</span><br><span class="line">    Elf32_Word    e_flags;</span><br><span class="line">    Elf32_Half    e_ehsize;</span><br><span class="line">    Elf32_Half    e_phentsize;</span><br><span class="line">    Elf32_Half    e_phnum;</span><br><span class="line">    Elf32_Half    e_shentsize;</span><br><span class="line">    Elf32_Half    e_shnum;</span><br><span class="line">    Elf32_Half    e_shstrndx;</span><br><span class="line">&#125; Elf32_Ehdr;</span><br></pre></td></tr></table></figure>
+<p><code>e_ident</code> ELF文件的magic<br><code>e_type</code> 标识目标文件的类型。  </p>
+<blockquote>
+<p>ET_REL         1  Relocatable file<br>ET_EXEC       2  Executable file<br>ET_DYN        3  Shared object file</p>
+</blockquote>
+<p><code>e_machine</code> 文件运行在哪种体系结构上。<br><code>e_entry</code> 程序入口点。<br><code>e_phoff</code> program header table的文件偏移。<br><code>e_shoff</code> section header table的文件偏移。<br><code>e_flags</code> 处理器相关标识。<br><code>e_ehsize</code> ELF header的大小。<br><code>e_phentsize</code> 文件的program header table一个条目的大小，所有条目一样大小。<br><code>e_phnum</code> program header table中条目的个数。<br><code>e_shentsize</code> section header table中一个section header的大小，所有section header一样大小。<br><code>e_shnum</code> section header table中条目的个数。<br><code>e_shstrndx</code> section header table中和section名字字符串表相关的条目的索引。</p>
+<h3 id="Sections"><a href="#Sections" class="headerlink" title="Sections"></a>Sections</h3><p><strong>Section Header</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Word sh_name;</span><br><span class="line">    Elf32_Word sh_type;</span><br><span class="line">    Elf32_Word sh_flags;</span><br><span class="line">    Elf32_Addr sh_addr;</span><br><span class="line">    Elf32_Off  sh_offset;</span><br><span class="line">    Elf32_Word sh_size;</span><br><span class="line">    Elf32_Word sh_link;</span><br><span class="line">    Elf32_Word sh_info;</span><br><span class="line">    Elf32_Word sh_addralign;</span><br><span class="line">    Elf32_Word sh_entsize;</span><br><span class="line">&#125; Elf32_Shdr;</span><br></pre></td></tr></table></figure>
+<p><code>sh_name</code> 指向section header string table section的索引，表示section的名字。<br><code>sh_type</code> 指明了section的内容和语义。<br><code>sh_flags</code> 描述section的各项属性。<br><code>sh_addr</code> 如果section将会出现在一个进程的内存映像中，这个成员给出section的起始地址。<br><code>sh_offset</code> section在文件中的偏移地址。<br><code>sh_size</code> section的大小。类型为SHT_NOBITS的section的size不为0，但它实际不占文件空间。<br><code>sh_link</code> section header table index link。<br><code>sh_info</code> 额外的信息，含义取决于section的类型。<br><code>sh_addralign</code> 有些section有地址对齐方面的约束。比如 section 中有个 doubleword 型的数据,系统就必须保证整个 section 是 doubleword 对齐的,即 sh_addr 对 sh_addralign 取模为 0。目前,此成员的取值只允许是 0 和 2 的幂数。取值 0 和 1 代表 section 没有对齐方面的约束。<br><code>sh_entsize</code> 有些section存放的表项大小固定的表，如符号表。如表项大小不固定，此成员为0。</p>
+<blockquote>
+<p><strong>Section Types</strong>, sh_type<br><img src="/images/elfpart1/sh_types.png"><br><code>SHT_NULL</code> 表示此头部是不活动的，不对应一个section。<br><code>SHT_PROGBITS</code> 存放着程序定义的信息，格式和含义只由程序决定。<br><code>SHT_SYMTAB &amp; SHT_DYNSYM</code> 保存着符号表。<br><code>SHT_STRTAB</code> 保存着字符串表。<br><code>SHT_RELA</code> 通过显式加数存放重定位条目。<br><code>SHT_HASH</code> 存放一个符号哈希表。<br><code>SHT_DYNAMIC</code> 存放动态链接的相关信息。<br><code>SHT_NOTE</code> 存放文件的注释信息。<br><code>SHT_NOBITS</code> 不占用文件的空间，其他方面类似于SHT_PROGBITS。<br><code>SHT_REL</code> 存放没有显式加数的重定位条目。<br><code>SHT_SHLIB</code> 保留section。<br><code>SHT_LOPROC through SHT_HIPROC</code><br><code>SHT_LOUSER</code> 留给程序使用的保留索引值的下限。<br><code>SHT_HIUSER</code> 留给程序实用的保留索引值的上限。</p>
+</blockquote>
+<blockquote>
+<p><strong>Section Attribute Flags</strong>, sh_flags<br><img src="/images/elfpart1/sh_flag.png"><br><code>SHF_WRITE</code> section包含在进程执行期间可写的数据。<br><code>SHF_ALLOC</code> section在进程执行期间占据内存。一些section不在目标文件的内存映像中，这个属性就是off。<br><code>SHF_EXECINSTR</code> section包含可执行的机器指令。<br><code>SHF_MASKPROC</code> 这个掩码中的所有比特位留作处理器相关的语义。</p>
+</blockquote>
+<p><strong>Special Sections</strong><br><img src="/images/elfpart1/specialsec.png"></p>
+<p><code>.bss</code> 保存程序内存映像中未初始化的数据。程序开始时，系统把这些数据初始化为0。<br><code>.comment</code> 保存版本控制信息。<br><code>.data</code> and <code>.datal</code> 保存程序内存映像中已经初始化的数据。<br><code>.debug</code> 保存符号的调试信息。<br><code>.dynamic</code> 保存动态链接信息。<br><code>.dynstr</code> 保存动态链接需要的字符串。<br><code>.dynsym</code> 保存动态链接符号表。<br><code>.fini</code> 保存进程退出代码所需执行的指令。<br><code>.got</code> 保存全局偏移表。<br><code>.hash</code> 保存符号哈希表。<br><code>.init</code> 保存程序初始化代码所执行的指令。在main之前调用。<br><code>.interp</code> 保存程序解释器的路径名。<br><code>.line</code> 保存符号调试用到的行号。<br><code>.note</code> 按照一定格式保存注释信息。<br><code>.plt</code> 保存过程链接表。<br><code>.relname</code> and <code>.relaname</code> 保存重定位的相关信息。<br><code>.rodata</code> and <code>.rodatal</code> 保存进程映像中不可写segment里的只读数据。<br><code>.shstrtab</code> 保存section的名字。<br><code>.strtab</code> 保存字符串表，这些字符串通常代表符号表中表项的名字。<br><code>.symtab</code> 保存一个符号表。<br><code>.text</code> 保存了程序的执行指令。<br>名字中包含<code>.</code>前缀的section是系统保留的。</p>
+<h3 id="String-Table"><a href="#String-Table" class="headerlink" title="String Table"></a>String Table</h3><p>字符串表section保存着一些空字节结尾的字符串。<br>目标文件用symbol string table（.strtab）的字符串表示symbol的名字，用section header string table（.shstrtab这个table是由ELF头部中的<code>e_shstrndx</code>成员指定）的字符串表示section的名字（section header的<code>sh_name</code>成员保存的索引）。可以通过索引引用字符串表中的字符串。</p>
+<h3 id="Symbol-Table"><a href="#Symbol-Table" class="headerlink" title="Symbol Table"></a>Symbol Table</h3><p>目标文件符号表保存着定位和重定位一个程序的符号定义和引用所需的信息。<br>符号表表项的数据结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Word st_name;</span><br><span class="line">    Elf32_Addr st_value;</span><br><span class="line">    Elf32_Word st_size;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> st_info;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> st_other;</span><br><span class="line">    Elf32_Half st_shndx;</span><br><span class="line">&#125; Elf32_Sym;</span><br></pre></td></tr></table></figure>
+<p><code>st_name</code> 这个成员保存了一个指向目标文件symbol string table的索引。<br><code>st_value</code> 符号的值，取决于上下文，可能是一个绝对值，一个地址等等。<br><code>st_size</code> 许多符号有相应的大小，例如一个数据对象的大小就是它所包含的字节数。<br><code>st_info</code> 指明了符号的类型和约束属性。  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_ST_BIND(i) ((i)&gt;&gt;4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_ST_TYPE(i) ((i)&amp;0xf)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_ST_INFO(b, t) (((b)&lt;&lt;4)+((t)&amp;0xf))</span></span><br></pre></td></tr></table></figure>
+<p><code>st_other</code> 目前为0，没有定义含义。<br><code>st_shndx</code> 每个符号表项都与一些section有关，这个成员保存着相关section header table的索引。<br>一个符号的约束决定了链接的可见性和行为。</p>
+<blockquote>
+<p><strong>Symbol Binding</strong>, ELF32_ST_BIND</p>
+</blockquote>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">STB_LOCAL</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="left">STB_GLOBAL</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">STB_WEAK</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">STB_LOPROC</td>
+<td align="right">13</td>
+</tr>
+<tr>
+<td align="left">STB_HIPROC</td>
+<td align="right">15</td>
+</tr>
+</tbody></table>
+</blockquote>
+<p><code>STB_LOCAL</code> Local符号在包含它们的目标文件之外是不可见的。相同名字的Local符号可以在不同的文件中存在，而不会相互冲突。<br><code>STB_GLOBAL</code> Global符号对要链接到一起的所有目标文件都是可见的。如果一个文件中定义了一个Global符号，那么另一个文件中无需定义，可直接引用此Global符号。<br><code>STB_WEAK</code> Weak符号类似于Global符号，只是它约束的定义优先级较低。<br><code>STB_LOPROC</code>至<code>STB_HIPROC</code> 此范围内的取值留作处理器相关的语义。</p>
+<blockquote>
+<p><strong>Symbol Types</strong>, ELF32_ST_TYPE</p>
+</blockquote>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">STT_NOTYPE</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td align="left">STT_OBJECT</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">STT_FUNC</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">STT_SECTION</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td align="left">STT_FILE</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td align="left">STT_LOPROC</td>
+<td align="right">13</td>
+</tr>
+<tr>
+<td align="left">STT_HIPROC</td>
+<td align="right">15</td>
+</tr>
+</tbody></table>
+</blockquote>
+<p><code>STT_NOTYPE</code> 未指定符号类型。<br><code>STT_OBJECT</code> 符号对应一个数据对象，比如变量、数组等。<br><code>STT_FUNC</code> 符号对应一个函数或其它可执行的代码。<br><code>STT_SECTION</code> 符号对应一个section。这种类型的符号表项位于符号表最前面，用于重定位，通常具有STB_LOCAL约束。<br><code>STT_FILE</code> 此符号的名字也就是目标文件对应源文件的名字。<br><code>STT_LOPROC</code>至<code>STT_HIPROC</code> 此范围间的取值留作处理器相关的语义。</p>
+<p><strong>Symbol Values</strong><br>符号表项在不同的目标文件类型中对st_value成员的解释稍有不同。<br>1）可重定位文件：如果符号对应section的索引是SHN_COMMON，那么st_value保存的是符号的对齐约束条件。<br>2）可重定位文件：如果是一个已经定义的符号，st_value保存着该符号在对应section中的偏移，即从st_shndx标识的section开始处的一个偏移量。<br>3）可执行目标文件和共享目标文件：为了使文件中的符号对动态链接器来说更加有用，st_value保存着一个虚拟地址。section偏移（文件解释）让位给虚拟地址（内存解释），因为在这种情况下，section偏移计数已经不重要了。<br>除了上面提到的，符号表的取值含义对不同的目标文件来说是类似的，程序也就能够采用高效的方法来访问数据。</p>
+<h3 id="Relocation"><a href="#Relocation" class="headerlink" title="Relocation"></a>Relocation</h3><p>重定位是将符号引用和符号定义链接到一起的过程。比如，当一个程序调用一个函数，相关的调用指令在执行时必须把控制权传递到正确的目的地址。换句话说，就是可重定位文件必须包含一些信息，用来描述怎样修改它们的section内容，从而使可执行目标文件和共享目标文件掌握正确的信息用于创建进程的程序映像。重定位表项的数据结构如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Addr r_offset;</span><br><span class="line">    Elf32_Word r_info;</span><br><span class="line">&#125; Elf32_Rel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Addr r_offset;</span><br><span class="line">    Elf32_Word r_info;</span><br><span class="line">    Elf32_Sword r_addend;</span><br><span class="line">&#125; Elf32_Rela;</span><br></pre></td></tr></table></figure>
+<p><code>r_offset</code> 指出重定位操作的位置，对于可重定位文件，它的值是从section的开始处到重定位作用的存储单元的字节偏移量。对于可执行目标文件或共享目标文件，它的值是重定位作用的存储单元的虚拟地址。<br><code>r_info</code> 指出重定位作用的符号在符号表中的索引和重定位的类型。比如，一个调用指令的重定位表项将保存被调用函数的符号表索引，如果索引是 STN_UNDEF，即未定义的符号表索引，那么重定位使用 0 作为该符号的值。重定位的类型是处理器相关的。当代码访问重定位表项的重定位类型和符号表索引时，需要将ELF32_R_TYPE宏和 ELF32_R_SYM宏分别作用于表项的r_info成员。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_SYM(i) ((i)&gt;&gt;8)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_TYPE(i) ((unsigned char)(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_INFO(s,t) (((s)&lt;&lt;8)+(unsigned char)(t))</span></span><br></pre></td></tr></table></figure>
+<p><code>r_addend</code> 指定一个常量加数(addend)，用于计算可重定位字段存储的值。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2016/04/04/ELF-Executable-and-Linking-Format-part1/" data-id="ckhe7o4l2001qchl7eq347sfn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/05/Dalvik%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Dalvik虚拟机执行流程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/04/Linux-x64-PWN/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux_x64 PWN</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/06/User-namespace/">User namespace</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
