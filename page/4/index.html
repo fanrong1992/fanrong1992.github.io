@@ -1,92 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="BruceFan&#39;s Blog">
 <meta property="og:url" content="http://example.com/page/4/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:locale">
+<meta property="article:author" content="Bruce Fan">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+<link rel="canonical" href="http://example.com/page/4/">
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
   
-    <article id="post-神经网络" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="article-date">
-  <time datetime="2018-05-28T06:47:47.000Z" itemprop="datePublished">2018-05-28</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">神经网络</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="post-title-link" itemprop="url">神经网络</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-28 14:47:47" itemprop="dateCreated datePublished" datetime="2018-05-28T14:47:47+08:00">2018-05-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>当构建神经网络时，我们经常想把计算分配到各个layer，一些可学习参数(learnable parameter)在学习的过程中会被优化。在PyTorch中<code>nn</code>包提供了计算图(computational graph)的高级抽象，<code>nn</code>包定义了一系列<code>Module</code>，和神经网络的layer大致相同，Module接收输入Tensor，计算输出Tensor，同时也保存中间状态，如包含可学习参数的Tensor。<code>nn</code>包也定义了一系列有用的损失函数。</p>
+          <p>当构建神经网络时，我们经常想把计算分配到各个layer，一些可学习参数(learnable parameter)在学习的过程中会被优化。在PyTorch中<code>nn</code>包提供了计算图(computational graph)的高级抽象，<code>nn</code>包定义了一系列<code>Module</code>，和神经网络的layer大致相同，Module接收输入Tensor，计算输出Tensor，同时也保存中间状态，如包含可学习参数的Tensor。<code>nn</code>包也定义了一系列有用的损失函数。</p>
 <h3 id="PyTorch-nn"><a href="#PyTorch-nn" class="headerlink" title="PyTorch:nn"></a>PyTorch:nn</h3><p>接着上一篇前向传播和反向传播，下面用<code>nn</code>包来实现两层神经网络：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"><span class="comment"># nn.Sequential是一个包含其他Module的模块，按顺序调用它们来产生输出</span></span><br><span class="line"><span class="comment"># 每个Linear模块用线性方程来计算输出，为weight和bias保留中间Tensor</span></span><br><span class="line">model = torch.nn.Sequential(</span><br><span class="line">        torch.nn.Linear(D_in, H),</span><br><span class="line">        torch.nn.ReLU(),</span><br><span class="line">        torch.nn.Linear(H, D_out),</span><br><span class="line">        )</span><br><span class="line"><span class="comment"># 这里用Mean Squared Error (MSE)作为损失函数</span></span><br><span class="line">loss_fn = torch.nn.MSELoss(size_average=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-4</span></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">    y_pred = model(x)</span><br><span class="line">    loss = loss_fn(y_pred, y)</span><br><span class="line">    <span class="built_in">print</span> t, loss.item()</span><br><span class="line">    model.zero_grad()</span><br><span class="line">    loss.backward()</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> param <span class="keyword">in</span> model.parameters():</span><br><span class="line">            param -= learning_rate * param.grad</span><br></pre></td></tr></table></figure>
 
@@ -99,42 +214,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" data-id="ckhe7o4nv006fchl7f55hfbd1" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-前向传播和反向传播" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/" class="article-date">
-  <time datetime="2018-05-25T06:26:31.000Z" itemprop="datePublished">2018-05-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/">前向传播和反向传播</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/" class="post-title-link" itemprop="url">前向传播和反向传播</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-25 14:26:31" itemprop="dateCreated datePublished" datetime="2018-05-25T14:26:31+08:00">2018-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>之前听过前向传播和反向传播，也看到项目中有这两个步骤，但是不知道具体是干什么的，在看<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/pytorch_with_examples.html">PyTorch官方教程</a>的时候看到一个用numpy实现的2层神经网络，里面实现了前向传播和反向传播，这里记录一下，同时也记录一下我的PyTorch学习过程。</p>
+          <p>之前听过前向传播和反向传播，也看到项目中有这两个步骤，但是不知道具体是干什么的，在看<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/pytorch_with_examples.html">PyTorch官方教程</a>的时候看到一个用numpy实现的2层神经网络，里面实现了前向传播和反向传播，这里记录一下，同时也记录一下我的PyTorch学习过程。</p>
 <h2 id="Numpy"><a href="#Numpy" class="headerlink" title="Numpy"></a>Numpy</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># N是batch大小；D_in是输入维度，H是隐藏维度；D_out是输出维度</span></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建任意输入和输出数据</span></span><br><span class="line">x = np.random.randn(N, D_in)</span><br><span class="line">y = np.random.randn(N, D_out)</span><br><span class="line"><span class="comment"># 随机初始化weight</span></span><br><span class="line">w1 = np.random.randn(D_in, H)</span><br><span class="line">w2 = np.random.randn(H, D_out)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># 前向传播：计算预测的y</span></span><br><span class="line">    h = x.dot(w1) <span class="comment"># x:64*1000 w1:1000*100 h:64*100</span></span><br><span class="line">    h_relu = np.maximum(h, <span class="number">0</span>) <span class="comment"># 激活函数ReLU</span></span><br><span class="line">    y_pred = h_relu.dot(w2) <span class="comment"># h_relu:64*100 w2:100*10 y_pred:64*10</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算打印loss</span></span><br><span class="line">    loss = np.square(y_pred - y).<span class="built_in">sum</span>()</span><br><span class="line">    <span class="built_in">print</span> t, loss</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 反向传播，根据loss计算w1和w2的gradient</span></span><br><span class="line">    grad_y_pred = <span class="number">2.0</span> * (y_pred - y) <span class="comment"># grad_y_pred:64*10</span></span><br><span class="line">    grad_w2 = h_relu.T.dot(grad_y_pred) <span class="comment"># h_relu.T:100*64 grad_w2:100*10</span></span><br><span class="line">    grad_h_relu = grad_y_pred.dot(w2.T) <span class="comment"># w2.T:10*100 grad_h_relu:64*100</span></span><br><span class="line">    grad_h = grad_h_relu.copy()</span><br><span class="line">    grad_h[h &lt; <span class="number">0</span>] = <span class="number">0</span> <span class="comment"># grad_h:64*100</span></span><br><span class="line">    grad_w1 = x.T.dot(grad_h) <span class="comment"># x.T:1000*64 grad_w1:1000*100</span></span><br><span class="line">    <span class="comment"># 更新weight</span></span><br><span class="line">    w1 -= learning_rate * grad_w1</span><br><span class="line">    w2 -= learning_rate * grad_w2</span><br></pre></td></tr></table></figure>
 
 <h2 id="PyTorch-Tensor"><a href="#PyTorch-Tensor" class="headerlink" title="PyTorch:Tensor"></a>PyTorch:Tensor</h2><p>numpy是一个很棒的框架，但是它没有利用GPU加速计算，对现代的深度神经网络，GPU经常提供50倍以上的加速，所以numpy不适用于现在的深度学习。<br>PyTorch里一个基本的概念是<code>Tensor</code>，他和numpy里的array概念上是一样的，一个Tensor就是一个n维数组，PyTorch提供了大量的函数来操作这些Tensor。和numpy不同的是，PyTorch的Tensor可以利用GPU来加速计算。<br>下面用PyTorch的Tensor来实现刚才的2层神经网络：</p>
@@ -147,42 +288,68 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyReLU</span>(<span class="params">torch.autograd.Function</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    通过继承Function来实现自定义autograd函数</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">ctx, <span class="built_in">input</span></span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        在前向传播中，我们接收一个Tensor包含输入，返回一个Tensor包含输出。ctx是一个上下文对象，</span></span><br><span class="line"><span class="string">        可以用来存放反向计算的信息，可以用ctx.save_for_backward方法缓存任意在反向传播中用到的对象</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        ctx.save_for_backward(<span class="built_in">input</span>) <span class="comment"># 这里input是x.mm(w1)</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">input</span>.clamp(<span class="built_in">min</span>=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">backward</span>(<span class="params">ctx, grad_output</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        反向传播中，我们接收一个Tensor包含loss对于输出的梯度，需要计算loss对于输入的梯度</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">input</span>, = ctx.saved_tensors</span><br><span class="line">        grad_input = grad_output.clone()</span><br><span class="line">        grad_input[<span class="built_in">input</span> &lt; <span class="number">0</span>] = <span class="number">0</span></span><br><span class="line">        <span class="keyword">return</span> grad_input</span><br><span class="line"></span><br><span class="line">dtype = torch.<span class="built_in">float</span></span><br><span class="line"></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line">x = torch.randn(N, D_in, dtype=dtype)</span><br><span class="line">y = torch.randn(N, D_out, dtype=dtype)</span><br><span class="line"></span><br><span class="line">w1 = torch.randn(D_in, H, dtype=dtype, requires_grad=<span class="literal">True</span>)</span><br><span class="line">w2 = torch.randn(H, D_out, dtype=dtype, requires_grad=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">    relu = MyReLU.apply</span><br><span class="line"></span><br><span class="line">    y_pred = relu(x.mm(w1)).mm(w2)</span><br><span class="line">    <span class="comment"># loss是一个shape(1,)的Tensor</span></span><br><span class="line">    loss = (y_pred - y).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>()</span><br><span class="line">    <span class="comment"># print t, loss.item()</span></span><br><span class="line">    loss.backward()</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        w1 -= learning_rate * w1.grad</span><br><span class="line">        w2 -= learning_rate * w2.grad</span><br><span class="line">        <span class="comment"># 在更新weight后，手动将梯度归零</span></span><br><span class="line">        w1.grad.zero_()</span><br><span class="line">        w2.grad.zero_()</span><br></pre></td></tr></table></figure>
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/" data-id="ckhe7o4nd005lchl74sjz3uli" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-朴素贝叶斯" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" class="article-date">
-  <time datetime="2018-05-24T06:42:42.000Z" itemprop="datePublished">2018-05-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" class="post-title-link" itemprop="url">朴素贝叶斯</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-24 14:42:42" itemprop="dateCreated datePublished" datetime="2018-05-24T14:42:42+08:00">2018-05-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="基于贝叶斯决策理论的分类方法"><a href="#基于贝叶斯决策理论的分类方法" class="headerlink" title="基于贝叶斯决策理论的分类方法"></a>基于贝叶斯决策理论的分类方法</h2><p> 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。<br> 假设我们有一个数据集，由两类数据组成：<br> <img src="/images/machinelearning/dataset.png" alt="两个参数已知的概率分布，参数决定了分布的形状"><br>假设已知图中两类数据的统计参数。我们现在用p1(x, y)表示数据点(x, y)属于类别1的概率，用p2(x, y)表示数据点(x, y)数据类别2的概率，那么对于一个新数据点(x, y)，可以用下面的规则判断它的类别：  </p>
+          <h2 id="基于贝叶斯决策理论的分类方法"><a href="#基于贝叶斯决策理论的分类方法" class="headerlink" title="基于贝叶斯决策理论的分类方法"></a>基于贝叶斯决策理论的分类方法</h2><p> 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。<br> 假设我们有一个数据集，由两类数据组成：<br> <img src="/images/machinelearning/dataset.png" alt="两个参数已知的概率分布，参数决定了分布的形状"><br>假设已知图中两类数据的统计参数。我们现在用p1(x, y)表示数据点(x, y)属于类别1的概率，用p2(x, y)表示数据点(x, y)数据类别2的概率，那么对于一个新数据点(x, y)，可以用下面的规则判断它的类别：  </p>
 <ul>
 <li>如果p1(x, y) &gt; p2(x, y)，那么类别为1。</li>
 <li>如果p2(x, y) &gt; p1(x, y)，那么类别为2。</li>
@@ -208,42 +375,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" data-id="ckhe7o4no0060chl755tu1ekx" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Logistic回归" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/" class="article-date">
-  <time datetime="2018-05-23T09:41:43.000Z" itemprop="datePublished">2018-05-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/">Logistic回归</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/" class="post-title-link" itemprop="url">Logistic回归</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-23 17:41:43" itemprop="dateCreated datePublished" datetime="2018-05-23T17:41:43+08:00">2018-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>我们需要一个函数能接受所有的输入然后预测出类别，例如在两个类的情况下，这个函数输出0或1。单位阶跃函数具有这种性质，然而它的问题在于在跳跃点上从0瞬间跳跃到1，这个瞬间跳跃过程有时很难处理。幸好另一个函数也有类似性质，且数学上更易处理，这就是sigmoid函数。</p>
+          <p>我们需要一个函数能接受所有的输入然后预测出类别，例如在两个类的情况下，这个函数输出0或1。单位阶跃函数具有这种性质，然而它的问题在于在跳跃点上从0瞬间跳跃到1，这个瞬间跳跃过程有时很难处理。幸好另一个函数也有类似性质，且数学上更易处理，这就是sigmoid函数。</p>
 <h2 id="sigmoid函数"><a href="#sigmoid函数" class="headerlink" title="sigmoid函数"></a>sigmoid函数</h2><p>sigmoid函数的具体计算公式如下：</p>
 <p>$$<br>y = \frac{1}{1+e^{-z}}<br>$$<br>该函数的定义域为$(-\infty\to+\infty)$，值域为$(0, 1)$。下图是sigmoid函数的图像：<br><img src="/images/machinelearning/Logistic.png"><br>当x为0时，sigmoid函数值为0.5，随着x的增大，对应的sigmoid值将逼近于1；而随着x的减小，sigmoid值将逼近于0。  </p>
 <h2 id="逻辑回归（logistic-regression）"><a href="#逻辑回归（logistic-regression）" class="headerlink" title="逻辑回归（logistic regression）"></a>逻辑回归（logistic regression）</h2><p>逻辑回归虽然名字里有回归，但实际是一种分类方法，主要用于二分类问题。生活中经常会遇到二分类问题。例如，某封电子邮件是否为垃圾邮件，某个客户是否为潜在客户，某次在线交易是否存在欺诈行为等。<br>为了实现Logistic回归分类器，我们可以在每个特征上都乘以一个回归系数，然后把所有的结果值相加，将这个总和代入sigmoid函数中，进而得到一个范围在0~1之间的数值。任何大于0.5的数据被分入1类，小于0.5即被归入0类。<br>令$z=\boldsymbol{w^Tx}+b=w_0x_0+w_1x_1+…+w_nx_n+b$，代入sigmoid函数</p>
@@ -255,42 +448,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/" data-id="ckhe7o4lx0037chl72dtebqxs" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-k-近邻算法" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2018-05-22T07:58:55.000Z" itemprop="datePublished">2018-05-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/">k-近邻算法</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">k-近邻算法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-22 15:58:55" itemprop="dateCreated datePublished" datetime="2018-05-22T15:58:55+08:00">2018-05-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>最近一直在做机器学习相关的工作，但是对机器学习的基础还没有什么太好的掌握，所以打算从头开始学习一些基本的算法，太深入的数学原理先不深究，需要用到时再补吧（说得跟真的一样）。<br>$k$-近邻算法，它的工作原理是：存在一个样本数据集合，也称作训练样本集，并且样本集中每个<code>数据</code>都存在标签，即我们知道样本集中每个<code>数据</code>与所属分类的对应关系。输入没有标签的新数据后，将新数据的每个特征与样本集中<code>数据</code>对应的特征进行比较，然后算法提取样本集中特征最相似<code>数据</code>的分类标签。一般来说，我们只选择样本数据集中前$k$个最相似的<code>数据</code>，这就是$k$-近邻算法中$k$的出处，通常$k$是不大于20的整数。最后，选择$k$个最相似数据中出现次数最多的分类，作为新数据的分类。  </p>
+          <p>最近一直在做机器学习相关的工作，但是对机器学习的基础还没有什么太好的掌握，所以打算从头开始学习一些基本的算法，太深入的数学原理先不深究，需要用到时再补吧（说得跟真的一样）。<br>$k$-近邻算法，它的工作原理是：存在一个样本数据集合，也称作训练样本集，并且样本集中每个<code>数据</code>都存在标签，即我们知道样本集中每个<code>数据</code>与所属分类的对应关系。输入没有标签的新数据后，将新数据的每个特征与样本集中<code>数据</code>对应的特征进行比较，然后算法提取样本集中特征最相似<code>数据</code>的分类标签。一般来说，我们只选择样本数据集中前$k$个最相似的<code>数据</code>，这就是$k$-近邻算法中$k$的出处，通常$k$是不大于20的整数。最后，选择$k$个最相似数据中出现次数最多的分类，作为新数据的分类。  </p>
 <h3 id="导入数据"><a href="#导入数据" class="headerlink" title="导入数据"></a>导入数据</h3><p>创建名为kNN.py的文件：<br><strong>代码清单</strong> kNN.py</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> operator</span><br><span class="line"><span class="comment"># 创建数据集和标签</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createDataSet</span>():</span></span><br><span class="line">    group = array([[<span class="number">1.0</span>, <span class="number">1.1</span>], [<span class="number">1.0</span>, <span class="number">1.0</span>], [<span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">0.1</span>]])</span><br><span class="line">    labels = [<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;B&#x27;</span>]</span><br><span class="line">    <span class="keyword">return</span> group, labels</span><br></pre></td></tr></table></figure>
 <p>这里有四组数据，每组有两个特征，labels包含了每组数据的标签，将数据点(1, 1.1)定义为类A，数据点(0, 0.1)定义为类B。<br><img src="/images/machinelearning/kNN.png"></p>
@@ -301,42 +520,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/22/k-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/" data-id="ckhe7o4n3004zchl7blhu4ajp" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-用Python实现简单的区块链（一）" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
-  <time datetime="2018-05-20T15:23:44.000Z" itemprop="datePublished">2018-05-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/">用Python实现简单的区块链（一）</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">用Python实现简单的区块链（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-20 23:23:44" itemprop="dateCreated datePublished" datetime="2018-05-20T23:23:44+08:00">2018-05-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这篇文章用python实现一下区块链的基本概念，主要目的是凑热闹学习区块链相关知识，没有太大实际用途。  </p>
+          <p>这篇文章用python实现一下区块链的基本概念，主要目的是凑热闹学习区块链相关知识，没有太大实际用途。  </p>
 <h2 id="创建区块链"><a href="#创建区块链" class="headerlink" title="创建区块链"></a>创建区块链</h2><p>区块链就是许多区块的链表，区块链里的每个链表都有自己的签名，包含前一个区块的数字签名和一些数据（例如交易）。<br><img src="/images/blockchain/basic.png"><br>每个区块有前一个区块的hash，也有自己的hash，自己的hash包含了自己的数据和前一个区块的hash。如果前一个区块的数据改变了，那么前一个区块的hash就会改变，后面的区块都会受到影响。计算和比较hash可以检查一个区块链是否合法。<br><strong>改变链表里的任何数据，都会改变签名，破坏链。</strong><br>首先创建组成区块链的Block类：<br><strong>代码清单</strong> block.py</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Block</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, data, previousHash</span>):</span></span><br><span class="line">        self.data = data</span><br><span class="line">        self.previousHash = previousHash</span><br><span class="line">        self.timeStamp = time.time()</span><br><span class="line">        self.nonce = <span class="number">0</span></span><br><span class="line">        self.<span class="built_in">hash</span> = self.calculateHash()</span><br></pre></td></tr></table></figure>
 <p>基本的Block包含了一个<code>hash</code>来保存数字签名，<code>previousHash</code>变量保存了前一个Block的hash，<code>data</code>保存该区块的数据。<br>下面需要一个方法来产生数字签名，这里使用sha256加密算法，调用Python的hashlib库，非常简单：<br><strong>代码清单</strong> strutils.py</p>
@@ -364,82 +609,134 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/" data-id="ckhe7o4nt006achl70xn8awbq" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-机器学习基础" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" class="article-date">
-  <time datetime="2018-05-19T16:25:04.000Z" itemprop="datePublished">2018-05-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/">机器学习基础</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">机器学习基础</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2018-05-20 00:25:04" itemprop="dateCreated datePublished" datetime="2018-05-20T00:25:04+08:00">2018-05-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="监督学习和无监督学习"><a href="#监督学习和无监督学习" class="headerlink" title="监督学习和无监督学习"></a>监督学习和无监督学习</h2><p>简单来说：是否有<code>监督（supervised）</code>，就看输入数据是否有<code>标签（label）</code>。输入数据有标签，则为有监督学习，没标签则为无监督学习。<br>首先看什么是<code>学习（learning）</code>？一个成语就可概括：举一反三。此处以高考为例，高考的题目在上考场前我们未必做过，但在高中三年我们做过很多很多题目，懂解题方法，因此考场上面对陌生问题也可以算出答案。机器学习的思路也类似：我们能不能利用一些训练数据（已经做过的题），使机器能够利用它们（解题方法）分析未知数据（高考的题目）？最简单也最普遍的一类机器学习算法就是<code>分类（classification）</code>。对于分类，输入的训练数据有<code>特征（feature）</code>，有<code>标签（label）</code>。所谓的学习，其本质就是找到特征和标签间的<code>关系（mapping）</code>。这样当有特征而无标签的未知数据输入时，我们就可以通过已有的关系得到未知数据标签。在上述的分类过程中，如果所有训练数据都有标签，则为有<code>监督学习（supervised learning）</code>。如果数据没有标签，显然就是<code>无监督学习（unsupervised learning）</code>了，也即<code>聚类（clustering）</code>。目前分类算法的效果还是不错的，但相对来讲，聚类算法就有些惨不忍睹了。确实，无监督学习本身的特点使其难以得到如分类一样近乎完美的结果。这也正如我们在高中做题，答案（标签）是非常重要的，假设两个完全相同的人进入高中，一个正常学习，另一人做的所有题目都没有答案，那么想必第一个人高考会发挥更好，第二个人会发疯。<br>这时各位可能要问，既然分类如此之好，聚类如此之不靠谱，那为何我们还可以容忍聚类的存在？因为在实际应用中，标签的获取常常需要极大的人工工作量，有时甚至非常困难。例如在自然语言处理（NLP）中，Penn Chinese Treebank在2年里只完成了4000句话的标签……<br>这时有人可能会想，难道有监督学习和无监督学习就是非黑即白的关系吗？有没有灰呢？Good idea。灰是存在的。二者的中间带就是<code>半监督学习（semi-supervised learning）</code>。对于半监督学习，其训练数据的一部分是有标签的，另一部分没有标签，而没标签数据的数量常常极大于有标签数据数量（这也是符合现实情况的）。隐藏在半监督学习下的基本规律在于：数据的分布必然不是完全随机的，通过一些有标签数据的局部特征，以及更多没标签数据的整体分布，就可以得到可以接受甚至是非常好的分类结果。（此处大量忽略细节）因此，learning家族的整体构造是这样的：<br>有监督学习（分类，回归）<br>↕<br>半监督学习（分类，回归），transductive learning（分类，回归）<br>↕<br>半监督聚类（有标签数据的标签不是确定的，类似于：肯定不是xxx，很可能是yyy）<br>↕<br>无监督学习（聚类）</p>
+          <h2 id="监督学习和无监督学习"><a href="#监督学习和无监督学习" class="headerlink" title="监督学习和无监督学习"></a>监督学习和无监督学习</h2><p>简单来说：是否有<code>监督（supervised）</code>，就看输入数据是否有<code>标签（label）</code>。输入数据有标签，则为有监督学习，没标签则为无监督学习。<br>首先看什么是<code>学习（learning）</code>？一个成语就可概括：举一反三。此处以高考为例，高考的题目在上考场前我们未必做过，但在高中三年我们做过很多很多题目，懂解题方法，因此考场上面对陌生问题也可以算出答案。机器学习的思路也类似：我们能不能利用一些训练数据（已经做过的题），使机器能够利用它们（解题方法）分析未知数据（高考的题目）？最简单也最普遍的一类机器学习算法就是<code>分类（classification）</code>。对于分类，输入的训练数据有<code>特征（feature）</code>，有<code>标签（label）</code>。所谓的学习，其本质就是找到特征和标签间的<code>关系（mapping）</code>。这样当有特征而无标签的未知数据输入时，我们就可以通过已有的关系得到未知数据标签。在上述的分类过程中，如果所有训练数据都有标签，则为有<code>监督学习（supervised learning）</code>。如果数据没有标签，显然就是<code>无监督学习（unsupervised learning）</code>了，也即<code>聚类（clustering）</code>。目前分类算法的效果还是不错的，但相对来讲，聚类算法就有些惨不忍睹了。确实，无监督学习本身的特点使其难以得到如分类一样近乎完美的结果。这也正如我们在高中做题，答案（标签）是非常重要的，假设两个完全相同的人进入高中，一个正常学习，另一人做的所有题目都没有答案，那么想必第一个人高考会发挥更好，第二个人会发疯。<br>这时各位可能要问，既然分类如此之好，聚类如此之不靠谱，那为何我们还可以容忍聚类的存在？因为在实际应用中，标签的获取常常需要极大的人工工作量，有时甚至非常困难。例如在自然语言处理（NLP）中，Penn Chinese Treebank在2年里只完成了4000句话的标签……<br>这时有人可能会想，难道有监督学习和无监督学习就是非黑即白的关系吗？有没有灰呢？Good idea。灰是存在的。二者的中间带就是<code>半监督学习（semi-supervised learning）</code>。对于半监督学习，其训练数据的一部分是有标签的，另一部分没有标签，而没标签数据的数量常常极大于有标签数据数量（这也是符合现实情况的）。隐藏在半监督学习下的基本规律在于：数据的分布必然不是完全随机的，通过一些有标签数据的局部特征，以及更多没标签数据的整体分布，就可以得到可以接受甚至是非常好的分类结果。（此处大量忽略细节）因此，learning家族的整体构造是这样的：<br>有监督学习（分类，回归）<br>↕<br>半监督学习（分类，回归），transductive learning（分类，回归）<br>↕<br>半监督聚类（有标签数据的标签不是确定的，类似于：肯定不是xxx，很可能是yyy）<br>↕<br>无监督学习（聚类）</p>
 <h2 id="损失函数（Loss-Function）"><a href="#损失函数（Loss-Function）" class="headerlink" title="损失函数（Loss Function）"></a>损失函数（Loss Function）</h2><p>一般来说，我们在进行机器学习任务时，使用的每一个算法都有一个目标函数，算法便是对这个目标函数进行优化，特别是在分类或者回归任务中，便是使用<code>损失函数（Loss Function）</code>作为其目标函数，又称为<code>代价函数(Cost Function)</code>。<br>损失函数是用来评价模型的预测值$\hat{Y}=f(X)$与真实值$Y$的不一致程度，它是一个非负实值函数。通常使用$L(Y,f(x))$来表示，损失函数越小，模型的性能就越好。<br>设总共有N个样本的样本集为$(X, Y)=(x_i, y_i)$ ， $y_i, i\in[1, N]$为样本$i$的真实值，$\hat{y_i}=f(x_i), i\in[1, N]$为样本$i$的预测值，$f$为分类或者回归函数。那么总的损失函数为：<br>$$<br>L = \sum_{i=i}^{N}\mathscr{l}(y_i, \hat{y_i})<br>$$<br>常见的损失函数$\mathscr{l}(y_i, \hat{y_i})$<br><strong>0-1损失函数（Zero-one Loss）</strong><br>$$<br>\mathscr{l}(y_i, \hat{y_i})=\begin{cases}<br>1 &amp; y_i\neq\hat{y_i} \<br>0 &amp; y_i=\hat{y_i}<br>\end{cases}<br>$$<br>0-1损失函数是一种较为简单的损失函数，如果预测值与目标值不相等则为1，否则为0。<br><strong>感知损失（Perceptual Losses）</strong><br>$$<br>\mathscr{l}(y_i, \hat{y_i})=\begin{cases}<br>1 &amp; |y_i-\hat{y_i}|&gt;t \<br>0 &amp; |y_i-\hat{y_i}\leqslant{t}<br>\end{cases}<br>$$<br><strong>平方损失（Square Loss）</strong><br>$$<br>\mathscr{l}(y_i, \hat{y_i})=(y_i-\hat{y_i})^2\qquad{y_i, y\in{R}}<br>$$<br><strong>绝对值损失（Absolute Loss）</strong><br>$$<br>\mathscr{l}(y_i, \hat{y_i})=|y_i-\hat{y_i}|\qquad{y_i, \hat{y_i}\in{R}}<br>$$<br><strong>指数误差（Exponential Loss）</strong><br>$$<br>\mathscr{l}(y_i, \hat{y_i})=exp(-y_i·\hat{y_i})\qquad{y_i\in {-1, 1}}<br>$$<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23194489/answer/25028661">https://www.zhihu.com/question/23194489/answer/25028661</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/bitcarmanlee/article/details/51154481">http://blog.csdn.net/bitcarmanlee/article/details/51154481</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/bitcarmanlee/article/details/51165444">http://blog.csdn.net/bitcarmanlee/article/details/51165444</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/heyongluoyao8/article/details/52462400">http://blog.csdn.net/heyongluoyao8/article/details/52462400</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/24259872/answer/82598145">https://www.zhihu.com/question/24259872/answer/82598145</a></p>
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2018/05/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" data-id="ckhe7o4nq0062chl7csvcezt5" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-AFL技术介绍" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/09/21/AFL%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" class="article-date">
-  <time datetime="2017-09-21T12:44:58.000Z" itemprop="datePublished">2017-09-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/21/AFL%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">AFL技术介绍</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/09/21/AFL%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/09/21/AFL%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" class="post-title-link" itemprop="url">AFL技术介绍</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-09-21 20:44:58" itemprop="dateCreated datePublished" datetime="2017-09-21T20:44:58+08:00">2017-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>1.下载<a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/">最新源代码</a><br>2.安装  </p>
+          <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>1.下载<a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/">最新源代码</a><br>2.安装  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
 
 <h3 id="有源码测试"><a href="#有源码测试" class="headerlink" title="有源码测试"></a>有源码测试</h3><p>1.可执行文件的输入为一个文件时<br>用AFL对一个开源的加壳软件UPX进行了测试，记录一下具体过程：  </p>
@@ -464,42 +761,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/09/21/AFL%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" data-id="ckhe7o4jk0000chl7fb4eearh" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-C-模板与泛型编程" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" class="article-date">
-  <time datetime="2017-08-15T15:18:56.000Z" itemprop="datePublished">2017-08-15</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">C++模板与泛型编程</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">C++模板与泛型编程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-15 23:18:56" itemprop="dateCreated datePublished" datetime="2017-08-15T23:18:56+08:00">2017-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>模板是C++中泛型编程的基础，一个模板就是一个创建类或函数的蓝图。</p>
+          <p>模板是C++中泛型编程的基础，一个模板就是一个创建类或函数的蓝图。</p>
 <h3 id="函数模板"><a href="#函数模板" class="headerlink" title="函数模板"></a>函数模板</h3><p>我们可以定义一个通用的<code>函数模板（function template）</code>，而不是为每个类型都定义一个新函数。compare的模板版本如下：  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(<span class="keyword">const</span> T &amp;v1, <span class="keyword">const</span> T &amp;v2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (v1 &lt; v2) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span> (v2 &lt; v1) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>模板定义以关键字<code>template</code>开始，后跟一个<code>模板参数列表（template parameter list）</code>，这是一个逗号分隔的一个或多个<code>模板参数（template parameter）</code>，用尖括号包围。<br>实例化函数模板：</p>
@@ -512,42 +835,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" data-id="ckhe7o4km0012chl725p6dhap" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Linux-Kernel-UAF" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/15/Linux-Kernel-UAF/" class="article-date">
-  <time datetime="2017-08-15T07:44:38.000Z" itemprop="datePublished">2017-08-15</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/15/Linux-Kernel-UAF/">Linux Kernel UAF</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/15/Linux-Kernel-UAF/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/15/Linux-Kernel-UAF/" class="post-title-link" itemprop="url">Linux Kernel UAF</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-15 15:44:38" itemprop="dateCreated datePublished" datetime="2017-08-15T15:44:38+08:00">2017-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="题目概述"><a href="#题目概述" class="headerlink" title="题目概述"></a>题目概述</h2><p>这是一道CTF的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1qYsNeKO">kernel题</a>，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：<br>1.修改进程的cred结构体中权限相关的信息，将权限改为root；<br>2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。<br>题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下：</p>
+          <h2 id="题目概述"><a href="#题目概述" class="headerlink" title="题目概述"></a>题目概述</h2><p>这是一道CTF的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1qYsNeKO">kernel题</a>，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：<br>1.修改进程的cred结构体中权限相关的信息，将权限改为root；<br>2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。<br>题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line"></span><br><span class="line">qemu-system-x86_64 -initrd rootfs.cpio -kernel bzImage -append &#39;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;ram oops&#x3D;panic panic&#x3D;1&#39; -enable-kvm -monitor &#x2F;dev&#x2F;null -m 64M --nographic  -smp cores&#x3D;1,threads&#x3D;1 -cpu kvm64,+smep</span><br></pre></td></tr></table></figure>
 <p>需要用qemu启动，bzImage是kernel映像，rootfs.cpio是根文件的映像。我用的VMware里的Linux虚拟机安装qemu，这里会报一个KVM的错误，需要开启一下虚拟化功能：<br><img src="/images/linuxkernel/virtualkvm.png"><br>如果要调试的话，可以在boot.sh中加入参数<code>-gdb tcp::1234 -S</code>，这样系统启动时会挂起等待gdb连接，gdb中用<code>target remote :1234</code>连接即可。<br>要向系统中添加文件，就需要解包cpio文件，将文件放到目录中再打包：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ file rootfs.cpio</span><br><span class="line">rootfs.cpio: gzip compressed data, last modified: Tue Jul  4 08:39:15 2017, max compression, from Unix</span><br><span class="line">$ mv rootfs.cpio rootfs.cpio.gz</span><br><span class="line">$ gunzip rootfs.cpio.gz</span><br><span class="line">$ file rootfs.cpio </span><br><span class="line">rootfs.cpio: ASCII cpio archive (SVR4 with no CRC)</span><br><span class="line">$ cpio -idmv &lt; rootfs.cpio</span><br><span class="line">&#x2F;&#x2F; 解包完成，可以向目录中添加文件</span><br><span class="line">$ ls</span><br><span class="line">bin  etc  home  init  lib  linuxrc  proc  rootfs.cpio  sbin  sys  tmp  usr</span><br><span class="line">&#x2F;&#x2F; 重新打包，不需要压缩也可以</span><br><span class="line">$ find . | cpio -o --format&#x3D;newc &gt; ..&#x2F;rootfs.cpio</span><br></pre></td></tr></table></figure>
@@ -575,132 +924,237 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/08/15/Linux-Kernel-UAF/" data-id="ckhe7o4oj007rchl79ang4goi" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
 
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-    </div>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
   </div>
 
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/06/User-namespace/">User namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-          </li>
-        
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
       </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
     </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
   </div>
 
   
-</aside>
-        
-      </div>
-      <footer id="footer">
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
   
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-    <a href="/" class="mobile-nav-link">Home</a>
+
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
 
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
 </body>
 </html>

@@ -1,138 +1,279 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="BruceFan&#39;s Blog">
 <meta property="og:url" content="http://example.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:locale">
+<meta property="article:author" content="Bruce Fan">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+<link rel="canonical" href="http://example.com/">
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
   
-    <article id="post-so文件的-init-array段中添加代码" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/" class="article-date">
-  <time datetime="2020-07-29T13:05:40.000Z" itemprop="datePublished">2020-07-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/" class="post-title-link" itemprop="url">so文件的.init_array段中添加代码</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-07-29 21:05:40" itemprop="dateCreated datePublished" datetime="2020-07-29T21:05:40+08:00">2020-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 11:15:24" itemprop="dateModified" datetime="2020-11-12T11:15:24+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>其实之前的Android linker文章中有提到，但是没有实际写过时间长了就忘记了。so文件是一个elf格式的文件，在so被加载之前，会执行init段的代码。在结束的时候，会执行fini段的代码。这个技术一般是用来解密加壳文件的，我遇到的场景是加沙箱，下面就介绍一下实现方法。<br>1.so源文件</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gcc sb.c -fPIC -shared -o libsb.so</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sandbox_init</span><span class="params">(<span class="keyword">void</span>)</span> __<span class="title">attribute__</span><span class="params">((constructor))</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sandbox_fini</span><span class="params">(<span class="keyword">void</span>)</span> __<span class="title">attribute__</span><span class="params">((destructor))</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">log_func</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;log_func: %s\n&quot;</span>, m);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sandbox_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sandbox init\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sandbox_fini</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sandbox fini\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>2.头文件</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> _MY_SO_HEADER_</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _MY_SO_HEADER_</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">log_func</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *m)</span></span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<p>3.main文件</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gcc main.c -o main -L. -lsb</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;sb.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;main start\n&quot;</span>);</span><br><span class="line">    log_func(<span class="string">&quot;main&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;main exit\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>4.执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;main</span><br><span class="line">sandbox init</span><br><span class="line">main start</span><br><span class="line">log_func: main</span><br><span class="line">main exit</span><br><span class="line">sandbox fini</span><br></pre></td></tr></table></figure>
 
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>其实之前的Android linker文章中有提到，但是没有实际写过时间长了就忘记了。so文件是一个elf格式的文件，在so被加载之前，会执行init段的代码。在结束的时候，会执行fini段的代码。这个技术一般是用来解密加壳文件的，我遇到的场景是加沙箱，下面就介绍一下实现方法。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/" data-id="ckhe7o4n50055chl7hcxca7j9" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-PID-namespace" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/07/09/PID-namespace/" class="article-date">
-  <time datetime="2020-07-09T03:32:17.000Z" itemprop="datePublished">2020-07-09</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/09/PID-namespace/">PID namespace</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/09/PID-namespace/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/09/PID-namespace/" class="post-title-link" itemprop="url">PID namespace</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-07-09 11:32:17" itemprop="dateCreated datePublished" datetime="2020-07-09T11:32:17+08:00">2020-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>PID namespace用来隔离进程的PID空间，使得不同PID namespace中的进程号可以重复且互不影响。Linux下的每个进程都有一个对应的/proc/pid目录，该目录包含了进程相关的信息。对于一个PID namespace，/proc目录只包含当前namespace和它所有子孙后代namespace里的进程信息。创建一个新的PID namespace后，需要挂载/proc文件系统才能让子进程中top、ps等依赖/proc文件系统的命令正常工作。<br>1.命令行使用<br>下面通过例子演示挂载/proc文件系统的作用：</p>
+          <p>PID namespace用来隔离进程的PID空间，使得不同PID namespace中的进程号可以重复且互不影响。Linux下的每个进程都有一个对应的/proc/pid目录，该目录包含了进程相关的信息。对于一个PID namespace，/proc目录只包含当前namespace和它所有子孙后代namespace里的进程信息。创建一个新的PID namespace后，需要挂载/proc文件系统才能让子进程中top、ps等依赖/proc文件系统的命令正常工作。<br>1.命令行使用<br>下面通过例子演示挂载/proc文件系统的作用：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ echo $$</span><br><span class="line">9501</span><br><span class="line">$ readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026531836]</span><br><span class="line">$ sudo unshare --pid --mount --fork &#x2F;bin&#x2F;bash</span><br><span class="line"># readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026531836]</span><br><span class="line"># ps</span><br><span class="line">  PID TTY          TIME CMD</span><br><span class="line">11178 pts&#x2F;0    00:00:00 sudo</span><br><span class="line">11180 pts&#x2F;0    00:00:00 unshare</span><br><span class="line">11183 pts&#x2F;0    00:00:00 bash</span><br><span class="line">11211 pts&#x2F;0    00:00:00 ps</span><br><span class="line"># echo $$</span><br><span class="line">1</span><br><span class="line"># ps 1</span><br><span class="line">  PID TTY      STAT   TIME COMMAND</span><br><span class="line">    1 ?        Ss     0:02 &#x2F;sbin&#x2F;init splash</span><br></pre></td></tr></table></figure>
 <p>在创建新PID namespace后，当前bash进程的pid变成了1，但是通过ps命令可以看出进程信息使用的还是旧PID namespace中的，因此readlink读取的PID namespace信息是/sbin/init进程的，所以PID namespace没有变。–mount新建的mount namespace的挂载信息是从旧mount namespace中拷贝过来的，因此需要挂载新的/proc文件系统：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># mount -t proc proc &#x2F;proc</span><br><span class="line"># readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026532726]</span><br><span class="line"># ps</span><br><span class="line">  PID TTY          TIME CMD</span><br><span class="line">    1 pts&#x2F;0    00:00:00 bash</span><br><span class="line">   26 pts&#x2F;0    00:00:00 ps</span><br></pre></td></tr></table></figure>
@@ -145,42 +286,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/09/PID-namespace/" data-id="ckhe7o4m5003jchl75nx23eqg" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Mount-namespace" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/07/08/Mount-namespace/" class="article-date">
-  <time datetime="2020-07-08T13:31:59.000Z" itemprop="datePublished">2020-07-08</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/08/Mount-namespace/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/08/Mount-namespace/" class="post-title-link" itemprop="url">Mount namespace</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-07-08 21:31:59" itemprop="dateCreated datePublished" datetime="2020-07-08T21:31:59+08:00">2020-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>mount namespace稍微简单点，因为PID namesapce需要用到所以就先简单介绍一下。<br>mount namespace是用来隔离文件系统的挂载点，这样进程就只能看到自己的文件系统挂载点。新mount namespace中的挂载点是从调用者所在的mount namespace中拷贝的，但是新mount namespace创建后和原mount namespace就没啥关系了（除了shared subtree的情况），下面通过iso文件的挂载来演示。<br>1.创建所需的路径</p>
+          <p>mount namespace稍微简单点，因为PID namesapce需要用到所以就先简单介绍一下。<br>mount namespace是用来隔离文件系统的挂载点，这样进程就只能看到自己的文件系统挂载点。新mount namespace中的挂载点是从调用者所在的mount namespace中拷贝的，但是新mount namespace创建后和原mount namespace就没啥关系了（除了shared subtree的情况），下面通过iso文件的挂载来演示。<br>1.创建所需的路径</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir &#x2F;demo</span><br><span class="line">$ sudo chmod 777 &#x2F;demo</span><br><span class="line">$ cd demo</span><br><span class="line">$ mkdir -p iso1&#x2F;subdir1</span><br><span class="line">$ mkdir -p iso2&#x2F;subdir2</span><br><span class="line">$ mkisofs -o 1.iso .&#x2F;iso1</span><br><span class="line">$ mkisofs -o 2.iso .&#x2F;iso2</span><br></pre></td></tr></table></figure>
 <p>再准备两个目录当挂载点：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir &#x2F;mnt&#x2F;iso1 &#x2F;mnt&#x2F;iso2</span><br></pre></td></tr></table></figure>
@@ -201,42 +368,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/08/Mount-namespace/" data-id="ckhe7o4m0003cchl7eg15305w" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-User-namespace" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/07/06/User-namespace/" class="article-date">
-  <time datetime="2020-07-06T07:58:30.000Z" itemprop="datePublished">2020-07-06</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/06/User-namespace/">User namespace</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/06/User-namespace/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/06/User-namespace/" class="post-title-link" itemprop="url">User namespace</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-07-06 15:58:30" itemprop="dateCreated datePublished" datetime="2020-07-06T15:58:30+08:00">2020-07-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>接下来打算逐个学习一下Linux namespace的作用和用法，顺序不一定科学，随心随性学习法。。第一个学的是User namespace，先学这个是因为在看Chrome沙箱的时候，用到的就是User namespace。<br>1.命令行使用<br>通过unshare命令可以启动所有的7种namespace，启动user namespace：</p>
+          <p>接下来打算逐个学习一下Linux namespace的作用和用法，顺序不一定科学，随心随性学习法。。第一个学的是User namespace，先学这个是因为在看Chrome沙箱的时候，用到的就是User namespace。<br>1.命令行使用<br>通过unshare命令可以启动所有的7种namespace，启动user namespace：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fanrong@fanrong $ unshare --user -r &#x2F;bin&#x2F;bash</span><br><span class="line">root@fanrong # </span><br></pre></td></tr></table></figure>
 <p>通过-r选项，将新user namespace中的root用户映射到外面的fanrong用户。<br>接下来介绍一下映射，使用id命令查看当前用户的ID，使用unshare命令创建一个新user namespace：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fanrong@fanrong $ unshare --user &#x2F;bin&#x2F;bash</span><br><span class="line">nobody@fanrong $ id</span><br><span class="line">uid&#x3D;65534(nobody) gid&#x3D;65534(nogroup) groups&#x3D;65534(nogroup)</span><br></pre></td></tr></table></figure>
@@ -262,42 +455,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/06/User-namespace/" data-id="ckhe7o4mp004dchl73n9r2bi3" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-UnionFS技术" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/" class="article-date">
-  <time datetime="2020-07-01T13:24:47.000Z" itemprop="datePublished">2020-07-01</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/" class="post-title-link" itemprop="url">UnionFS技术</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-07-01 21:24:47" itemprop="dateCreated datePublished" datetime="2020-07-01T21:24:47+08:00">2020-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h1 id="UnionFS技术"><a href="#UnionFS技术" class="headerlink" title="UnionFS技术"></a>UnionFS技术</h1><p>unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：<br>1.先创建如下的目录结构</p>
+          <h1 id="UnionFS技术"><a href="#UnionFS技术" class="headerlink" title="UnionFS技术"></a>UnionFS技术</h1><p>unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：<br>1.先创建如下的目录结构</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">|-- a</span><br><span class="line">|   |-- a1.txt</span><br><span class="line">|   |-- a2.txt</span><br><span class="line">|   &#96;-- test.txt</span><br><span class="line">|-- b</span><br><span class="line">|   |-- b1.txt</span><br><span class="line">|   |-- b2.txt</span><br><span class="line">|   &#96;-- test.txt</span><br><span class="line">&#96;-- mnt</span><br></pre></td></tr></table></figure>
 <p>2.执行挂载命令</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount -t aufs -o dirs&#x3D;.&#x2F;a:.&#x2F;b none .&#x2F;mnt</span><br><span class="line">$ ls mnt</span><br><span class="line">a1.txt	a2.txt	b1.txt	b2.txt	test.txt</span><br></pre></td></tr></table></figure>
@@ -309,42 +528,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/" data-id="ckhe7o4mo004achl71q2kakah" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-runc-runsc单独使用" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/" class="article-date">
-  <time datetime="2020-06-20T12:33:02.000Z" itemprop="datePublished">2020-06-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/">runc&amp;runsc单独使用</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">runc&runsc单独使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-06-20 20:33:02" itemprop="dateCreated datePublished" datetime="2020-06-20T20:33:02+08:00">2020-06-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="runc命令"><a href="#runc命令" class="headerlink" title="runc命令"></a>runc命令</h2><p>1.准备一个busybox容器所需文件系统</p>
+          <h2 id="runc命令"><a href="#runc命令" class="headerlink" title="runc命令"></a>runc命令</h2><p>1.准备一个busybox容器所需文件系统</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker pull busybox</span><br><span class="line">$ mkdir rootfs</span><br><span class="line">$ sudo docker export $(sudo docker create busybox) | sudo tar -C rootfs -xvf -</span><br></pre></td></tr></table></figure>
 <p>2.生成config.json文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ runc spec</span><br></pre></td></tr></table></figure>
@@ -360,42 +605,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/" data-id="ckhe7o4n50053chl7d20m45jy" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Qemu虚拟机与宿主机之间文件传输" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/" class="article-date">
-  <time datetime="2020-05-27T08:24:44.000Z" itemprop="datePublished">2020-05-27</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/">Qemu虚拟机与宿主机之间文件传输</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/" class="post-title-link" itemprop="url">Qemu虚拟机与宿主机之间文件传输</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-05-27 16:24:44" itemprop="dateCreated datePublished" datetime="2020-05-27T16:24:44+08:00">2020-05-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>Qemu虚拟机与宿主机之间实现文件传输，大概有四类方法：<br>1.虚拟机与宿主机之间，使用网络来进行文件传输。这个需要先在宿主机上配置网络桥架，在qemu-kvm启动配置网卡就可以实现文件传输。<br>2.使用9psetup协议实现虚拟机与宿主机之间文件传输。该方法先要宿主机需要在内核中配置了9p选项，qemu在编译时需要支持ATTR/XATTR。<br>3.通过在Qemu虚拟机中挂载宿主机中的一个文件为硬盘。<br>4.第四类方法是一种新方法，是用virtio-fs通过FUSE协议进行传输。  </p>
+          <p>Qemu虚拟机与宿主机之间实现文件传输，大概有四类方法：<br>1.虚拟机与宿主机之间，使用网络来进行文件传输。这个需要先在宿主机上配置网络桥架，在qemu-kvm启动配置网卡就可以实现文件传输。<br>2.使用9psetup协议实现虚拟机与宿主机之间文件传输。该方法先要宿主机需要在内核中配置了9p选项，qemu在编译时需要支持ATTR/XATTR。<br>3.通过在Qemu虚拟机中挂载宿主机中的一个文件为硬盘。<br>4.第四类方法是一种新方法，是用virtio-fs通过FUSE协议进行传输。  </p>
 <h2 id="通过挂载硬盘的方法"><a href="#通过挂载硬盘的方法" class="headerlink" title="通过挂载硬盘的方法"></a>通过挂载硬盘的方法</h2><p>1.用dd创建一个文件，作为虚拟机和宿主机之间传输桥梁</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;$PWD&#x2F;share.img bs&#x3D;1M count&#x3D;500</span><br></pre></td></tr></table></figure>
 <p>bs：一次读入/输出的块大小<br>count：拷贝块的个数<br>上述例子中最大可以传输的文件大小为500M。<br>2.格式化share.img文件</p>
@@ -428,42 +699,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/" data-id="ckhe7o4m2003echl7b2u23x6a" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-hxb2019-strng2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/03/23/hxb2019-strng2/" class="article-date">
-  <time datetime="2020-03-23T04:30:16.000Z" itemprop="datePublished">2020-03-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/23/hxb2019-strng2/">hxb2019 strng2</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/03/23/hxb2019-strng2/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/23/hxb2019-strng2/" class="post-title-link" itemprop="url">hxb2019 strng2</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-03-23 12:30:16" itemprop="dateCreated datePublished" datetime="2020-03-23T12:30:16+08:00">2020-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这道题是湖湘杯2019的一道QEMU pwn，<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1Ea5uQXRfr9YNWKyoLhUxXw">题目下载</a>(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。<br>解压文件，查看内容：</p>
+          <p>这道题是湖湘杯2019的一道QEMU pwn，<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1Ea5uQXRfr9YNWKyoLhUxXw">题目下载</a>(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。<br>解压文件，查看内容：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ cat launch.sh</span><br><span class="line">#! &#x2F;bin&#x2F;sh</span><br><span class="line">.&#x2F;qemu-system-x86_64 </span><br><span class="line">-initrd .&#x2F;rootfs.cpio </span><br><span class="line">-kernel .&#x2F;vmlinuz-4.8.0-52-generic </span><br><span class="line">-append &#39;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;ram oops&#x3D;panic panic&#x3D;1&#39; </span><br><span class="line">-enable-kvm </span><br><span class="line">-monitor &#x2F;dev&#x2F;null </span><br><span class="line">-m 64M --nographic -L .&#x2F;dependency&#x2F;usr&#x2F;local&#x2F;share&#x2F;qemu </span><br><span class="line">-L pc-bios </span><br><span class="line">-device strng</span><br></pre></td></tr></table></figure>
 <p>通过<code>-device strng</code>可知添加的可能存在漏洞的设备名称为<code>strng</code>，用IDA加载qemu-system-x86_64, 并在Function name中搜索strng。<br><img src="/images/strng/strng1.png"><br>查看strng_class_init()<br><img src="/images/strng/strng2.png"><br>可知strng设备的vendor_id:device_id为1234:11e9，下面运行QEMU，可能会遇到错误。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo .&#x2F;launch.sh</span><br><span class="line">.&#x2F;qemu-system-x86_64: error while loading shared libraries: libiscsi.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
@@ -489,42 +786,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/03/23/hxb2019-strng2/" data-id="ckhe7o4n2004xchl775j8eu39" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-调试Qemu-CVE-2016-4952" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/" class="article-date">
-  <time datetime="2020-02-02T02:29:57.000Z" itemprop="datePublished">2020-02-02</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/">调试Qemu CVE-2016-4952</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/" class="post-title-link" itemprop="url">调试Qemu CVE-2016-4952</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-02-02 10:29:57" itemprop="dateCreated datePublished" datetime="2020-02-02T10:29:57+08:00">2020-02-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <blockquote>
+          <blockquote>
 <p>环境：<br>Mac: VMware Fusion<br>VMware: Ubuntu 18.10 x64 4G 开启Intel VT-x/EPT支持 qemu-2.3.0<br>qemu: Ubuntu 18.04 x64 2G</p>
 </blockquote>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>虚拟硬件设备是Qemu-KVM中最大的攻击面，本文介绍的漏洞就是一个很典型的例子。根据<a target="_blank" rel="noopener" href="https://bugzilla.redhat.com/show_bug.cgi?id=1334384">CVE-2016-4952</a>的描述，这是一个OOB r/w access漏洞。当处理SCSI的<code>PVSCSI_CMD_SETUP_RINGS</code>或<code>PVSCSI_CMD_SETUP_MSG_RING</code>命令时即可触发漏洞，Guest中的root用户可以利用这个漏洞造成DoS攻击。<br>首先看一下漏洞的<a target="_blank" rel="noopener" href="https://lists.gnu.org/archive/html/qemu-devel/2016-05/msg03774.html">patch</a>(hw/scsi/vmw_pvscsi.c)：</p>
@@ -556,42 +879,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/02/02/%E8%B0%83%E8%AF%95Qemu-CVE-2016-4952/" data-id="ckhe7o4o1006tchl7gkt4grbg" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-x64通用ROP-gadget" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/01/21/x64%E9%80%9A%E7%94%A8ROP-gadget/" class="article-date">
-  <time datetime="2020-01-21T08:57:57.000Z" itemprop="datePublished">2020-01-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/01/21/x64%E9%80%9A%E7%94%A8ROP-gadget/">x64通用ROP gadget</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/01/21/x64%E9%80%9A%E7%94%A8ROP-gadget/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/21/x64%E9%80%9A%E7%94%A8ROP-gadget/" class="post-title-link" itemprop="url">x64通用ROP gadget</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2020-01-21 16:57:57" itemprop="dateCreated datePublished" datetime="2020-01-21T16:57:57+08:00">2020-01-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这是一道Redpwn CTF 2019很简单的溢出题，主要考察ROP exp的编写。<br>[srnr](<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/174jiewXQISoHb08Aqisy7Q">https://pan.baidu.com/s/174jiewXQISoHb08Aqisy7Q</a> 提取码: yt2r)<br>对二进制文件进行逆向分析，可以看到程序先读入了一个数字作为文件描述符，再从文件描述符中读取100000个字符，而buf是rbp-9，只要读超过17个字符就会覆盖到ret：<br><img src="/images/redpwn/srnr.png"><br>为了能调用<code>execve(&quot;/bin/sh&quot;, NULL, NULL)</code>，我们需要把rdi的地址设为<code>&quot;/bin/sh&quot;</code>的地址，并清空rsi和rdx。程序中存在字符串<code>&quot;/bin//sh&quot;</code>:<br><img src="/images/redpwn/srnr2.png"><br>可以用ROPgadget获取字符串的地址：</p>
+          <p>这是一道Redpwn CTF 2019很简单的溢出题，主要考察ROP exp的编写。<br>[srnr](<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/174jiewXQISoHb08Aqisy7Q">https://pan.baidu.com/s/174jiewXQISoHb08Aqisy7Q</a> 提取码: yt2r)<br>对二进制文件进行逆向分析，可以看到程序先读入了一个数字作为文件描述符，再从文件描述符中读取100000个字符，而buf是rbp-9，只要读超过17个字符就会覆盖到ret：<br><img src="/images/redpwn/srnr.png"><br>为了能调用<code>execve(&quot;/bin/sh&quot;, NULL, NULL)</code>，我们需要把rdi的地址设为<code>&quot;/bin/sh&quot;</code>的地址，并清空rsi和rdx。程序中存在字符串<code>&quot;/bin//sh&quot;</code>:<br><img src="/images/redpwn/srnr2.png"><br>可以用ROPgadget获取字符串的地址：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary .&#x2F;srnr --string &quot;&#x2F;bin&#x2F;&#x2F;sh&quot;</span><br><span class="line">Strings information</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">0x0000000000400c49 : &#x2F;bin&#x2F;&#x2F;sh</span><br></pre></td></tr></table></figure>
 <p>在main函数的ret指令之前下断点，查看寄存器值：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; regs</span><br><span class="line"> RAX  0x0</span><br><span class="line"> RBX  0x0</span><br><span class="line"> RCX  0x7ffff7af4081 (read+17) ◂— cmp    rax, -0x1000 &#x2F;* &#39;H&#x3D;&#39; *&#x2F;</span><br><span class="line"> RDX  0xffffffffffffff80</span><br><span class="line"> RDI  0x0</span><br><span class="line"> RSI  0x7fffffffdf27 ◂— 0x0</span><br><span class="line"> R8   0x0</span><br><span class="line"> R9   0x0</span><br><span class="line"> R10  0x7ffff7b82cc0 (_nl_C_LC_CTYPE_class+256) ◂— add    al, byte ptr [rax]</span><br><span class="line"> R11  0x246</span><br><span class="line"> R12  0x400600 (_start) ◂— xor    ebp, ebp</span><br><span class="line"> R13  0x7fffffffe010 ◂— 0x1</span><br><span class="line"> R14  0x0</span><br><span class="line"> R15  0x0</span><br><span class="line"> RBP  0x7fffffffdf30 —▸ 0x4007c0 (__libc_csu_init) ◂— push   r15</span><br><span class="line"> RSP  0x7fffffffdf20 —▸ 0x7fffffffe010 ◂— 0x1</span><br><span class="line"> RIP  0x4007b7 (main+124) ◂— leave </span><br></pre></td></tr></table></figure>
@@ -610,132 +959,184 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/01/21/x64%E9%80%9A%E7%94%A8ROP-gadget/" data-id="ckhe7o4n60057chl7atorbm0w" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
 
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-    </div>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
   </div>
 
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/06/User-namespace/">User namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-          </li>
-        
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
       </ul>
-    </div>
-  </div>
 
-  
-</aside>
-        
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
     </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+        
 
 
 
 
-<script src="/js/script.js"></script>
 
 
 
 
+      </div>
+    </footer>
   </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
 </body>
 </html>

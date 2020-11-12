@@ -1,92 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="BruceFan&#39;s Blog">
 <meta property="og:url" content="http://example.com/page/2/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:locale">
+<meta property="article:author" content="Bruce Fan">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+<link rel="canonical" href="http://example.com/page/2/">
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
   
-    <article id="post-Tcache利用入门" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/22/Tcache%E5%88%A9%E7%94%A8%E5%85%A5%E9%97%A8/" class="article-date">
-  <time datetime="2019-11-22T01:25:56.000Z" itemprop="datePublished">2019-11-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/22/Tcache%E5%88%A9%E7%94%A8%E5%85%A5%E9%97%A8/">Tcache利用入门</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/11/22/Tcache%E5%88%A9%E7%94%A8%E5%85%A5%E9%97%A8/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/22/Tcache%E5%88%A9%E7%94%A8%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Tcache利用入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-11-22 09:25:56" itemprop="dateCreated datePublished" datetime="2019-11-22T09:25:56+08:00">2019-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="Tcache介绍"><a href="#Tcache介绍" class="headerlink" title="Tcache介绍"></a>Tcache介绍</h2><p>tcache是libc2.26之后引入的一种新机制，与fastbin类似，是一个LIFO的单链表，每条链上最多有7个chunk，free的时候先放入tcache，tcache满了再放入fastbin，unsorted bin，libc2.29之前不会检查double free。malloc的时候先去tcache找，其相关结构体如下：</p>
+          <h2 id="Tcache介绍"><a href="#Tcache介绍" class="headerlink" title="Tcache介绍"></a>Tcache介绍</h2><p>tcache是libc2.26之后引入的一种新机制，与fastbin类似，是一个LIFO的单链表，每条链上最多有7个chunk，free的时候先放入tcache，tcache满了再放入fastbin，unsorted bin，libc2.29之前不会检查double free。malloc的时候先去tcache找，其相关结构体如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; tcache_entry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_perthread_struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">char</span> counts[TCACHE_MAX_BINS];</span><br><span class="line">  tcache_entry *entries[TCACHE_MAX_BINS];</span><br><span class="line">&#125; tcache_perthread_struct;</span><br></pre></td></tr></table></figure>
 <p><code>tcache_perthread_struct</code>结构体是用来管理tcache链表的。TCACHE_MAX_BINS值是64，表示有64个链表，counts中一个元素表示对应链表中有多少个chunk，entries中的元素就是tcache链表。tcachebin和fastbin都是通过chunk的fd字段来作为链表的指针，tcachebin中的链表指针指向的下一个chunk的fd字段，fastbin中的链表指针指向的是下一个chunk的prev_size字段</p>
 <h2 id="Tcache利用"><a href="#Tcache利用" class="headerlink" title="Tcache利用"></a>Tcache利用</h2><p>Tcache的利用主要分为以下几种：</p>
@@ -111,42 +226,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/11/22/Tcache%E5%88%A9%E7%94%A8%E5%85%A5%E9%97%A8/" data-id="ckhe7o4ml0043chl7hc6xanu1" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-复现思科IOS系统远程代码执行漏洞CVE-2017-6736" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/" class="article-date">
-  <time datetime="2019-11-11T02:47:59.000Z" itemprop="datePublished">2019-11-11</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/">复现思科IOS系统远程代码执行漏洞CVE-2017-6736</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/" class="post-title-link" itemprop="url">复现思科IOS系统远程代码执行漏洞CVE-2017-6736</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-11-11 10:47:59" itemprop="dateCreated datePublished" datetime="2019-11-11T10:47:59+08:00">2019-11-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="双机本地环境"><a href="#双机本地环境" class="headerlink" title="双机本地环境"></a>双机本地环境</h2><p>环境：<br>台式机Ubuntu<br>笔记本Mac<br>模拟器GNS3<br>IOS镜像c7200-adventerprisek9-mz.151-4.M2.bin(mips 32bit big-endian)<br>台式机(192.168.1.3)和笔记本(192.168.1.8)在同一局域网中  </p>
+          <h2 id="双机本地环境"><a href="#双机本地环境" class="headerlink" title="双机本地环境"></a>双机本地环境</h2><p>环境：<br>台式机Ubuntu<br>笔记本Mac<br>模拟器GNS3<br>IOS镜像c7200-adventerprisek9-mz.151-4.M2.bin(mips 32bit big-endian)<br>台式机(192.168.1.3)和笔记本(192.168.1.8)在同一局域网中  </p>
 <p>实验采用台式机上GNS3本地模拟的方法：<br>1.先加载路由器镜像，创建路由器连接Cloud的拓扑结构，Configure Cloud的以太网接口为台式机的物理网卡，连接路由器的fa0/0接口到Cloud的以太网接口，启动路由器。<br>2.打开路由器的Console，配置fa0/0的ip为dhcp</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">R1#conf t</span><br><span class="line">R1(config)#int fa0&#x2F;0</span><br><span class="line">R1(config-if)#ip address dhcp</span><br><span class="line">R1(config-if)#no shutdown</span><br><span class="line">R1(config-if)#end</span><br><span class="line">R1#</span><br></pre></td></tr></table></figure>
 <p>dhcp会自动为路由器分配一个局域网ip地址</p>
@@ -187,42 +328,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/11/11/%E5%A4%8D%E7%8E%B0%E6%80%9D%E7%A7%91IOS%E7%B3%BB%E7%BB%9F%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9ECVE-2017-6736/" data-id="ckhe7o4nf005pchl71hs12buu" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Syzkaller-Fuzz-Android-Kernel" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/10/29/Syzkaller-Fuzz-Android-Kernel/" class="article-date">
-  <time datetime="2019-10-29T13:16:25.000Z" itemprop="datePublished">2019-10-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/10/29/Syzkaller-Fuzz-Android-Kernel/">Syzkaller Fuzz Android Kernel</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/10/29/Syzkaller-Fuzz-Android-Kernel/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/29/Syzkaller-Fuzz-Android-Kernel/" class="post-title-link" itemprop="url">Syzkaller Fuzz Android Kernel</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-10-29 21:16:25" itemprop="dateCreated datePublished" datetime="2019-10-29T21:16:25+08:00">2019-10-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>在<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm64-kernel.md">Syzkaller官网</a>上有关于如何对Android Kernel进行fuzz的方法，但是按照上面的步骤有很多不清楚的地方。<br>我的环境如下：<br>Android设备：Pixel<br>Android系统：Anroid9.0.0_r33  </p>
+          <p>在<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm64-kernel.md">Syzkaller官网</a>上有关于如何对Android Kernel进行fuzz的方法，但是按照上面的步骤有很多不清楚的地方。<br>我的环境如下：<br>Android设备：Pixel<br>Android系统：Anroid9.0.0_r33  </p>
 <h2 id="编译Android版Syzkaller"><a href="#编译Android版Syzkaller" class="headerlink" title="编译Android版Syzkaller"></a>编译Android版Syzkaller</h2><p>官网上是这么操作的：<br>以防你有旧的Android /dev/ion 驱动：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cp sys&#x2F;android&#x2F;* sys&#x2F;linux</span><br><span class="line">$ make generate</span><br><span class="line">...</span><br><span class="line">Makefile:196: recipe for target &#39;generate_sys&#39; failed</span><br><span class="line">make: *** [generate_sys] Error 1</span><br></pre></td></tr></table></figure>
 <p>会报错，现在还没找到解决方法。<br>编译arm64版syzkaller：</p>
@@ -261,42 +428,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/10/29/Syzkaller-Fuzz-Android-Kernel/" data-id="ckhe7o4mh003wchl71vdq39xh" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Android10内核调试" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" class="article-date">
-  <time datetime="2019-10-15T02:42:33.000Z" itemprop="datePublished">2019-10-15</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">Android10内核调试</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">Android10内核调试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-10-15 10:42:33" itemprop="dateCreated datePublished" datetime="2019-10-15T10:42:33+08:00">2019-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="编译Android10-0-0-r2"><a href="#编译Android10-0-0-r2" class="headerlink" title="编译Android10.0.0_r2"></a>编译Android10.0.0_r2</h2><p>1.选择aosp_x86_64-eng版本，因为编译成aosp_arm64-eng的启动不了。<br>2.emulator启动  </p>
+          <h2 id="编译Android10-0-0-r2"><a href="#编译Android10-0-0-r2" class="headerlink" title="编译Android10.0.0_r2"></a>编译Android10.0.0_r2</h2><p>1.选择aosp_x86_64-eng版本，因为编译成aosp_arm64-eng的启动不了。<br>2.emulator启动  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">emulator: ERROR: x86_64 emulation currently requires hardware acceleration!</span><br><span class="line">Please ensure KVM is properly installed and usable.</span><br><span class="line">CPU acceleration status: This user doesn&#39;t have permissions to use KVM (&#x2F;dev&#x2F;kvm)</span><br></pre></td></tr></table></figure>
 <p>解决方法：<br>（1）安装kvm</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install qemu-kvm cpu-checker</span><br><span class="line">$ kvm-ok</span><br><span class="line">  INFO: &#x2F;dev&#x2F;kvm exists</span><br><span class="line">  KVM acceleration can be used</span><br></pre></td></tr></table></figure>
@@ -323,42 +516,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/10/15/Android10%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" data-id="ckhe7o4k00008chl7g5qdg8pd" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Syzkaller-Crash-Demo" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/10/09/Syzkaller-Crash-Demo/" class="article-date">
-  <time datetime="2019-10-09T02:35:32.000Z" itemprop="datePublished">2019-10-09</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/10/09/Syzkaller-Crash-Demo/">Syzkaller Crash Demo</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/10/09/Syzkaller-Crash-Demo/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/09/Syzkaller-Crash-Demo/" class="post-title-link" itemprop="url">Syzkaller Crash Demo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-10-09 10:35:32" itemprop="dateCreated datePublished" datetime="2019-10-09T10:35:32+08:00">2019-10-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>基于前一篇Syzkaller Fuzz Linux AMD64的文章，这里用一个自己写的驱动（有一个堆溢出）做演示。</p>
+          <p>基于前一篇Syzkaller Fuzz Linux AMD64的文章，这里用一个自己写的驱动（有一个堆溢出）做演示。</p>
 <h2 id="在Syzkaller中添加规则"><a href="#在Syzkaller中添加规则" class="headerlink" title="在Syzkaller中添加规则"></a>在Syzkaller中添加规则</h2><p>在syzkaller/sys/linux目录编辑proc_operation.txt。<br><strong>proc_operation.txt</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">include &lt;linux&#x2F;fs.h&gt;</span><br><span class="line"></span><br><span class="line">open$proc(file ptr[in, string[&quot;&#x2F;proc&#x2F;test&quot;]], flags flags[proc_open_flags], mode flags[proc_open_mode]) fd</span><br><span class="line">read$proc(fd fd, buf buffer[out], count len[buf])</span><br><span class="line">write$proc(fd fd, buf buffer[in], count len[buf])</span><br><span class="line">close$proc(fd fd)</span><br><span class="line"></span><br><span class="line">proc_open_flags &#x3D; O_RDONLY, O_WRONLY, O_RDWR, O_APPEND, FASYNC, O_CLOEXEC, O_CREAT, O_DIRECT, O_DIRECTORY, O_EXCL, O_LARGEFILE, O_NOATIME, O_NOCTTY, O_NOFOLLOW, O_NONBLOCK, O_PATH, O_SYNC, O_TRUNC, __O_TMPFILE</span><br><span class="line">proc_open_mode &#x3D; S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, S_IWOTH, S_IXOTH</span><br></pre></td></tr></table></figure>
 <p>syzkaller/sys/linux目录下的sys.txt中有通用的调用形式可以参考。</p>
@@ -389,42 +608,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/10/09/Syzkaller-Crash-Demo/" data-id="ckhe7o4mg003tchl70c4r3tbp" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-gcc编译-替换库函数" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/" class="article-date">
-  <time datetime="2019-08-29T12:52:56.000Z" itemprop="datePublished">2019-08-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/">gcc编译 替换库函数</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">gcc编译 替换库函数</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-08-29 20:52:56" itemprop="dateCreated datePublished" datetime="2019-08-29T20:52:56+08:00">2019-08-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="替换同名函数"><a href="#替换同名函数" class="headerlink" title="替换同名函数"></a>替换同名函数</h2><p>使用gcc选项no-builtin，默认不使用系统的优化函数，而使用自定义的函数。<br>case for study</p>
+          <h2 id="替换同名函数"><a href="#替换同名函数" class="headerlink" title="替换同名函数"></a>替换同名函数</h2><p>使用gcc选项no-builtin，默认不使用系统的优化函数，而使用自定义的函数。<br>case for study</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// printf.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">printf</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* format, ...)</span> </span>&#123;</span><br><span class="line">    write(STDOUT_FILENO, <span class="string">&quot;my printf\n&quot;</span>, <span class="number">10</span>);</span><br><span class="line">    write(STDOUT_FILENO, format, <span class="built_in">strlen</span>(format));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -443,42 +688,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/08/29/gcc%E7%BC%96%E8%AF%91-%E6%9B%BF%E6%8D%A2%E5%BA%93%E5%87%BD%E6%95%B0/" data-id="ckhe7o4mz004tchl76ax6859w" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-移植AFL到ARM架构" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/" class="article-date">
-  <time datetime="2019-07-30T03:01:13.000Z" itemprop="datePublished">2019-07-30</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/">移植AFL到ARM架构</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/" class="post-title-link" itemprop="url">移植AFL到ARM架构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-07-30 11:01:13" itemprop="dateCreated datePublished" datetime="2019-07-30T11:01:13+08:00">2019-07-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>说是移植AFL，其实是移植android-afl，因为AFL的插桩代码都是汇编写的，原版都是ATT汇编，要直接写ARM汇编有点难度，android-afl里有这部分内容，所以改起来容易一些。但是Android和普通Linux还是有一些区别的，我用的是树莓派3B，Raspberry系统。<br>首先修改的是插桩部分的代码，在afl-as.c中的add_instrumentation_arm函数里，里面的插桩条件需要修改，一开始我只改了：</p>
+          <p>说是移植AFL，其实是移植android-afl，因为AFL的插桩代码都是汇编写的，原版都是ATT汇编，要直接写ARM汇编有点难度，android-afl里有这部分内容，所以改起来容易一些。但是Android和普通Linux还是有一些区别的，我用的是树莓派3B，Raspberry系统。<br>首先修改的是插桩部分的代码，在afl-as.c中的add_instrumentation_arm函数里，里面的插桩条件需要修改，一开始我只改了：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if (!strncmp(line, &quot;\t.fnstart&quot;, 9)) &#123;</span><br><span class="line">  instr_ok &#x3D; 1;</span><br><span class="line">  instrument_next &#x3D; 1;</span><br><span class="line">  continue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (!strncmp(line, &quot;\t.fnend&quot;, 7)) &#123;</span><br><span class="line">  instr_ok &#x3D; 0;</span><br><span class="line">  continue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>因为我看在pi上用gcc -S vuln.c -o vuln.s编译出来的汇编文件中没有.fnstart和.fnend，就参照原版改成了.text和.section，然后就可以插桩了，我以为这样就可以了，结果发现far from it。。<br>后来我修改edit_params()里的modified_file，将AFL编译的汇编文件保存在当前目录，看到这个汇编文件有一千多行，比gcc编译的多了好多，不知道这些多的代码是AFL里哪些代码插入的，后来又修改了afl-gcc文件，打印编译时的选项，发现多了<code>-g</code>、<code>-O3</code>、<code>-funroll-loop</code>等。所以在编译汇编文件的时候加上了这些选项，编译出来的汇编文件就有一千多行了，只是还没有插桩，因此就对照这个汇编文件修改afl-as.c里的插桩条件的代码，这次修改之后就可以正确插桩了。<br>还有一个修改的地方是afl-as.h里的插桩trampoline代码和payload代码，跳板代码里有一个movw指令，afl-gcc编译目标代码的时候会出错，查了一下mov指令只能把小于0x100的立即数放到寄存器，大于0x100就可能出错，所以这里用的movw，但是编译不过，于是又找到了一个替代的方法，用<code>ldr r0, =#%u</code>方法，由编译器选择一个内存位置存放立即数，然后从内存中加载立即数到寄存器。<br>payload中的错误原因是Android的共享内存使用的是匿名共享内存，和普通Linux上使用方式有区别，找到这个错误是在运行afl-fuzz时fuzzer进程和fork server不能正常通信。在Android上获取共享内存的方法<code>external/fio/os/os-android.h</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">static inline void *shmat (int __shmid, const void *__shmaddr, int __shmflg)</span><br><span class="line">&#123;</span><br><span class="line">  size_t *ptr, size &#x3D; ioctl(__shmid, ASHMEM_GET_SIZE, NULL); &#x2F;&#x2F; ASHMEM_GET_SIZE 0X7704</span><br><span class="line">  ptr &#x3D; mmap(NULL, size + sizeof(size_t), PROT_READ | PROT_WRITE, MAP_SHARED, __shmid, 0);</span><br><span class="line">  *ptr &#x3D; size;    &#x2F;&#x2F;save size at beginning of buffer, for use with munmap</span><br><span class="line">  return &amp;ptr[1];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -486,42 +757,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/07/30/%E7%A7%BB%E6%A4%8DAFL%E5%88%B0ARM%E6%9E%B6%E6%9E%84/" data-id="ckhe7o4nx006jchl75bn17ypy" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-Ubuntu读取开发板串口数据" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/" class="article-date">
-  <time datetime="2019-07-27T03:05:59.000Z" itemprop="datePublished">2019-07-27</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/">Ubuntu读取开发板串口数据</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/" class="post-title-link" itemprop="url">Ubuntu读取开发板串口数据</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-07-27 11:05:59" itemprop="dateCreated datePublished" datetime="2019-07-27T11:05:59+08:00">2019-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>我的stm32l431开发板使用的是CH340 USB转串口芯片，Linux默认有这个驱动程序，将设备插到电脑上后在/dev目录下会多一个ttyUSB0设备，用dmesg查看驱动内核log：</p>
+          <p>我的stm32l431开发板使用的是CH340 USB转串口芯片，Linux默认有这个驱动程序，将设备插到电脑上后在/dev目录下会多一个ttyUSB0设备，用dmesg查看驱动内核log：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ dmesg</span><br><span class="line">...</span><br><span class="line">[91912.510126] usbcore: registered new interface driver ch341</span><br><span class="line">[91912.510142] usbserial: USB Serial support registered for ch341-uart</span><br><span class="line">[91912.510157] ch341 3-3.1:1.0: ch341-uart converter detected</span><br><span class="line">[91912.524719] usb 3-3.1: ch341-uart converter now attached to ttyUSB0</span><br></pre></td></tr></table></figure>
 <p>下面就编写读取串口数据的程序：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;      &#x2F;*标准输入输出定义*&#x2F;</span><br><span class="line">#include &lt;stdlib.h&gt;     &#x2F;*标准函数库定义*&#x2F;</span><br><span class="line">#include &lt;unistd.h&gt;     &#x2F;*Unix标准函数定义*&#x2F;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;  &#x2F;**&#x2F;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;   &#x2F;**&#x2F;</span><br><span class="line">#include &lt;fcntl.h&gt;      &#x2F;*文件控制定义*&#x2F;</span><br><span class="line">#include &lt;termios.h&gt;    &#x2F;*PPSIX终端控制定义*&#x2F;</span><br><span class="line">#include &lt;errno.h&gt;      &#x2F;*错误号定义*&#x2F;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#define TRUE 1</span><br><span class="line">#define FALSE 0</span><br><span class="line"></span><br><span class="line">&#x2F;***@brief  设置串口通信速率</span><br><span class="line"> *@param  fd     类型 int  打开串口的文件句柄</span><br><span class="line"> *@param  speed  类型 int  串口速度</span><br><span class="line"> *@return  void*&#x2F;</span><br><span class="line"></span><br><span class="line">void set_speed(int fd, int speed) &#123;</span><br><span class="line">	int i;</span><br><span class="line">	int status;</span><br><span class="line">	struct termios Opt;</span><br><span class="line">	tcgetattr(fd, &amp;Opt);</span><br><span class="line">	tcflush(fd, TCIOFLUSH);</span><br><span class="line">	cfsetispeed(&amp;Opt, speed);</span><br><span class="line">	cfsetospeed(&amp;Opt, speed);</span><br><span class="line">	status &#x3D; tcsetattr(fd, TCSANOW, &amp;Opt);</span><br><span class="line">	if (status !&#x3D; 0)</span><br><span class="line">		perror(&quot;tcsetattr fd1&quot;);</span><br><span class="line">	return;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief   设置串口数据位，停止位和效验位</span><br><span class="line"> *@param  fd     类型  int  打开的串口文件句柄*</span><br><span class="line"> *@param  databits 类型  int 数据位   取值 为 7 或者8*</span><br><span class="line"> *@param  stopbits 类型  int 停止位   取值为 1 或者2*</span><br><span class="line"> *@param  parity  类型  int  效验类型 取值为N,E,O,,S</span><br><span class="line"> *&#x2F;</span><br><span class="line">int set_Parity(int fd, int databits, int stopbits, int parity) &#123;</span><br><span class="line">	struct termios options;</span><br><span class="line">	if (tcgetattr(fd, &amp;options) !&#x3D; 0) &#123;</span><br><span class="line">		perror(&quot;SetupSerial 1&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	options.c_cflag &amp;&#x3D; ~CSIZE;</span><br><span class="line">	switch (databits) &#x2F;*设置数据位数*&#x2F;</span><br><span class="line">	&#123;</span><br><span class="line">	case 7:</span><br><span class="line">		options.c_cflag |&#x3D; CS7;</span><br><span class="line">		break;</span><br><span class="line">	case 8:</span><br><span class="line">		options.c_cflag |&#x3D; CS8;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported data size\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	switch (parity) &#123;</span><br><span class="line">	case &#39;n&#39;:</span><br><span class="line">	case &#39;N&#39;:</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARENB; &#x2F;* Clear parity enable *&#x2F;</span><br><span class="line">		options.c_iflag &amp;&#x3D; ~INPCK; &#x2F;* Enable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;o&#39;:</span><br><span class="line">	case &#39;O&#39;:</span><br><span class="line">		options.c_cflag |&#x3D; (PARODD | PARENB); &#x2F;* 设置为奇效验*&#x2F;</span><br><span class="line">		options.c_iflag |&#x3D; INPCK; &#x2F;* Disnable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;e&#39;:</span><br><span class="line">	case &#39;E&#39;:</span><br><span class="line">		options.c_cflag |&#x3D; PARENB; &#x2F;* Enable parity *&#x2F;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARODD; &#x2F;* 转换为偶效验*&#x2F;</span><br><span class="line">		options.c_iflag |&#x3D; INPCK; &#x2F;* Disnable parity checking *&#x2F;</span><br><span class="line">		break;</span><br><span class="line">	case &#39;S&#39;:</span><br><span class="line">	case &#39;s&#39;: &#x2F;*as no parity*&#x2F;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~PARENB;</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported parity\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* 设置停止位*&#x2F;</span><br><span class="line">	switch (stopbits) &#123;</span><br><span class="line">	case 1:</span><br><span class="line">		options.c_cflag &amp;&#x3D; ~CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	case 2:</span><br><span class="line">		options.c_cflag |&#x3D; CSTOPB;</span><br><span class="line">		break;</span><br><span class="line">	default:</span><br><span class="line">		fprintf(stderr, &quot;Unsupported stop bits\n&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* Set input parity option *&#x2F;</span><br><span class="line">	if (parity !&#x3D; &#39;n&#39;)</span><br><span class="line">		options.c_iflag |&#x3D; INPCK;</span><br><span class="line">	options.c_cc[VTIME] &#x3D; 150; &#x2F;&#x2F; 15 seconds</span><br><span class="line">	options.c_cc[VMIN] &#x3D; 0;</span><br><span class="line"></span><br><span class="line">	tcflush(fd, TCIFLUSH); &#x2F;* Update the options and do it NOW *&#x2F;</span><br><span class="line">	if (tcsetattr(fd, TCSANOW, &amp;options) !&#x3D; 0) &#123;</span><br><span class="line">		perror(&quot;SetupSerial 3&quot;);</span><br><span class="line">		return (FALSE);</span><br><span class="line">	&#125;</span><br><span class="line">	return (TRUE);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief 打开串口</span><br><span class="line"> *&#x2F;</span><br><span class="line">int OpenDev(char *Dev) &#123;</span><br><span class="line">	int fd &#x3D; open(Dev, O_RDWR);         &#x2F;&#x2F;| O_NOCTTY | O_NDELAY</span><br><span class="line">	if (-1 &#x3D;&#x3D; fd) &#123; &#x2F;*设置数据位数*&#x2F;</span><br><span class="line">		perror(&quot;Can&#39;t Open Serial Port&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125; else</span><br><span class="line">		return fd;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;**</span><br><span class="line"> *@brief 	main()</span><br><span class="line"> *&#x2F;</span><br><span class="line">int main(int argc, char **argv) &#123;</span><br><span class="line">	int fd;</span><br><span class="line">	int nread;</span><br><span class="line">	char prev[512], buf[512];</span><br><span class="line">	char *dev &#x3D; &quot;&#x2F;dev&#x2F;ttyUSB0&quot;;</span><br><span class="line">	FILE *fp;</span><br><span class="line"></span><br><span class="line">	fd &#x3D; OpenDev(dev);</span><br><span class="line">	if (fd &gt; 0)</span><br><span class="line">		set_speed(fd, B115200);</span><br><span class="line">	else &#123;</span><br><span class="line">		printf(&quot;Can&#39;t Open Serial Port!\n&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	if (set_Parity(fd, 8, 1, &#39;N&#39;) &#x3D;&#x3D; FALSE) &#123;</span><br><span class="line">		printf(&quot;Set Parity Error\n&quot;);</span><br><span class="line">		exit(1);</span><br><span class="line">	&#125;</span><br><span class="line">	while ((nread &#x3D; read(fd, buf, 512)) &gt; 0) &#123;</span><br><span class="line">		buf[nread + 1] &#x3D; &#39;\0&#39;;</span><br><span class="line">		printf(&quot;buf: %s\n&quot;, buf);</span><br><span class="line">	&#125;</span><br><span class="line">	close(fd);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -532,42 +829,68 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/07/27/Ubuntu%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%B2%E5%8F%A3%E6%95%B0%E6%8D%AE/" data-id="ckhe7o4mn0048chl75wiacmre" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-JTAG调试STM32开发板" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/" class="article-date">
-  <time datetime="2019-07-27T02:29:21.000Z" itemprop="datePublished">2019-07-27</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/">JTAG调试STM32开发板</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/" class="post-title-link" itemprop="url">JTAG调试STM32开发板</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-07-27 10:29:21" itemprop="dateCreated datePublished" datetime="2019-07-27T10:29:21+08:00">2019-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>JTAG(Joint Test Action Group；联合测试工作组)是一种国际标准测试协议（IEEE 1149.1兼容），主要用于芯片内部测试。现在多数的高级器件都支持JTAG协议，如DSP、FPGA器件等。标准的JTAG接口是4线：TMS、TCK、TDI、TDO，分别为模式选择、时钟、数据输入和数据输出线。<br>OpenOCD是一个用于JTAG调试的软件, 可以用于不同调试器和CPU, 还可以与GDB配合，stlink和jlink都是符合JTAG标准的调试器。<br>想在Ubuntu下对stm32开发板进行调试需要先安装OpenOCD<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/openocd/files/openocd/0.10.0/">下载地址</a>，在Ubuntu16.04上:</p>
+          <p>JTAG(Joint Test Action Group；联合测试工作组)是一种国际标准测试协议（IEEE 1149.1兼容），主要用于芯片内部测试。现在多数的高级器件都支持JTAG协议，如DSP、FPGA器件等。标准的JTAG接口是4线：TMS、TCK、TDI、TDO，分别为模式选择、时钟、数据输入和数据输出线。<br>OpenOCD是一个用于JTAG调试的软件, 可以用于不同调试器和CPU, 还可以与GDB配合，stlink和jlink都是符合JTAG标准的调试器。<br>想在Ubuntu下对stm32开发板进行调试需要先安装OpenOCD<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/openocd/files/openocd/0.10.0/">下载地址</a>，在Ubuntu16.04上:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ cd openocd-0.10.0</span><br><span class="line">$ .&#x2F;configure --enable-stlink</span><br><span class="line">...</span><br><span class="line">configure: error: libusb-1.x is required for the ST-Link JTAG Programmer</span><br><span class="line"># 解决方法</span><br><span class="line">$ sudo apt install libusb-1.0-0-dev</span><br><span class="line">$ .&#x2F;configure --enable-stlink</span><br><span class="line">$ make</span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
 <p>在Ubuntu18.04上即使apt安装了libusb库也会报这个错，可以直接使用sudo apt install openocd。<br>OpenOCD使用：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd openocd-0.10.0</span><br><span class="line">$ openocd -f tcl&#x2F;interface&#x2F;stlink-v2.cfg -f tcl&#x2F;target&#x2F;stm32l4x.cfg</span><br><span class="line">Open On-Chip Debugger 0.10.0</span><br><span class="line">...</span><br><span class="line">Info : stm32l4x.cpu: hardware has 6 breakpoints, 4 watchpoints</span><br></pre></td></tr></table></figure>
@@ -587,42 +910,68 @@ https://blog.csdn.net/zhengyangliu123/article/details/54934719  </code></pre>
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/" data-id="ckhe7o4le0026chl7254q5thb" class="article-share-link">Share</a>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li></ul>
-
-    </footer>
-  </div>
   
-</article>
-
-
   
-    <article id="post-DeepSpeech2使用" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/" class="article-date">
-  <time datetime="2019-05-31T08:34:43.000Z" itemprop="datePublished">2019-05-31</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/">DeepSpeech2使用</a>
-    </h1>
-  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">DeepSpeech2使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-31 16:34:43" itemprop="dateCreated datePublished" datetime="2019-05-31T16:34:43+08:00">2019-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p><a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/tree/master/research/deep_speech">原项目</a><br>下载<a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/archive/v1.11.tar.gz">models v1.11</a><br>因为项目要用到official包里的文件，所以将下载的models压缩包解压后，把其中的official文件夹拷贝到python包路径下，比如：</p>
+          <p><a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/tree/master/research/deep_speech">原项目</a><br>下载<a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/archive/v1.11.tar.gz">models v1.11</a><br>因为项目要用到official包里的文件，所以将下载的models压缩包解压后，把其中的official文件夹拷贝到python包路径下，比如：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;.virtualenvs&#x2F;deepspeech&#x2F;lib&#x2F;python3.5&#x2F;site-packages</span><br></pre></td></tr></table></figure>
 <p>安装official依赖：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install -r official&#x2F;requirements.txt</span><br></pre></td></tr></table></figure>
@@ -657,132 +1006,184 @@ https://blog.csdn.net/zhengyangliu123/article/details/54934719  </code></pre>
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/" data-id="ckhe7o4kz001kchl76txmawgm" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
 
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-    </div>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
   </div>
 
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/06/User-namespace/">User namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-          </li>
-        
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
       </ul>
-    </div>
-  </div>
 
-  
-</aside>
-        
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
     </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+        
 
 
 
 
-<script src="/js/script.js"></script>
 
 
 
 
+      </div>
+    </footer>
   </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
 </body>
 </html>

