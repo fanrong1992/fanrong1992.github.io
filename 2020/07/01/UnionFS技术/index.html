@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 5.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png">
+  <link rel="mask-icon" href="/images/favicon.png" color="#222">
 
 <link rel="stylesheet" href="/css/main.css">
 
@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="UnionFS技术unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：1.先创建如下的目录结构 123456789|-- a|   |-- a1.txt|   |-- a2.txt|   &#96;-- test.txt|-- b|   |-- b1.txt|   |-- b2.txt|   &#96;-- test.txt&amp;#">
+  <meta name="description" content="unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：1.先创建如下的目录结构">
 <meta property="og:type" content="article">
 <meta property="og:title" content="UnionFS技术">
 <meta property="og:url" content="http://example.com/2020/07/01/UnionFS%E6%8A%80%E6%9C%AF/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="UnionFS技术unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：1.先创建如下的目录结构 123456789|-- a|   |-- a1.txt|   |-- a2.txt|   &#96;-- test.txt|-- b|   |-- b1.txt|   |-- b2.txt|   &#96;-- test.txt&amp;#">
+<meta property="og:description" content="unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：1.先创建如下的目录结构">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/docker/unionfs.png">
 <meta property="article:published_time" content="2020-07-01T13:24:47.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.736Z">
+<meta property="article:modified_time" content="2020-11-12T07:20:00.832Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Virtual">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2020-11-12 15:20:00" itemprop="dateModified" datetime="2020-11-12T15:20:00+08:00">2020-11-12</time>
               </span>
 
           
@@ -208,7 +208,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="UnionFS技术"><a href="#UnionFS技术" class="headerlink" title="UnionFS技术"></a>UnionFS技术</h1><p>unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：<br>1.先创建如下的目录结构</p>
+        <p>unionFS可以把文件系统上的多个目录内容联合挂载到同一个目录下，而目录的物理位置是分开的。先用一个简单的例子体会一下：<br>1.先创建如下的目录结构</p>
+<a id="more"></a>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">|-- a</span><br><span class="line">|   |-- a1.txt</span><br><span class="line">|   |-- a2.txt</span><br><span class="line">|   &#96;-- test.txt</span><br><span class="line">|-- b</span><br><span class="line">|   |-- b1.txt</span><br><span class="line">|   |-- b2.txt</span><br><span class="line">|   &#96;-- test.txt</span><br><span class="line">&#96;-- mnt</span><br></pre></td></tr></table></figure>
 <p>2.执行挂载命令</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount -t aufs -o dirs&#x3D;.&#x2F;a:.&#x2F;b none .&#x2F;mnt</span><br><span class="line">$ ls mnt</span><br><span class="line">a1.txt	a2.txt	b1.txt	b2.txt	test.txt</span><br></pre></td></tr></table></figure>
@@ -300,7 +301,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#UnionFS%E6%8A%80%E6%9C%AF"><span class="nav-number">1.</span> <span class="nav-text">UnionFS技术</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

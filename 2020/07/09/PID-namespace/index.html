@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 5.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png">
+  <link rel="mask-icon" href="/images/favicon.png" color="#222">
 
 <link rel="stylesheet" href="/css/main.css">
 
@@ -28,7 +28,7 @@
 <meta property="og:description" content="PID namespace用来隔离进程的PID空间，使得不同PID namespace中的进程号可以重复且互不影响。Linux下的每个进程都有一个对应的&#x2F;proc&#x2F;pid目录，该目录包含了进程相关的信息。对于一个PID namespace，&#x2F;proc目录只包含当前namespace和它所有子孙后代namespace里的进程信息。创建一个新的PID namespace后，需要挂载&#x2F;proc文件系统才">
 <meta property="og:locale">
 <meta property="article:published_time" content="2020-07-09T03:32:17.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.723Z">
+<meta property="article:modified_time" content="2020-11-12T07:17:35.404Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Virtual">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2020-11-12 15:17:35" itemprop="dateModified" datetime="2020-11-12T15:17:35+08:00">2020-11-12</time>
               </span>
 
           
@@ -206,7 +206,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>PID namespace用来隔离进程的PID空间，使得不同PID namespace中的进程号可以重复且互不影响。Linux下的每个进程都有一个对应的/proc/pid目录，该目录包含了进程相关的信息。对于一个PID namespace，/proc目录只包含当前namespace和它所有子孙后代namespace里的进程信息。创建一个新的PID namespace后，需要挂载/proc文件系统才能让子进程中top、ps等依赖/proc文件系统的命令正常工作。<br>1.命令行使用<br>下面通过例子演示挂载/proc文件系统的作用：</p>
+        <p>PID namespace用来隔离进程的PID空间，使得不同PID namespace中的进程号可以重复且互不影响。Linux下的每个进程都有一个对应的/proc/pid目录，该目录包含了进程相关的信息。对于一个PID namespace，/proc目录只包含当前namespace和它所有子孙后代namespace里的进程信息。创建一个新的PID namespace后，需要挂载/proc文件系统才能让子进程中top、ps等依赖/proc文件系统的命令正常工作。  </p>
+<a id="more"></a>
+<p>1.命令行使用<br>下面通过例子演示挂载/proc文件系统的作用：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ echo $$</span><br><span class="line">9501</span><br><span class="line">$ readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026531836]</span><br><span class="line">$ sudo unshare --pid --mount --fork &#x2F;bin&#x2F;bash</span><br><span class="line"># readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026531836]</span><br><span class="line"># ps</span><br><span class="line">  PID TTY          TIME CMD</span><br><span class="line">11178 pts&#x2F;0    00:00:00 sudo</span><br><span class="line">11180 pts&#x2F;0    00:00:00 unshare</span><br><span class="line">11183 pts&#x2F;0    00:00:00 bash</span><br><span class="line">11211 pts&#x2F;0    00:00:00 ps</span><br><span class="line"># echo $$</span><br><span class="line">1</span><br><span class="line"># ps 1</span><br><span class="line">  PID TTY      STAT   TIME COMMAND</span><br><span class="line">    1 ?        Ss     0:02 &#x2F;sbin&#x2F;init splash</span><br></pre></td></tr></table></figure>
 <p>在创建新PID namespace后，当前bash进程的pid变成了1，但是通过ps命令可以看出进程信息使用的还是旧PID namespace中的，因此readlink读取的PID namespace信息是/sbin/init进程的，所以PID namespace没有变。–mount新建的mount namespace的挂载信息是从旧mount namespace中拷贝过来的，因此需要挂载新的/proc文件系统：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># mount -t proc proc &#x2F;proc</span><br><span class="line"># readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;pid</span><br><span class="line">pid:[4026532726]</span><br><span class="line"># ps</span><br><span class="line">  PID TTY          TIME CMD</span><br><span class="line">    1 pts&#x2F;0    00:00:00 bash</span><br><span class="line">   26 pts&#x2F;0    00:00:00 ps</span><br></pre></td></tr></table></figure>
