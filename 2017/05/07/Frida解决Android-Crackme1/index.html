@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="了解了Frida基本使用方法之后，下面对Frida进行一些实践。首先下载crackme1，安装到模拟器上并运行：点击OK就会退出程序。将APK用JEB打开，查看MainActivity类   12345678910111213141516171819202122232425262728293031323334353637383940414243444546package sg.vantagepoi">
+  <meta name="description" content="了解了Frida基本使用方法之后，下面对Frida进行一些实践。首先下载crackme1，安装到模拟器上并运行：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Frida解决Android Crackme1">
 <meta property="og:url" content="http://example.com/2017/05/07/Frida%E8%A7%A3%E5%86%B3Android-Crackme1/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="了解了Frida基本使用方法之后，下面对Frida进行一些实践。首先下载crackme1，安装到模拟器上并运行：点击OK就会退出程序。将APK用JEB打开，查看MainActivity类   12345678910111213141516171819202122232425262728293031323334353637383940414243444546package sg.vantagepoi">
+<meta property="og:description" content="了解了Frida基本使用方法之后，下面对Frida进行一些实践。首先下载crackme1，安装到模拟器上并运行：">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/frida/runcrackme.png">
 <meta property="og:image" content="http://example.com/images/frida/modified.png">
 <meta property="og:image" content="http://example.com/images/frida/success.png">
 <meta property="article:published_time" content="2017-05-07T02:06:11.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.705Z">
+<meta property="article:modified_time" content="2022-08-09T16:06:44.788Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:06:44" itemprop="dateModified" datetime="2022-08-10T00:06:44+08:00">2022-08-10</time>
               </span>
 
           
@@ -210,7 +210,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>了解了<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/05/05/Frida%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">Frida基本使用方法</a>之后，下面对Frida进行一些实践。<br>首先下载<a target="_blank" rel="noopener" href="https://github.com/OWASP/owasp-mstg/blob/master/Crackmes/Android/Level_01/UnCrackable-Level1.apk">crackme1</a>，安装到模拟器上并运行：<br><img src="/images/frida/runcrackme.png"><br>点击OK就会退出程序。将APK用JEB打开，查看MainActivity类  </p>
+        <p>了解了<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/05/05/Frida%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">Frida基本使用方法</a>之后，下面对Frida进行一些实践。<br>首先下载<a target="_blank" rel="noopener" href="https://github.com/OWASP/owasp-mstg/blob/master/Crackmes/Android/Level_01/UnCrackable-Level1.apk">crackme1</a>，安装到模拟器上并运行：  </p>
+<a id="more"></a>
+<p><img src="/images/frida/runcrackme.png"><br>点击OK就会退出程序。将APK用JEB打开，查看MainActivity类  </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> sg.vantagepoint.uncrackable1;</span><br><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"><span class="keyword">import</span> android.app.AlertDialog$Builder;</span><br><span class="line"><span class="keyword">import</span> android.app.AlertDialog;</span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"><span class="keyword">import</span> android.view.View;</span><br><span class="line"><span class="keyword">import</span> sg.vantagepoint.a.c;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MainActivity</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(String arg5)</span> </span>&#123;</span><br><span class="line">        AlertDialog v0 = <span class="keyword">new</span> AlertDialog$Builder(((Context)<span class="keyword">this</span>)).create();</span><br><span class="line">        v0.setTitle(((CharSequence)arg5));</span><br><span class="line">        v0.setMessage(<span class="string">&quot;This in unacceptable. The app is now going to exit.&quot;</span>);</span><br><span class="line">        v0.setButton(-<span class="number">3</span>, <span class="string">&quot;OK&quot;</span>, <span class="keyword">new</span> b(<span class="keyword">this</span>));</span><br><span class="line">        v0.setCancelable(<span class="keyword">false</span>);</span><br><span class="line">        v0.show();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle arg2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>((c.a()) || (c.b()) || (c.c())) &#123;</span><br><span class="line">            <span class="keyword">this</span>.a(<span class="string">&quot;Root detected!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(sg.vantagepoint.a.b.a(<span class="keyword">this</span>.getApplicationContext())) &#123;</span><br><span class="line">            <span class="keyword">this</span>.a(<span class="string">&quot;App is debuggable!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(arg2);</span><br><span class="line">        <span class="keyword">this</span>.setContentView(<span class="number">2130903040</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">verify</span><span class="params">(View arg5)</span> </span>&#123;</span><br><span class="line">        String v0 = <span class="keyword">this</span>.findViewById(<span class="number">2131230720</span>).getText().toString();</span><br><span class="line">        AlertDialog v1 = <span class="keyword">new</span> AlertDialog$Builder(((Context)<span class="keyword">this</span>)).create();</span><br><span class="line">        <span class="keyword">if</span>(a.a(v0)) &#123;</span><br><span class="line">            v1.setTitle(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">            v1.setMessage(<span class="string">&quot;This is the correct secret.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            v1.setTitle(<span class="string">&quot;Nope...&quot;</span>);</span><br><span class="line">            v1.setMessage(<span class="string">&quot;That\&#x27;s not it. Try again.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        v1.setButton(-<span class="number">3</span>, <span class="string">&quot;OK&quot;</span>, <span class="keyword">new</span> sg.vantagepoint.uncrackable1.c(<span class="keyword">this</span>));</span><br><span class="line">        v1.show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>程序onCreate就会对设备的root权限进行检查，如果已root则退出。按照之前的思路是将APK用baksmali反汇编，修改代码来解决，现在采用Frida方式来进行解决。<br>查看<code>sg.vantagepoint.a.c</code>类，里面都是与root权限相关的检查。可以通过覆盖这些方法让它们返回false，但是用命令启动脚本：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ frida -U -l checkroot.js -f sg.vantagepoint.uncrackable1 --no-pause</span><br><span class="line">...</span><br><span class="line">Process terminated</span><br></pre></td></tr></table></figure>
@@ -329,14 +331,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -363,7 +365,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

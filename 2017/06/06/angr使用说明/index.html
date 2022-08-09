@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="angr是一个Python实现的二进制分析框架，实现了程序插桩、符号执行等二进制分析技术，还在安全顶会S&amp;P发表了一篇论文。该项目的Github: https:&#x2F;&#x2F;github.com&#x2F;angr&#x2F;angr 安装angr我的环境是Ubuntu 16.04，首先安装依赖库：   1sudo apt-get install python-dev libffi-dev build-essentia">
+  <meta name="description" content="angr是一个Python实现的二进制分析框架，实现了程序插桩、符号执行等二进制分析技术，还在安全顶会S&amp;P发表了一篇论文。该项目的Github: https:&#x2F;&#x2F;github.com&#x2F;angr&#x2F;angr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="angr使用说明">
 <meta property="og:url" content="http://example.com/2017/06/06/angr%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="angr是一个Python实现的二进制分析框架，实现了程序插桩、符号执行等二进制分析技术，还在安全顶会S&amp;P发表了一篇论文。该项目的Github: https:&#x2F;&#x2F;github.com&#x2F;angr&#x2F;angr 安装angr我的环境是Ubuntu 16.04，首先安装依赖库：   1sudo apt-get install python-dev libffi-dev build-essentia">
+<meta property="og:description" content="angr是一个Python实现的二进制分析框架，实现了程序插桩、符号执行等二进制分析技术，还在安全顶会S&amp;P发表了一篇论文。该项目的Github: https:&#x2F;&#x2F;github.com&#x2F;angr&#x2F;angr">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-06-06T07:40:01.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.741Z">
+<meta property="article:modified_time" content="2022-08-09T16:00:46.440Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Symbolic Execution">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:00:46" itemprop="dateModified" datetime="2022-08-10T00:00:46+08:00">2022-08-10</time>
               </span>
 
           
@@ -207,6 +207,7 @@
 
       
         <p>angr是一个Python实现的二进制分析框架，实现了程序插桩、符号执行等二进制分析技术，还在安全顶会S&amp;P发表了一篇<a target="_blank" rel="noopener" href="https://www.cs.ucsb.edu/~vigna/publications/2016_SP_angrSoK.pdf">论文</a>。<br>该项目的Github: <a target="_blank" rel="noopener" href="https://github.com/angr/angr">https://github.com/angr/angr</a></p>
+<a id="more"></a>
 <h2 id="安装angr"><a href="#安装angr" class="headerlink" title="安装angr"></a>安装angr</h2><p>我的环境是Ubuntu 16.04，首先安装依赖库：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python-dev libffi-dev build-essential virtualenvwrapper</span><br></pre></td></tr></table></figure>
 <p>virtualenvwrapper是一个Python虚拟环境，使用虚拟环境的主要原因是angr会修改libz3和libVEX，可能会影响其他程序的正常使用。<br>新建一个Python虚拟机环境：  </p>
@@ -331,14 +332,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -365,7 +366,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

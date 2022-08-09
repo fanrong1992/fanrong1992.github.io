@@ -20,17 +20,17 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="代码虚拟化简介虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。虚拟化技术应用广泛，如sandbox、程序保护壳等。">
+  <meta name="description" content="代码虚拟化简介虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="代码虚拟机">
 <meta property="og:url" content="http://example.com/2017/07/11/%E4%BB%A3%E7%A0%81%E8%99%9A%E6%8B%9F%E6%9C%BA/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="代码虚拟化简介虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。虚拟化技术应用广泛，如sandbox、程序保护壳等。">
+<meta property="og:description" content="代码虚拟化简介虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/packed/result.png">
 <meta property="og:image" content="http://example.com/images/packed/target_func.png">
 <meta property="article:published_time" content="2017-07-11T07:24:02.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.785Z">
+<meta property="article:modified_time" content="2022-08-09T15:47:38.452Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Reverse">
 <meta name="twitter:card" content="summary">
@@ -195,7 +195,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-09 23:47:38" itemprop="dateModified" datetime="2022-08-09T23:47:38+08:00">2022-08-09</time>
               </span>
 
           
@@ -209,7 +209,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="代码虚拟化简介"><a href="#代码虚拟化简介" class="headerlink" title="代码虚拟化简介"></a>代码虚拟化简介</h2><p>虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。<br>虚拟化技术应用广泛，如sandbox、程序保护壳等。很多时候为了防止恶意代码对我们的系统造成破坏，需要一个sandbox，使程序运行在sandbox中，即使恶意代码破坏系统，也只是破坏了sandbox，不会对系统造成影响。还有如vmp，shielden这些加密壳就是内置了一个虚拟机来实现对程序代码的保护。<br>基于虚拟机的代码保护也算是代码混淆技术的一种。代码混淆技术对保护代码很有效果，但是也存在着副作用，比如会或多或少降低程序效率，这一点在基于虚拟机的保护中格外突出，所以大多数基于虚拟机的保护都只是保护了其中比较重要的部分。<br>在基于虚拟机的保护技术中，通常自定义的字节码与native指令都存在着映射关系，一条或多条字节码对应于一条native指令。这是为了增加虚拟机保护被破解的难度，对被保护代码进行转化的时候就可以随机生成出多套字节码。  </p>
+        <h2 id="代码虚拟化简介"><a href="#代码虚拟化简介" class="headerlink" title="代码虚拟化简介"></a>代码虚拟化简介</h2><p>虚拟化是用一套自定义的字节码来替换程序中的native指令，而字节码在执行的时候又由程序中的解释器来解释执行。自定义的字节码只有解释器才能识别，一般工具无法识别这些字节码，所以基于虚拟机的保护相对其他保护而言要更加难破解。其中的关系就像解释语言一样，不是系统可执行文件，不能直接在系统中运行，需要相应的解释器才能运行，如Python。  </p>
+<a id="more"></a>
+<p>虚拟化技术应用广泛，如sandbox、程序保护壳等。很多时候为了防止恶意代码对我们的系统造成破坏，需要一个sandbox，使程序运行在sandbox中，即使恶意代码破坏系统，也只是破坏了sandbox，不会对系统造成影响。还有如vmp，shielden这些加密壳就是内置了一个虚拟机来实现对程序代码的保护。<br>基于虚拟机的代码保护也算是代码混淆技术的一种。代码混淆技术对保护代码很有效果，但是也存在着副作用，比如会或多或少降低程序效率，这一点在基于虚拟机的保护中格外突出，所以大多数基于虚拟机的保护都只是保护了其中比较重要的部分。<br>在基于虚拟机的保护技术中，通常自定义的字节码与native指令都存在着映射关系，一条或多条字节码对应于一条native指令。这是为了增加虚拟机保护被破解的难度，对被保护代码进行转化的时候就可以随机生成出多套字节码。  </p>
 <h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>1.定义一套字节码<br>这里只定义了常用的几个命令，可以再进行扩展。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">OPCODES</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    MOV = <span class="number">0xa0</span>, <span class="comment">// mov指令字节码0xa0</span></span><br><span class="line">    XOR = <span class="number">0xa1</span>, <span class="comment">// xor指令字节码0xa1</span></span><br><span class="line">    CMP = <span class="number">0xa2</span>, <span class="comment">// cmp指令字节码0xa2</span></span><br><span class="line">    RET = <span class="number">0xa3</span>, <span class="comment">// ret指令字节码0xa3</span></span><br><span class="line">    SYS_READ = <span class="number">0xa4</span>, <span class="comment">// read系统调用字节码0xa4</span></span><br><span class="line">    SYS_WRITE = <span class="number">0xa5</span>, <span class="comment">// write系统调用字节码0xa5</span></span><br><span class="line">    JNZ = <span class="number">0xa6</span> <span class="comment">// jnz指令字节码0xa6</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>2.实现解释器<br>实现解释器需要虚拟出一些自定义字节码运行的环境，与真实的运行环境类似，需要处理器、堆、栈，这里先定义一个虚拟的处理器：</p>
@@ -323,14 +325,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -357,7 +359,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

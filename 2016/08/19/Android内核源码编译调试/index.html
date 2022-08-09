@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在编译Android6.0.1源码，烧录到nexus5真机上这篇文章中编译的是lunch 8，即aosp_hammerhead-userdebug，但是用emulator启动模拟器时，需要用模拟器版本的编译lunch 1，即aosp_arm-eng。   下载Android内核源码123$ cd &amp;#x2F">
+  <meta name="description" content="下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在编译Android6.0.1源码，烧录到nexus5真机上这篇文章中编译的是lunch 8，即aosp_hammerhead-userdebug，但是用emulator启动模拟器时，需要用模拟器版本的编译lunch 1，即aosp_arm-eng。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android内核源码编译调试">
 <meta property="og:url" content="http://example.com/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在编译Android6.0.1源码，烧录到nexus5真机上这篇文章中编译的是lunch 8，即aosp_hammerhead-userdebug，但是用emulator启动模拟器时，需要用模拟器版本的编译lunch 1，即aosp_arm-eng。   下载Android内核源码123$ cd &amp;#x2F">
+<meta property="og:description" content="下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在编译Android6.0.1源码，烧录到nexus5真机上这篇文章中编译的是lunch 8，即aosp_hammerhead-userdebug，但是用emulator启动模拟器时，需要用模拟器版本的编译lunch 1，即aosp_arm-eng。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/androidkernel/kernel.png">
 <meta property="article:published_time" content="2016-08-19T07:40:02.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.687Z">
+<meta property="article:modified_time" content="2022-08-09T15:59:43.335Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-09 23:59:43" itemprop="dateModified" datetime="2022-08-09T23:59:43+08:00">2022-08-09</time>
               </span>
 
           
@@ -209,6 +209,7 @@
 
       
         <p>下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/03/03/%E7%BC%96%E8%AF%91Android6-0-1%E6%BA%90%E7%A0%81%EF%BC%8C%E7%83%A7%E5%BD%95%E5%88%B0nexus5%E7%9C%9F%E6%9C%BA%E4%B8%8A/">编译Android6.0.1源码，烧录到nexus5真机上</a>这篇文章中编译的是<code>lunch 8</code>，即aosp_hammerhead-userdebug，但是用<code>emulator</code>启动模拟器时，需要用模拟器版本的编译<code>lunch 1</code>，即aosp_arm-eng。  </p>
+<a id="more"></a>
 <h3 id="下载Android内核源码"><a href="#下载Android内核源码" class="headerlink" title="下载Android内核源码"></a>下载Android内核源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd &#x2F;Computer&#x2F;Android&#x2F;android4.4.2&#x2F;kernel</span><br><span class="line">$ git clone https:&#x2F;&#x2F;android.googlesource.com&#x2F;kernel&#x2F;goldfish.git</span><br><span class="line">$ cd goldfish</span><br></pre></td></tr></table></figure>
 <p>Goldfish是一种虚拟的ARM处理器，在android的仿真环境中使用。<br>查看支持哪些Linux内核版本的下载：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git branch -a</span><br></pre></td></tr></table></figure>
@@ -325,14 +326,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -359,7 +360,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

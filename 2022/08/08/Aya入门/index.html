@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png">
+  <link rel="mask-icon" href="/images/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="好长时间没有更新博客了，其实工作中也会写一些技术文档，但是工作内容相关的文档不能公开，自己也会学一些工作之外的技术，但是形成的文档感觉比较零散，也懒得发布到博客上。感觉还是要多写一些东西记录一下学习的知识和心得，要不总有一种知识不是自己的感觉，也不容易深入学习，形成体系。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Aya入门">
+<meta property="og:url" content="http://example.com/2022/08/08/Aya%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:description" content="好长时间没有更新博客了，其实工作中也会写一些技术文档，但是工作内容相关的文档不能公开，自己也会学一些工作之外的技术，但是形成的文档感觉比较零散，也懒得发布到博客上。感觉还是要多写一些东西记录一下学习的知识和心得，要不总有一种知识不是自己的感觉，也不容易深入学习，形成体系。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2022-08-08T14:34:34.000Z">
+<meta property="article:modified_time" content="2022-08-09T15:45:35.252Z">
+<meta property="article:author" content="Bruce Fan">
+<meta property="article:tag" content="eBPF">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/08/08/Aya%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Aya入门 | BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/08/08/Aya%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Aya入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2022-08-08 22:34:34" itemprop="dateCreated datePublished" datetime="2022-08-08T22:34:34+08:00">2022-08-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:45:35" itemprop="dateModified" datetime="2022-08-09T23:45:35+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>好长时间没有更新博客了，其实工作中也会写一些技术文档，但是工作内容相关的文档不能公开，自己也会学一些工作之外的技术，但是形成的文档感觉比较零散，也懒得发布到博客上。感觉还是要多写一些东西记录一下学习的知识和心得，要不总有一种知识不是自己的感觉，也不容易深入学习，形成体系。  </p>
+<a id="more"></a>
+<p>工作和学习的几年方向转换比较多，没有在一个领域特别深入，工作基本就是这样，有什么需求就做什么，不过后面还是打算有针对性的学习一下云原生方面的安全，主要集中在用eBPF去做一些容器和K8S的安全，主要看一下Cilium和Aya这两个eBPF的库。有机会的话再学习一下intel的新机密计算技术TDX。<br>eBPF是一个内核子模块，可以在不改动和重新编译内核的情况下，在内核里进行一些操作。eBPF的开发一般是借助一些库来实现，如bcc、libbpf、cilium/ebpf和Aya等等。<br>选择学习Aya是因为这是用Rust写的，Rust语言在安全领域还是很有前景的，性能与C/C++接近，内存安全的一门系统编程语言，可以用来开发Linux内核，在机密计算、云原生领域也非常流行。<br>接下来几篇的计划是，这篇文章主要介绍一下Aya的环境和简单开发，后面会结合LSM例子深入学习，最后对github上的一个项目进行分析。  </p>
+<h2 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h2><p>我的系统: Ubuntu 20.04 64bit<br>首先安装<a target="_blank" rel="noopener" href="https://rustup.rs/">rustup</a> stable版本和nightly版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rustup install stable</span><br><span class="line">$ rustup toolchain install nightly --component rust-src</span><br></pre></td></tr></table></figure>
+<p>接着安装bpf-linker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cargo install bpf-linker</span><br></pre></td></tr></table></figure>
+<p>为了项目产生手脚架，还需要安装cargo-generate</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cargo install cargo-generate</span><br></pre></td></tr></table></figure>
+
+<h2 id="开始第一个项目"><a href="#开始第一个项目" class="headerlink" title="开始第一个项目"></a>开始第一个项目</h2><p><code>cargo generate</code>可以生成一个新的项目</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cargo generate https:&#x2F;&#x2F;github.com&#x2F;aya-rs&#x2F;aya-template</span><br><span class="line">🤷   Project Name : kprobe-rs</span><br><span class="line">🔧   Destination: &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;BPF&#x2F;bpf-rs ...</span><br><span class="line">🔧   Generating template ...</span><br><span class="line">✔ 🤷   Which type of eBPF program? · kprobe</span><br><span class="line">🤷   Where to attach the (k|kret)probe? (e.g try_to_wake_up) : do_sys_openat2</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>生成的项目手脚架有两部分，一部分是ebpf代码，编译后生成字节码，另一部分是用户空间代码，用来把ebpf字节码注入到内核中。注入到内核中的字节码首先由ebpf-verifier验证安全性，程序中没有崩溃、死循环等，可以正常结束，字节码通过JIT编译器将字节码转换成机器指令以提高执行效率，然后将程序指令挂载到指定的钩子上以被触发执行。<br>编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cargo xtask build-ebpf</span><br></pre></td></tr></table></figure>
+<p>运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cargo xtask run</span><br><span class="line">...</span><br><span class="line">[2022-08-09T15:30:28Z INFO  kprobe_rs] Waiting for Ctrl-C...</span><br><span class="line">[2022-08-09T15:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2022-08-09T15:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2022-08-09T15:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>技术更新真是快，上周用Aya的时候log还是用的simplelog，这周用发现打印不出来了，去Aya的git仓库查看commit发现Aya的log改用env_logger了，之前做项目用过pretty_env_logger，乍看起来差不太多，需要在终端<code>export RUST_LOG=INFO</code>才能打印出对应level的log。  </p>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>kprobe-rs-ebpf中的代码是eBPF代码，这是一个在open系统调用加hook的kprobe程序</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![no_std]</span> <span class="comment">// 不能使用标准库</span></span><br><span class="line"><span class="meta">#![no_main]</span> <span class="comment">// 没有main函数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> aya_bpf::&#123;</span><br><span class="line">    macros::kprobe,</span><br><span class="line">    programs::ProbeContext,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">use</span> aya_log_ebpf::info;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[kprobe(name=<span class="meta-string">&quot;kprobe_rs&quot;</span>)]</span> <span class="comment">// 表示这是一个kprobe程序</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">kprobe_rs</span></span>(ctx: ProbeContext) -&gt; <span class="built_in">u32</span> &#123;</span><br><span class="line">    <span class="comment">// 主入口点</span></span><br><span class="line">    <span class="keyword">match</span> <span class="keyword">unsafe</span> &#123; try_kprobe_rs(ctx) &#125; &#123;</span><br><span class="line">        <span class="literal">Ok</span>(ret) =&gt; ret,</span><br><span class="line">        <span class="literal">Err</span>(ret) =&gt; ret,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">try_kprobe_rs</span></span>(ctx: ProbeContext) -&gt; <span class="built_in">Result</span>&lt;<span class="built_in">u32</span>, <span class="built_in">u32</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// open系统调用被调用时打印</span></span><br><span class="line">    info!(&amp;ctx, <span class="string">&quot;function do_sys_openat2 called&quot;</span>);</span><br><span class="line">    <span class="literal">Ok</span>(<span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[panic_handler]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">panic</span></span>(_info: &amp;core::panic::PanicInfo) -&gt; ! &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123; core::hint::unreachable_unchecked() &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>kprobe-rs中是用户空间部分的代码</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> aya::&#123;include_bytes_aligned, Bpf&#125;;</span><br><span class="line"><span class="keyword">use</span> aya::programs::KProbe;</span><br><span class="line"><span class="keyword">use</span> aya_log::BpfLogger;</span><br><span class="line"><span class="keyword">use</span> clap::Parser;</span><br><span class="line"><span class="keyword">use</span> log::info;</span><br><span class="line"><span class="keyword">use</span> tokio::signal;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug, Parser)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Opt</span></span> &#123;</span><br><span class="line"><span class="comment">// 命令行参数，本程序中没有用到</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span> <span class="comment">// 主入口点</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() -&gt; <span class="built_in">Result</span>&lt;(), anyhow::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> opt = Opt::parse();</span><br><span class="line"></span><br><span class="line">    env_logger::init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This will include your eBPF object file as raw bytes at compile-time and load it at</span></span><br><span class="line">    <span class="comment">// runtime. This approach is recommended for most real-world use cases. If you would</span></span><br><span class="line">    <span class="comment">// like to specify the eBPF program at runtime rather than at compile-time, you can</span></span><br><span class="line">    <span class="comment">// reach for `Bpf::load_file` instead.</span></span><br><span class="line">    <span class="comment">// include_bytes_aligned!()在编译时会拷贝BPF ELF目标文件的内容</span></span><br><span class="line">    <span class="comment">// Bpf::load()读取前一个命令中BPF ELF目标文件的内容，创建maps，执行BTF重定向</span></span><br><span class="line">    <span class="meta">#[cfg(debug_assertions)]</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> bpf = Bpf::load(include_bytes_aligned!(</span><br><span class="line">        <span class="string">&quot;../../target/bpfel-unknown-none/debug/kprobe-rs&quot;</span></span><br><span class="line">    ))?;</span><br><span class="line">    <span class="meta">#[cfg(not(debug_assertions))]</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> bpf = Bpf::load(include_bytes_aligned!(</span><br><span class="line">        <span class="string">&quot;../../target/bpfel-unknown-none/release/kprobe-rs&quot;</span></span><br><span class="line">    ))?;</span><br><span class="line">    BpfLogger::init(&amp;<span class="keyword">mut</span> bpf)?;</span><br><span class="line">    <span class="comment">// 提取kprobe程序</span></span><br><span class="line">    <span class="keyword">let</span> program: &amp;<span class="keyword">mut</span> KProbe = bpf.program_mut(<span class="string">&quot;kprobe_rs&quot;</span>).unwrap().try_into()?;</span><br><span class="line">    <span class="comment">// 把它加载进内核</span></span><br><span class="line">    program.load()?;</span><br><span class="line">    program.attach(<span class="string">&quot;do_sys_openat2&quot;</span>, <span class="number">0</span>)?;</span><br><span class="line"></span><br><span class="line">    info!(<span class="string">&quot;Waiting for Ctrl-C...&quot;</span>);</span><br><span class="line">    signal::ctrl_c().<span class="keyword">await</span>?;</span><br><span class="line">    info!(<span class="string">&quot;Exiting...&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>参考</strong><br><a target="_blank" rel="noopener" href="https://aya-rs.dev/book/start/development/">https://aya-rs.dev/book/start/development/</a><br><a target="_blank" rel="noopener" href="https://aya-rs.dev/book/start/hello-xdp/">https://aya-rs.dev/book/start/hello-xdp/</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/eBPF/" rel="tag"># eBPF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/29/so%E6%96%87%E4%BB%B6%E7%9A%84-init-array%E6%AE%B5%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81/" rel="prev" title="so文件的.init_array段中添加代码">
+      <i class="fa fa-chevron-left"></i> so文件的.init_array段中添加代码
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/09/Cilium%E5%85%A5%E9%97%A8/" rel="next" title="Cilium入门">
+      Cilium入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">环境安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E7%AC%AC%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">开始第一个项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">代码分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">127</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

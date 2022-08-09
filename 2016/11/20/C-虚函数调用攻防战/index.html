@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。 虚函数表劫持攻击vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtab">
+  <meta name="description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++虚函数调用攻防战">
 <meta property="og:url" content="http://example.com/2016/11/20/C-%E8%99%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%94%BB%E9%98%B2%E6%88%98/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。 虚函数表劫持攻击vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtab">
+<meta property="og:description" content="这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。虚函数调用是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过vtable函数指针来实现，vtable指针由编译器添加到对象中。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2016-11-20T02:19:15.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.694Z">
+<meta property="article:modified_time" content="2022-08-09T16:02:23.234Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="C&#x2F;C++">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:02:23" itemprop="dateModified" datetime="2022-08-10T00:02:23+08:00">2022-08-10</time>
               </span>
 
           
@@ -207,6 +207,7 @@
 
       
         <p>这篇文章是参考UC Berkeley张超博士的一个视频和两篇NDSS论文，学习的一些关于C++虚函数安全相关的内容。<br><code>虚函数调用</code>是面向对象中的一个很重要的特性，用来支持多态。运行时实际调用的函数是根据对象来决定的。运行时找虚函数是通过<code>vtable</code>函数指针来实现，vtable指针由编译器添加到对象中。</p>
+<a id="more"></a>
 <h3 id="虚函数表劫持攻击"><a href="#虚函数表劫持攻击" class="headerlink" title="虚函数表劫持攻击"></a>虚函数表劫持攻击</h3><p>vtable是从对象中读出来的，而对象是位于可写内存段，所以攻击者有可能篡改vtable指针。<br><strong>vtable注入</strong><br>伪造vtable，在每个表项中填写ROP chain的地址。利用uaf等漏洞篡改vtable指针指向伪造的vtable，虚函数调用时，触发ROP。<br><strong>vtable重用</strong><br>不伪造vtable，篡改vtable指针指向已有的vtable。实际中非常少。<br><strong>vtable破坏</strong><br>直接篡改vtable，但现在不可行，因为编译器将vtable放到只读内存页。</p>
 <h3 id="虚函数表防护"><a href="#虚函数表防护" class="headerlink" title="虚函数表防护"></a>虚函数表防护</h3><p><strong>VTint: Protecting Virutal Function Tables’ Integrity</strong><br>目标：二进制层面进行的防护，防护vtable劫持攻击。<br>设计：<code>vtable注入</code>和<code>vtable破坏</code>两种攻击方法的vtable都是可写的，因此在运行时检查vtable是否可写，如果可写则判断为受到攻击。<code>vtable重用</code>可以通过区分数据和vtable进行部分防护。<br>实现：理解二进制程序的基础上，对二进制程序进行修改。<br>1.解析二进制文件，恢复高级信息，如识别vtable信息、虚函数调用点。<br>PE文件格式：重定位表、导入/导出表<br>输出：候选函数入口点（重定位表中恢复）、候选vtable（vtable是一个数组，其中每个表项是一个虚函数指针，vtable需要重定位，每个表项也需要重定位）。<br>2.反汇编恢复控制流图等高级信息。<br>(1)识别构造函数：给对象分配内存、将vtable拷贝到分配内存中、成员变量初始化。<br>(2)识别真正的vtable：vtable一定会在某个构造函数中被引用到，所以被引用到的就是真正的vtable。<br>(3)识别虚函数调用：<br>虚函数调用是间接调用，this指针是虚函数调用的第一个参数。  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov eax, [edi] ; edi保存vtable</span><br><span class="line">push ecx ; PE中this指针存在ecx</span><br><span class="line">call [eax+8]</span><br></pre></td></tr></table></figure>
@@ -312,14 +313,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -346,7 +347,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

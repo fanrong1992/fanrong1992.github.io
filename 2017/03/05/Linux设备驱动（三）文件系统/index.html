@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Linux文件系统与设备驱动图中所示为Linux中虚拟文件系统（VFS）、磁盘&#x2F;Flash文件系统及一般的设备文件与设备驱动程序之间的关系。应用程序和VFS之间的接口是系统调用，而VFS与文件系统以及设备文件之间的接口是file_operations结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。 file结构体file结构体代表一个打开的文件，系统中每个打开的文件">
+  <meta name="description" content="Linux文件系统与设备驱动图中所示为Linux中虚拟文件系统（VFS）、磁盘&#x2F;Flash文件系统及一般的设备文件与设备驱动程序之间的关系。应用程序和VFS之间的接口是系统调用，而VFS与文件系统以及设备文件之间的接口是file_operations结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux设备驱动（三）文件系统">
 <meta property="og:url" content="http://example.com/2017/03/05/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%89%EF%BC%89%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="Linux文件系统与设备驱动图中所示为Linux中虚拟文件系统（VFS）、磁盘&#x2F;Flash文件系统及一般的设备文件与设备驱动程序之间的关系。应用程序和VFS之间的接口是系统调用，而VFS与文件系统以及设备文件之间的接口是file_operations结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。 file结构体file结构体代表一个打开的文件，系统中每个打开的文件">
+<meta property="og:description" content="Linux文件系统与设备驱动图中所示为Linux中虚拟文件系统（VFS）、磁盘&#x2F;Flash文件系统及一般的设备文件与设备驱动程序之间的关系。应用程序和VFS之间的接口是系统调用，而VFS与文件系统以及设备文件之间的接口是file_operations结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/linuxkernel/fs.png">
 <meta property="article:published_time" content="2017-03-05T15:07:27.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.718Z">
+<meta property="article:modified_time" content="2022-08-09T16:10:53.034Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:10:53" itemprop="dateModified" datetime="2022-08-10T00:10:53+08:00">2022-08-10</time>
               </span>
 
           
@@ -209,6 +209,7 @@
 
       
         <h2 id="Linux文件系统与设备驱动"><a href="#Linux文件系统与设备驱动" class="headerlink" title="Linux文件系统与设备驱动"></a>Linux文件系统与设备驱动</h2><p>图中所示为Linux中虚拟文件系统（VFS）、磁盘/Flash文件系统及一般的设备文件与设备驱动程序之间的关系。<br><img src="/images/linuxkernel/fs.png"><br>应用程序和VFS之间的接口是<code>系统调用</code>，而VFS与文件系统以及设备文件之间的接口是<code>file_operations</code>结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。</p>
+<a id="more"></a>
 <h3 id="file结构体"><a href="#file结构体" class="headerlink" title="file结构体"></a>file结构体</h3><p>file结构体代表一个打开的文件，系统中每个打开的文件在内核空间都有一个关联的<code>struct file</code>。它由内核在打开文件时创建，并传递给在文件上进行操作的任何函数。在文件的所有实例都关闭后，内核释放这个数据结构。在内核和驱动源代码中，<code>struct file</code>的指针通常被命名为<code>file</code>或<code>filp</code>。<br><strong>代码清单</strong> include/linux/fs.h: file  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">llist_node</span>   <span class="title">fu_llist</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>     <span class="title">fu_rcuhead</span>;</span></span><br><span class="line">    &#125; f_u;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>     <span class="title">f_path</span>;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> f_dentry    f_path.dentry</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span>        *<span class="title">f_inode</span>;</span>   <span class="comment">/* cached value */</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span>    *<span class="title">f_op</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Protects f_ep_links, f_flags, f_pos vs i_size in lseek SEEK_CUR.</span></span><br><span class="line"><span class="comment">     * Must not be taken from IRQ context.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">spinlock_t</span>      f_lock;</span><br><span class="line">    <span class="keyword">atomic_long_t</span>       f_count;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span>        f_flags;</span><br><span class="line">    <span class="keyword">fmode_t</span>         f_mode;</span><br><span class="line">    <span class="keyword">loff_t</span>          f_pos;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fown_struct</span>  <span class="title">f_owner</span>;</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span>   *<span class="title">f_cred</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span>    <span class="title">f_ra</span>;</span></span><br><span class="line"></span><br><span class="line">    u64         f_version;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="keyword">void</span>            *f_security;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="comment">/* needed for tty driver, and maybe others */</span></span><br><span class="line">    <span class="keyword">void</span>            *private_data;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_EPOLL</span></span><br><span class="line">    <span class="comment">/* Used by fs/eventpoll.c to link all the hooks to this file */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">f_ep_links</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">f_tfile_llink</span>;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* #ifdef CONFIG_EPOLL */</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">address_space</span>    *<span class="title">f_mapping</span>;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_WRITECOUNT</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> f_mnt_write_state;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -323,14 +324,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -357,7 +358,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

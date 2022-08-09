@@ -28,7 +28,7 @@
 <meta property="og:description" content="前一篇文章中介绍了hook系统调用的方法，但是通过lsmod等方法可以看到正在内核运行的模块。所以本文主要介绍隐藏LKM的方法，其实很简单。 从lsmod命令中隐藏模块对于rootkit来说，隐蔽性非常重要，但lsmod命令就能直接看到我们编写的模块。这里先介绍一下lsmod原理，以便理解如何在lsmod命令中隐藏模块。lsmod命令是通过&#x2F;proc&#x2F;modules来获取当前系统模块信息的。而&#x2F;p">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-03-16T13:54:31.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.727Z">
+<meta property="article:modified_time" content="2022-08-09T16:12:16.107Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:12:16" itemprop="dateModified" datetime="2022-08-10T00:12:16+08:00">2022-08-10</time>
               </span>
 
           
@@ -208,6 +208,7 @@
       
         <p><a href="">前一篇文章</a>中介绍了hook系统调用的方法，但是通过<code>lsmod</code>等方法可以看到正在内核运行的模块。所以本文主要介绍隐藏LKM的方法，其实很简单。</p>
 <h2 id="从lsmod命令中隐藏模块"><a href="#从lsmod命令中隐藏模块" class="headerlink" title="从lsmod命令中隐藏模块"></a>从lsmod命令中隐藏模块</h2><p>对于rootkit来说，隐蔽性非常重要，但lsmod命令就能直接看到我们编写的模块。这里先介绍一下lsmod原理，以便理解如何在lsmod命令中隐藏模块。<br>lsmod命令是通过<code>/proc/modules</code>来获取当前系统模块信息的。而/proc/modules中的当前系统模块信息是内核利用<code>struct module</code>结构体的表头遍历内核模块链表、从所有模块的<code>struct module</code>结构体中获取模块的相关信息来得到的。结构体<code>struct module</code>在内核中代表一个内核模块。通过insmod把模块插入内核时，模块便与一个<code>struct module</code>结构体相关联，并成为内核的一部分，所有的内核模块都被维护在一个全局链表中，链表头是一个全局变量<code>struct module *modules</code>。任何一个新创建的模块，都会被加入到这个链表的头部，通过<code>modules-&gt;next</code>即可引用到。为了让模块在lsmod命令的输出中消失，就需要在这个链表内删除这个模块。  </p>
+<a id="more"></a>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list_del_init(&amp;__this_module.<span class="built_in">list</span>);</span><br></pre></td></tr></table></figure>
 <p>list_del_init函数定义于include/linux/list.h中：  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">list_del_init</span> <span class="params">(struct list_head * entry)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     __list_del (entry-&gt;prev, entry-&gt;next);</span><br><span class="line">     INIT_LIST_HEAD (entry);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> __list_del (struct list_head * prev, struct list_head * next)</span><br><span class="line">&#123;</span><br><span class="line">     next-&gt; prev = prev;</span><br><span class="line">     prev-&gt; next = next;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">INIT_LIST_HEAD</span> <span class="params">(struct list_head * <span class="built_in">list</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="built_in">list</span>-&gt; next = <span class="built_in">list</span>;</span><br><span class="line">     <span class="built_in">list</span>-&gt; prev = <span class="built_in">list</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -320,14 +321,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -354,7 +355,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/images/addrspace/map.jpg">
 <meta property="og:image" content="http://example.com/images/addrspace/user.jpg">
 <meta property="article:published_time" content="2017-05-18T12:30:04.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.768Z">
+<meta property="article:modified_time" content="2022-08-09T16:15:08.784Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
@@ -197,7 +197,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:15:08" itemprop="dateModified" datetime="2022-08-10T00:15:08+08:00">2022-08-10</time>
               </span>
 
           
@@ -213,6 +213,7 @@
       
         <p>最近在看Linux Kernel Exploit相关的东西，要用到一些栈和地址相关的知识，所以就看一点补充一点吧。这篇文章介绍一下关于物理地址和虚拟地址的相关知识。</p>
 <h2 id="物理和虚拟寻址"><a href="#物理和虚拟寻址" class="headerlink" title="物理和虚拟寻址"></a>物理和虚拟寻址</h2><p>计算机系统的主存被组织成一个由M个连续的字节大小的单元组成的数组。每字节都有一个唯一的<code>物理地址（Physical Address，PA）</code>。CPU访问存储器的最自然的方式就是使用物理地址。这种方式称为<code>物理寻址（physical addressing）</code>。<br>早期的PC使用物理寻址，现代处理器使用的是一种称为<code>虚拟寻址（virtual addressing）</code>的寻址方式。CPU通过生成一个<code>虚拟地址（Virtual Address，VA）</code>来访问主存，这个虚拟地址在被送到存储器之前转换成适当的物理地址。将一个虚拟地址转换为物理地址的任务叫做<code>地址翻译（address translation）</code>。CPU上叫做<code>存储器管理单元（Memory Management Unit，MMU）</code>的专用硬件，利用存放在主存中的查询表来动态翻译虚拟地址，该表的内容是由操作系统管理的。  </p>
+<a id="more"></a>
 <h2 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h2><p><code>地址空间（address space）</code>是一个非负整数地址的有序集合：{0, 1, 2, …}<br>如果地址空间中的整数是连续的，那么就说它是一个<code>线性地址空间（linear address space）</code>。在一个带虚拟存储器的系统中，CPU从一个有N=$2^n$个地址的地址空间中生成虚拟地址，这个地址空间称为<code>虚拟地址空间（virtual address space）</code>：{0, 1, 2, …, N-1}<br>一个地址空间的大小是由<code>n</code>来描述，叫做一个<code>n</code>位地址空间。现代系统典型支持32位或64位虚拟地址空间。<br>一个系统还有一个<code>物理地址空间（physical address space）</code>，它与系统中物理存储器的M个字节相对应：{0, 1, 2, …, M-1}<br>地址空间清楚地区分了数据对象（字节）和它们的属性（地址）。每个数据对象有多个独立的地址，其中每个地址都选自一个不同的地址空间。这就是虚拟存储器的基本思想。主存中的每个字节都有一个选自虚拟地址空间的虚拟地址和一个选自物理地址空间的物理地址。</p>
 <h2 id="物理地址空间布局"><a href="#物理地址空间布局" class="headerlink" title="物理地址空间布局"></a>物理地址空间布局</h2><p><img src="/images/addrspace/physicaladdr.jpg"><br>如上图所示，在物理地址空间中，内存划分如下：</p>
 <table>
@@ -341,14 +342,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -375,7 +376,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

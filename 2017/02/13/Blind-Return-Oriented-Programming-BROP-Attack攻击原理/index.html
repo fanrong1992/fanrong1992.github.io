@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。 BROP攻击的目标和前提条件目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack c">
+  <meta name="description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Blind Return Oriented Programming (BROP) Attack攻击原理">
 <meta property="og:url" content="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。 BROP攻击的目标和前提条件目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack c">
+<meta property="og:description" content="BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，相关paper下载。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/brop/asmins.jpg">
 <meta property="og:image" content="http://example.com/images/brop/stack.jpg">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/images/brop/bropgadget.jpg">
 <meta property="og:image" content="http://example.com/images/brop/plt.jpg">
 <meta property="article:published_time" content="2017-02-13T01:15:14.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.691Z">
+<meta property="article:modified_time" content="2022-08-09T16:01:36.589Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:01:36" itemprop="dateModified" datetime="2022-08-10T00:01:36+08:00">2022-08-10</time>
               </span>
 
           
@@ -216,6 +216,7 @@
 
       
         <p>BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/brop/bittau-brop.pdf">相关paper下载</a>。</p>
+<a id="more"></a>
 <h2 id="BROP攻击的目标和前提条件"><a href="#BROP攻击的目标和前提条件" class="headerlink" title="BROP攻击的目标和前提条件"></a>BROP攻击的目标和前提条件</h2><p>目标：通过ROP的方法远程攻击某个应用程序，劫持该应用程序的控制流。我们可以不需要知道该应用程序的源代码或者任何二进制代码，该应用程序可以被现有的一些保护机制如NX, ASLR, PIE, 以及stack canary等保护，应用程序所在的服务器可以是32位系统或者64位系统。<br>初看这个目标感觉实现起来特别困难。其实这个攻击有两个前提条件的：</p>
 <ul>
 <li>必须先存在一个已知的stack overflow的漏洞，而且攻击者知道如何触发这个漏洞；</li>
@@ -379,14 +380,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -413,7 +414,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

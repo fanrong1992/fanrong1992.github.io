@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="ASM是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。ASM工具提供两种方式来产生和转换已编译的class文件：  基于事件的表示模型使用一个有序的事件序列表示一个class文件，class文">
+  <meta name="description" content="ASM是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。ASM工具提供两种方式来产生和转换已编译的class文件：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JAVA ASM字节码框架">
 <meta property="og:url" content="http://example.com/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="ASM是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。ASM工具提供两种方式来产生和转换已编译的class文件：  基于事件的表示模型使用一个有序的事件序列表示一个class文件，class文">
+<meta property="og:description" content="ASM是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。ASM工具提供两种方式来产生和转换已编译的class文件：">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/javaasm/chain.png">
 <meta property="article:published_time" content="2017-02-07T03:30:39.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.708Z">
+<meta property="article:modified_time" content="2022-08-09T16:08:02.327Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:08:02" itemprop="dateModified" datetime="2022-08-10T00:08:02+08:00">2022-08-10</time>
               </span>
 
           
@@ -209,6 +209,7 @@
 
       
         <p><a target="_blank" rel="noopener" href="http://asm.ow2.org/">ASM</a>是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。<br>ASM工具提供两种方式来产生和转换已编译的class文件：</p>
+<a id="more"></a>
 <ul>
 <li><code>基于事件的表示模型</code>使用一个有序的事件序列表示一个class文件，class文件中的每一个元素使用一个事件来表示，比如class的头部，变量，方法声明，JVM指令都有相对应的事件表示，ASM使用自带的事件解析器能将每一个class文件解析成一个事件序列。</li>
 <li><code>基于对象的表示模型</code>则使用对象树结构来解析每一个class文件。</li>
@@ -478,14 +479,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -512,7 +513,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/images/glibcmalloc/fastbin.png">
 <meta property="og:image" content="http://example.com/images/glibcmalloc/unsortedbin.png">
 <meta property="article:published_time" content="2016-04-11T01:08:38.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.784Z">
+<meta property="article:modified_time" content="2022-08-09T15:53:46.855Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -199,7 +199,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-09 23:53:46" itemprop="dateModified" datetime="2022-08-09T23:53:46+08:00">2022-08-09</time>
               </span>
 
           
@@ -213,7 +213,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>glibc中的内存分配是由<code>ptmalloc2</code>实现的，ptmalloc2是dlmalloc（General purpose allocator）的分支，并加入了线程支持。<br><strong>System Calls</strong> malloc内部会调用<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">brk</a>或<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap</a>系统调用。<br><strong>Threading</strong> ptmalloc2中，当两个线程同时调用malloc，内存会立即得到分配，因为每个线程有一个单独的堆段，因此<code>free list</code>数据结构中保存的这些堆也是分开的。这种为每个线程分配一个单独的堆和free list数据结构的行为称为<code>per thread arena</code>。<br>例子：</p>
+        <p>glibc中的内存分配是由<code>ptmalloc2</code>实现的，ptmalloc2是dlmalloc（General purpose allocator）的分支，并加入了线程支持。<br><strong>System Calls</strong> malloc内部会调用<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">brk</a>或<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap</a>系统调用。<br><strong>Threading</strong> ptmalloc2中，当两个线程同时调用malloc，内存会立即得到分配，因为每个线程有一个单独的堆段，因此<code>free list</code>数据结构中保存的这些堆也是分开的。这种为每个线程分配一个单独的堆和free list数据结构的行为称为<code>per thread arena</code>。  </p>
+<a id="more"></a>
+<p>例子：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Per thread arena example. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">threadFunc</span><span class="params">(<span class="keyword">void</span>* arg)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Before malloc in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="keyword">char</span>* addr = (<span class="keyword">char</span>*) <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After malloc and before free in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="built_in">free</span>(addr);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After free in thread 1\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">pthread_t</span> t1;</span><br><span class="line">    <span class="keyword">void</span>* s;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">char</span>* addr;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Welcome to per thread arena example::%d\n&quot;</span>,getpid());</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Before malloc in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    addr = (<span class="keyword">char</span>*) <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After malloc and before free in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    <span class="built_in">free</span>(addr);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After free in main thread\n&quot;</span>);</span><br><span class="line">    getchar();</span><br><span class="line">    ret = pthread_create(&amp;t1, <span class="literal">NULL</span>, threadFunc, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread creation error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ret = pthread_join(t1, &amp;s);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread join error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>输出分析</strong><br>主线程的malloc之前，没有堆段，也没有每个线程的栈，因为thread1还没有创建。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;per_thread_arena</span><br><span class="line">Welcome to per thread arena example::3437</span><br><span class="line">Before malloc in main thread</span><br><span class="line"></span><br><span class="line"># another terminal</span><br><span class="line">$ cat &#x2F;proc&#x2F;3437&#x2F;maps</span><br><span class="line">...</span><br><span class="line">08048000-08049000 r-xp 00000000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">08049000-0804a000 r--p 00000000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">0804a000-0804b000 rw-p 00001000 08:02 3680065                            &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;pwn&#x2F;heap-overflow&#x2F;sploitfun&#x2F;per_thread_arena</span><br><span class="line">f755a000-f755b000 rw-p 00000000 00:00 0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
@@ -401,14 +403,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -435,7 +437,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

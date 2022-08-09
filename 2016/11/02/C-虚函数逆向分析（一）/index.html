@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/images/cppre1/vptrtype.png">
 <meta property="og:image" content="http://example.com/images/cppre1/walktype.png">
 <meta property="article:published_time" content="2016-11-02T12:53:07.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.696Z">
+<meta property="article:modified_time" content="2022-08-09T16:02:39.304Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="C&#x2F;C++">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:02:39" itemprop="dateModified" datetime="2022-08-10T00:02:39+08:00">2022-08-10</time>
               </span>
 
           
@@ -219,7 +219,8 @@
 <blockquote>
 <p>示例代码编译时没有使用RTTI，也没有使用异常机制<br>下文中的样例在x86平台上测试<br>所有二进制文件已经被strip了<br>大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。</p>
 </blockquote>
-<p>大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。因此，逆向虚函数时，目标是判断哪些函数会在特定的情况下被调用。后面会学习其他技巧，来进一步缩小范围。</p>
+<p>大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。因此，逆向虚函数时，目标是判断哪些函数会在特定的情况下被调用。后面会学习其他技巧，来进一步缩小范围。  </p>
+<a id="more"></a>
 <h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><p>先看一个小程序：  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Mammal</span> &#123;</span></span><br><span class="line">    Mammal() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Mammal::Mammal\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Mammal() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Mammal::~Mammal\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">move</span><span class="params">()</span> </span>&#123; walk(); &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Cat</span> :</span> Mammal &#123;</span><br><span class="line">    Cat() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::Cat\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Cat() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::~Cat\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::run\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Cat::walk\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Dog</span> :</span> Mammal &#123;</span><br><span class="line">    Dog() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::Dog\n&quot;</span>; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Dog() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::~Dog\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::run\n&quot;</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">()</span> </span>&#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Dog::walk\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Mammal *m;</span><br><span class="line">    <span class="keyword">if</span> (rand() % <span class="number">2</span>) &#123;</span><br><span class="line">        m = <span class="keyword">new</span> Cat();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        m = <span class="keyword">new</span> Dog();</span><br><span class="line">    &#125;</span><br><span class="line">    m-&gt;walk();</span><br><span class="line">    <span class="keyword">delete</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>m</code>是<code>Cat</code>还是<code>Dog</code>类，取决于<code>rand</code>函数的输出。编译器无法提前预测，那么编译器如何调用合适的<code>walk</code>呢？<br>因为walk函数声明为了虚函数，编译器会在程序所处的内存空间中，插入一个包含函数指针的表，称为<code>虚函数表（虚表vtable）</code>；在实例化的时候，每个对象会多出一个<code>虚指针（vptr）</code>的成员，这个虚指针指向虚函数表，初始化这个虚指针的代码会被添加到类的构造函数中。这样当编译器要调用虚函数的时候，就可以通过虚指针找到对应的虚表，从而找到合适的函数。<br>具有同一个父类的子类，其虚表中函数的顺序也应该是一致的。比如，上面的例子中，Dog和Cat类都是Mammal类的子类，如果Dog类的虚表中，第一项是Dog::run的指针，第二项是Dog::walk的指针，那么Cat类的虚表中，第一项就是Cat::run的指针，第二项是Cat::walk的指针。<br>通过在<code>.rodata</code>段中寻找指向函数的偏移量，可以找到类的虚表：<br><img src="/images/cppre1/vtable1.png"><br>主函数编译之后如下：<br><img src="/images/cppre1/main1.png"><br>可以看到，程序在实例化的时候，为每个对象申请了4字节的内存空间，这和预期相符（类中没有数据成员，而编译器为我们添加了vptr）。在第21和23行中看到对虚函数的调用过程。在第21行中编译器对指针解引用，从而获得vptr；接着计算vptr+12，即访问虚表的第四项，而23行访问虚表的第二项。之后，程序调用虚表中对应项目指向的函数。<br><img src="/images/cppre1/catdogwalk.png"><br>三个虚表的第四项分别是<code>sub_8048864</code>、<code>sub_804881c</code>和<code>__cxa_pure_virtual</code>。前两个函数如上图所示，分别是Dog和Cat类中对walk函数的实现，最后一个函数就是Mammal类中对应的实现。因为Mammal类中没有定义walk的具体实现，而是声明其为纯虚函数。那么GCC就插入了一个默认的项目。现在就知道了虚表1是Mammal类的，2是Cat类的，3是Dog类的。<br>奇怪的是vtable中包含五个项目，而程序中每个类只有四个虚函数：</p>
@@ -336,14 +337,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -370,7 +371,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

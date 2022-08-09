@@ -20,17 +20,17 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="继续上一篇文章的内容，我们已经有一个可以证实的区块链了，但是现在链中只保存着一些无用的信息，这篇文章中我们将会实现简单的钱包（wallet）和交易（transaction），用交易来替换这些数据，创建一个非常简单的加密货币：”NoobCoin”。   创建Wallet在加密货币中，币的所有权在区块链上通过交易转移，参与者有一个地址来发送和接收币。基本形式的钱包只能保存地址，但大多数钱包是能够在区块">
+  <meta name="description" content="继续上一篇文章的内容，我们已经有一个可以证实的区块链了，但是现在链中只保存着一些无用的信息，这篇文章中我们将会实现简单的钱包（wallet）和交易（transaction），用交易来替换这些数据，创建一个非常简单的加密货币：”NoobCoin”。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用Python实现简单的区块链（二）">
 <meta property="og:url" content="http://example.com/2018/06/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="继续上一篇文章的内容，我们已经有一个可以证实的区块链了，但是现在链中只保存着一些无用的信息，这篇文章中我们将会实现简单的钱包（wallet）和交易（transaction），用交易来替换这些数据，创建一个非常简单的加密货币：”NoobCoin”。   创建Wallet在加密货币中，币的所有权在区块链上通过交易转移，参与者有一个地址来发送和接收币。基本形式的钱包只能保存地址，但大多数钱包是能够在区块">
+<meta property="og:description" content="继续上一篇文章的内容，我们已经有一个可以证实的区块链了，但是现在链中只保存着一些无用的信息，这篇文章中我们将会实现简单的钱包（wallet）和交易（transaction），用交易来替换这些数据，创建一个非常简单的加密货币：”NoobCoin”。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/blockchain/wallet.png">
 <meta property="og:image" content="http://example.com/images/blockchain/signature.png">
 <meta property="article:published_time" content="2018-06-20T09:49:46.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.770Z">
+<meta property="article:modified_time" content="2022-08-09T15:56:19.530Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Blockchain">
 <meta name="twitter:card" content="summary">
@@ -195,7 +195,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-09 23:56:19" itemprop="dateModified" datetime="2022-08-09T23:56:19+08:00">2022-08-09</time>
               </span>
 
           
@@ -210,6 +210,7 @@
 
       
         <p>继续<a target="_blank" rel="noopener" href="http://pwn4.fun/2018/05/20/%E7%94%A8Python%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%8C%BA%E5%9D%97%E9%93%BE%EF%BC%88%E4%B8%80%EF%BC%89/">上一篇文章</a>的内容，我们已经有一个可以证实的区块链了，但是现在链中只保存着一些无用的信息，这篇文章中我们将会实现简单的<code>钱包（wallet）</code>和<code>交易（transaction）</code>，用交易来替换这些数据，创建一个非常简单的加密货币：”NoobCoin”。  </p>
+<a id="more"></a>
 <h2 id="创建Wallet"><a href="#创建Wallet" class="headerlink" title="创建Wallet"></a>创建Wallet</h2><p>在加密货币中，币的所有权在区块链上通过交易转移，参与者有一个地址来发送和接收币。基本形式的钱包只能保存地址，但大多数钱包是能够在区块链上创建新交易的软件。<br><img src="/images/blockchain/wallet.png"><br>上图显示了钱包、交易和区块链的关系，钱包可以创建交易，交易被存储在区块中，一个区块中可以有多个交易。具体的内容下面会详细介绍。<br>首先创建一个钱包类来保存私钥和公钥，UTXOs的作用后面再介绍：<br><strong>代码清单</strong> wallet.py</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> ecdsa.util <span class="keyword">import</span> PRNG</span><br><span class="line"><span class="keyword">from</span> ecdsa <span class="keyword">import</span> SigningKey</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Wallet</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        rng = PRNG(<span class="built_in">str</span>(random.random()))</span><br><span class="line">        self.privateKey = SigningKey.generate(entropy=rng)</span><br><span class="line">        self.publicKey = self.privateKey.get_verifying_key()</span><br><span class="line">        self.UTXOs = &#123;&#125;</span><br></pre></td></tr></table></figure>
 <p>在noobcoin中，公钥实际上是作为地址使用的，被共享给其他人来接收付款。私钥是用来签名交易的，这样除了私钥的所有者，没有人能花我们的币。公钥也和交易一起发送，用来验证签名是合法的，数据没有被篡改。<br><img src="/images/blockchain/signature.png"><br>这里用的椭圆曲线加密来产生公私钥对，用到了一个第三方库<a target="_blank" rel="noopener" href="https://github.com/warner/python-ecdsa">python-ecdsa</a>。</p>
@@ -366,14 +367,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -400,7 +401,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="radare21234567891011121314151617$ radare2 -h # 查看帮助$ r2 -d file # 调试一个文件&gt; d? #显示调试命令|Usage: d # Debug commands| db[?]                   Breakpoints commands| dc[?]                   Continue execut">
 <meta property="og:locale">
 <meta property="article:published_time" content="2016-06-20T11:11:12.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.724Z">
+<meta property="article:modified_time" content="2022-08-09T16:11:56.796Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:11:56" itemprop="dateModified" datetime="2022-08-10T00:11:56+08:00">2022-08-10</time>
               </span>
 
           
@@ -207,6 +207,7 @@
 
       
         <h3 id="radare2"><a href="#radare2" class="headerlink" title="radare2"></a>radare2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ radare2 -h # 查看帮助</span><br><span class="line">$ r2 -d file # 调试一个文件</span><br><span class="line">&gt; d? #显示调试命令</span><br><span class="line">|Usage: d # Debug commands</span><br><span class="line">| db[?]                   Breakpoints commands</span><br><span class="line">| dc[?]                   Continue execution</span><br><span class="line">| dm[?]                   Show memory maps</span><br><span class="line">| dr[?]                   Cpu registers</span><br><span class="line">...</span><br><span class="line">&gt; v # 进入visual mode，q退出；</span><br><span class="line">    # c可以显示一个游标；</span><br><span class="line">    # 按shift加hjkl可以选中；</span><br><span class="line">    # visual mode中可以用i来overwrite字节；</span><br><span class="line">    # p&#x2F;P切换其他visual mode view；</span><br><span class="line">    # s - step into，S - step over当前指令；</span><br><span class="line">    # b下断点；</span><br><span class="line">    # : 可以在visual mode中输入常规的radare命令</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <p><strong>Seeking</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; s?</span><br><span class="line">&gt; s 0x0804848c # 查找这个地址，可以当跳转用</span><br><span class="line">&gt; s-           # 撤销查找</span><br><span class="line">&gt; s+           # 重做查找</span><br><span class="line">&gt; s*           # 列出撤销查找的历史</span><br><span class="line">&gt; s&#x2F; DATA      # 查找下一处&#39;DATA&#39;</span><br><span class="line">&gt; s&#x2F;x 85ff     # 查找下一处\x85\xff</span><br><span class="line">&gt; sf           # 查找下一个函数</span><br><span class="line">&gt; sr eip       # 查找寄存器</span><br></pre></td></tr></table></figure>
 <p><strong>Block Size</strong></p>
@@ -348,14 +349,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -382,7 +383,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

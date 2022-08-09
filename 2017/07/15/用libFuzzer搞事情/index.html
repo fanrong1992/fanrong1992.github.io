@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05 12345$ tar xzf openssl1.0.1f.tgz$">
+  <meta name="description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用libFuzzer搞事情">
 <meta property="og:url" content="http://example.com/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05 12345$ tar xzf openssl1.0.1f.tgz$">
+<meta property="og:description" content="前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以libfuzzer-workshop这个系列教程为主。 Heartbleed Vulnerable(CVE-2014-0160)编译有漏洞的openssl版本 libfuzzer-workshop&#x2F;lessons&#x2F;05">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-07-15T15:41:39.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.773Z">
+<meta property="article:modified_time" content="2022-08-09T15:56:13.388Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Fuzzing">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-09 23:56:13" itemprop="dateModified" datetime="2022-08-09T23:56:13+08:00">2022-08-09</time>
               </span>
 
           
@@ -208,6 +208,7 @@
       
         <p>前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以<a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop">libfuzzer-workshop</a>这个系列教程为主。</p>
 <h2 id="Heartbleed-Vulnerable-CVE-2014-0160"><a href="#Heartbleed-Vulnerable-CVE-2014-0160" class="headerlink" title="Heartbleed Vulnerable(CVE-2014-0160)"></a>Heartbleed Vulnerable(CVE-2014-0160)</h2><p><strong>编译有漏洞的openssl版本</strong> libfuzzer-workshop/lessons/05</p>
+<a id="more"></a>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tar xzf openssl1.0.1f.tgz</span><br><span class="line">$ cd openssl1.0.1f</span><br><span class="line">$ .&#x2F;config</span><br><span class="line">$ make clean</span><br><span class="line">$ make CC&#x3D;&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize&#x3D;address -fsanitize-coverage&#x3D;trace-pc-guard,trace-cmp,trace-gep,trace-div&quot; -j$(nproc)</span><br></pre></td></tr></table></figure>
 <p><strong>fuzzer实现</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  SSL_library_init();</span><br><span class="line">  SSL_load_error_strings();</span><br><span class="line">  ERR_load_BIO_strings();</span><br><span class="line">  OpenSSL_add_all_algorithms();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  assert (sctx = SSL_CTX_new(TLSv1_method()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  assert(SSL_CTX_use_certificate_file(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  assert(SSL_CTX_use_PrivateKey_file(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="keyword">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint8_t</span> *data, <span class="keyword">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> SSL_CTX *sctx = Init();</span><br><span class="line">  SSL *server = SSL_new(sctx);</span><br><span class="line">  BIO *sinbio = BIO_new(BIO_s_mem());</span><br><span class="line">  BIO *soutbio = BIO_new(BIO_s_mem());</span><br><span class="line">  SSL_set_bio(server, sinbio, soutbio);</span><br><span class="line">  SSL_set_accept_state(server);</span><br><span class="line">  BIO_write(sinbio, data, size);</span><br><span class="line">  SSL_do_handshake(server);</span><br><span class="line">  SSL_free(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -321,14 +322,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -355,7 +356,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

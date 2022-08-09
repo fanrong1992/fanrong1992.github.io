@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。 Program Header可执行目标文件和共享目标文件的程序头部表（program header table）是一个结构">
+  <meta name="description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ELF: Executable and Linking Format part2">
 <meta property="og:url" content="http://example.com/2016/10/10/ELF-Executable-and-Linking-Format-part2/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
-<meta property="og:description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。 Program Header可执行目标文件和共享目标文件的程序头部表（program header table）是一个结构">
+<meta property="og:description" content="PROGRAM LOADINGIntroduction这一篇介绍了目标文件信息和系统运行程序所需的动作。可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即进程映像。一个进程映像通过segment保存文本、数据、堆栈等。">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/elfpart2/exe.png">
 <meta property="og:image" content="http://example.com/images/elfpart2/process_image.png">
 <meta property="og:image" content="http://example.com/images/elfpart2/shared_object.png">
 <meta property="article:published_time" content="2016-10-10T01:39:59.000Z">
-<meta property="article:modified_time" content="2020-11-12T02:26:14.704Z">
+<meta property="article:modified_time" content="2022-08-09T16:05:45.965Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Reverse">
@@ -197,7 +197,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 10:26:14" itemprop="dateModified" datetime="2020-11-12T10:26:14+08:00">2020-11-12</time>
+                <time title="更新于：2022-08-10 00:05:45" itemprop="dateModified" datetime="2022-08-10T00:05:45+08:00">2022-08-10</time>
               </span>
 
           
@@ -212,6 +212,7 @@
 
       
         <h2 id="PROGRAM-LOADING"><a href="#PROGRAM-LOADING" class="headerlink" title="PROGRAM LOADING"></a>PROGRAM LOADING</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>这一篇介绍了目标文件信息和系统运行程序所需的动作。<br>可执行目标文件和共享目标文件都是静态的表示程序。为了执行这样的程序，系统使用这些文件来创建动态的程序表示，即<code>进程映像</code>。一个进程映像通过segment保存文本、数据、堆栈等。</p>
+<a id="more"></a>
 <h3 id="Program-Header"><a href="#Program-Header" class="headerlink" title="Program Header"></a>Program Header</h3><p>可执行目标文件和共享目标文件的<code>程序头部表（program header table）</code>是一个结构体数组，每个元素描述了一个segment，以及系统准备执行程序时所需的其他信息。目标文件的segment包含一个或多个section，后面会介绍。Program Header只对可执行目标文件和共享目标文件有意义。  </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Program Header</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Elf32_Word p_type;</span><br><span class="line">    Elf32_Off  p_offset;</span><br><span class="line">    Elf32_Addr p_vaddr;</span><br><span class="line">    Elf32_Addr p_paddr;</span><br><span class="line">    Elf32_Word p_filesz;</span><br><span class="line">    Elf32_Word p_memsz;</span><br><span class="line">    Elf32_Word p_flags;</span><br><span class="line">    Elf32_Word p_align;</span><br><span class="line">&#125; Elf32_Phdr;</span><br></pre></td></tr></table></figure>
 <p><code>p_type</code> 说明了这个数组元素描述了一个什么种类的segment，以及如何解释这个数组元素的信息。Type取值和含义后面介绍。<br><code>p_offset</code> 从文件开头到segment第一个字节的偏移。<br><code>p_vaddr</code> segment第一个字节在内存中的虚拟地址。<br><code>p_paddr</code> 某些系统上此成员保存segment的物理地址。由于System V忽略应用程序的物理地址，这个成员的取值在可执行目标文件和共享目标文件中没有定义。<br><code>p_filesz</code> segment在文件映像中的字节数，可能为0。<br><code>p_memsz</code> segment在内存映像中的字节数，可能为0。<br><code>p_flags</code> 与segment相关的标志。后面介绍。<br><code>p_align</code> 后面”程序加载”一节会介绍，可加载的进程segment其p_vaddr和p_offset必须是模页大小同余的。这个成员给出了segment在内存和文件中的对齐值。<br>有的表项描述了进程segment，其他的则描述了一些进程映像中并不包含的辅助信息。segment表项除了有明确规定的，可以采用任意的顺序。下面列出了segment类型的取值，其他的取值留作以后使用。<br><strong>Segment Types</strong>，p_type</p>
@@ -423,14 +424,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-count">127</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -457,7 +458,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
