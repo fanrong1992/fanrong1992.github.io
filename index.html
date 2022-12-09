@@ -156,6 +156,77 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/09/SGX%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/12/09/SGX%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">SGX入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建于：2022-12-09 21:34:16 / 更新于：21:51:07" itemprop="dateCreated datePublished" datetime="2022-12-09T21:34:16+08:00">2022-12-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>SGX应用由两部分组成：</p>
+<ul>
+<li>untrusted 不可信区<br>代码和数据运行在普通非加密内存区域，程序main入口必须在非可信区，上图的main()和bar()在非可信区。</li>
+<li>trusted 可信区<br>代码和数据运行在硬件加密内存区域，此区域由CPU创建的且只有CPU有权限访问，上图的helloworld()和foo()运行在可信区。  </li>
+</ul>
+<p>非可信区只能通过<code>ECALL</code>函数调用可信区内的函数，可信区只能通过<code>OCALL</code>函数调用非可信区的函数。<code>ECALL</code>函数和<code>OCALL</code>函数通过<code>EDL</code>文件声明。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/12/09/SGX%E5%85%A5%E9%97%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/08/09/Cilium%E5%85%A5%E9%97%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -795,78 +866,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/03/23/hxb2019-strng2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/23/hxb2019-strng2/" class="post-title-link" itemprop="url">hxb2019 strng2</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2020-03-23 12:30:16" itemprop="dateCreated datePublished" datetime="2020-03-23T12:30:16+08:00">2020-03-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 15:38:35" itemprop="dateModified" datetime="2020-11-12T15:38:35+08:00">2020-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这道题是湖湘杯2019的一道QEMU pwn，<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1Ea5uQXRfr9YNWKyoLhUxXw">题目下载</a>(提取码: 4wag)。QEMU pwn题目一般是基于QEMU源码进行修改或者添加，在QEMU模拟的PCI设备中引入漏洞，选手需要利用漏洞读取宿主机上的flag文件。<br>解压文件，查看内容：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/23/hxb2019-strng2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -938,14 +937,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">127</span>
+          <span class="site-state-item-count">128</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
