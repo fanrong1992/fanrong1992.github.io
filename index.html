@@ -156,6 +156,172 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/20/%E4%BD%BF%E7%94%A8Rust%E5%BC%80%E5%8F%91%E5%AE%89%E5%8D%93eBPF%E7%A8%8B%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/20/%E4%BD%BF%E7%94%A8Rust%E5%BC%80%E5%8F%91%E5%AE%89%E5%8D%93eBPF%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">使用Rust开发安卓eBPF程序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建于：2023-08-20 11:19:09 / 更新于：11:21:01" itemprop="dateCreated datePublished" datetime="2023-08-20T11:19:09+08:00">2023-08-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一、Rust编译工具简介"><a href="#一、Rust编译工具简介" class="headerlink" title="一、Rust编译工具简介"></a>一、Rust编译工具简介</h2><p>在Rust中如果刚开始学习语法，写一些简单的单一文件，那么可以使用rustc来进行编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rustc main.rs</span><br></pre></td></tr></table></figure>
+<p>rustc与gcc和clang类似，编译成功后，rustc会输出一个二进制的可执行文件。不过随着项目的增长，我们就需要功能更强大的编译工具。<br>Cargo是Rust的构建系统和包管理器，大多数Rustacean们使用Cargo来管理Rust项目，它可以处理很多任务，如构建代码、下载依赖库并编译这些库。cargo的基本用法非常简单：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cargo new hello_world  &#x2F;&#x2F; 新建名为hello_world的项目</span><br><span class="line">$ cd hello_world</span><br></pre></td></tr></table></figure>
+<p>进入hello_world项目，cargo生成了一个Cargo.toml文件和一个src目录，src目录中是项目的主文件main.rs。<br><strong>代码清单：Cargo.toml</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[package]</span><br><span class="line">name &#x3D; &quot;hello_world&quot;</span><br><span class="line">version &#x3D; &quot;0.1.0&quot;</span><br><span class="line">edition &#x3D; &quot;2021&quot;</span><br><span class="line"></span><br><span class="line"># See more keys and their definitions at https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;cargo&#x2F;reference&#x2F;manifest.html</span><br><span class="line"></span><br><span class="line">[dependencies]</span><br></pre></td></tr></table></figure>
+<p>这个文件使用TOML（Tom’s Obvious, Minimal Language）格式，这是Cargo配置文件的格式。<br>[package]是一个section标题，表明下面的语句用来配置一个包。接着三行设置了cargo编译程序所需的配置：项目的名称、项目的版本以及要使用的Rust版本。<br>[dependencies]这个section列举了项目依赖的代码包，在Rust中代码包被称为crates。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cargo build  &#x2F;&#x2F; 编译Rust项目</span><br><span class="line">   Compiling hello_world v0.1.0 (&#x2F;Users&#x2F;fanrong&#x2F;Computer&#x2F;Rust&#x2F;hello_world)</span><br><span class="line">    Finished dev [unoptimized + debuginfo] target(s) in 1.84s</span><br><span class="line">$ cargo run &#x2F;&#x2F; 运行Rust项目</span><br><span class="line">    Finished dev [unoptimized + debuginfo] target(s) in 0.02s</span><br><span class="line">     Running &#96;target&#x2F;debug&#x2F;hello_world&#96;</span><br><span class="line">Hello, world!</span><br></pre></td></tr></table></figure>
+<p>Cargo的基本用法就是这么简单，更多Cargo相关信息请查阅<a target="_blank" rel="noopener" href="https://doc.rust-lang.org/cargo/">Cargo官方文档</a>。</p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><p>环境：<br>Ubuntu 22.04<br>Pixel 6 root<br>要用Rust开发安卓eBPF程序，这里的方法是借助<a target="_blank" rel="noopener" href="https://github.com/aya-rs/aya">Aya</a>框架，Aya框架是一套纯Rust开发的eBPF框架，只需要libc crate来执行系统调用，支持BTF，而且当使用musl（静态链接）链接时，它提供了真正的CO-RE（compile once，run everywhere）。<br>首先搭建Aya开发环境：<br>1.安装Rust stable和nightly的toolchain</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ curl --proto &#39;&#x3D;https&#39; --tlsv1.2 -sSf https:&#x2F;&#x2F;sh.rustup.rs | sh</span><br><span class="line">$ rustup toolchain install nightly --component rust-src</span><br><span class="line">&#x2F;&#x2F; 切换到nightly版本</span><br><span class="line">$ rustup default nightly</span><br><span class="line">&#x2F;&#x2F; 添加ARM64架构支持</span><br><span class="line">$ rustup target add aarch64-unknown-linux-musl</span><br></pre></td></tr></table></figure>
+<p>2.安装bpf-linker和cargo-generate，linker依赖LLVM：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install lld</span><br><span class="line">$ cargo install bpf-linker</span><br><span class="line">$ sudo apt install libssl-dev pkg-config</span><br><span class="line">$ cargo install cargo-generate</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、开始一个新项目"><a href="#三、开始一个新项目" class="headerlink" title="三、开始一个新项目"></a>三、开始一个新项目</h2><p>1.创建项目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ cargo generate https:&#x2F;&#x2F;github.com&#x2F;aya-rs&#x2F;aya-template</span><br><span class="line">⚠️   Favorite &#96;https:&#x2F;&#x2F;github.com&#x2F;aya-rs&#x2F;aya-template&#96; not found in config, using it as a git repository: https:&#x2F;&#x2F;github.com&#x2F;aya-rs&#x2F;aya-template</span><br><span class="line">🤷   Project Name: kprobe-rs</span><br><span class="line">🔧   Destination: &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;BPF&#x2F;practice&#x2F;kprobe-rs ...</span><br><span class="line">🔧   project-name: kprobe-rs ...</span><br><span class="line">🔧   Generating template ...</span><br><span class="line">✔ 🤷   Which type of eBPF program? · kprobe</span><br><span class="line">🤷   Where to attach the (k|kret)probe? (e.g try_to_wake_up): do_sys_openat2</span><br><span class="line">🔧   Moving generated files into: &#96;&#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;BPF&#x2F;practice&#x2F;kprobe-rs&#96;...</span><br><span class="line">Initializing a fresh Git repository</span><br><span class="line">✨   Done! New project created &#x2F;home&#x2F;fanrong&#x2F;Computer&#x2F;BPF&#x2F;practice&#x2F;kprobe-rs</span><br></pre></td></tr></table></figure>
+<p>2.代码解析<br>生成的项目手脚架有两部分，一部分是ebpf代码，编译后生成字节码，另一部分是用户空间代码，用来把ebpf字节码注入到内核中。注入到内核中的字节码首先由ebpf-verifier验证安全性，程序中没有崩溃、死循环等，可以正常结束，字节码通过JIT编译器将字节码转换成机器指令以提高执行效率，然后将程序指令挂载到指定的钩子上以被触发执行。<br>kprobe-rs-ebpf中的代码是eBPF代码，这是一个在open系统调用加hook的kprobe程序</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![no_std]</span> <span class="comment">// 不能使用标准库</span></span><br><span class="line"><span class="meta">#![no_main]</span> <span class="comment">// 没有main函数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> aya_bpf::&#123;macros::kprobe, programs::ProbeContext&#125;;</span><br><span class="line"><span class="keyword">use</span> aya_log_ebpf::info;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[kprobe(name = <span class="meta-string">&quot;kprobe_rs&quot;</span>)]</span> <span class="comment">// 表示这是一个kprobe程序</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">kprobe_rs</span></span>(ctx: ProbeContext) -&gt; <span class="built_in">u32</span> &#123;</span><br><span class="line">    <span class="comment">// 主入口点</span></span><br><span class="line">    <span class="keyword">match</span> try_kprobe_rs(ctx) &#123;</span><br><span class="line">        <span class="literal">Ok</span>(ret) =&gt; ret,</span><br><span class="line">        <span class="literal">Err</span>(ret) =&gt; ret,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">try_kprobe_rs</span></span>(ctx: ProbeContext) -&gt; <span class="built_in">Result</span>&lt;<span class="built_in">u32</span>, <span class="built_in">u32</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// open系统调用被调用时打印</span></span><br><span class="line">    info!(&amp;ctx, <span class="string">&quot;function do_sys_openat2 called&quot;</span>);</span><br><span class="line">    <span class="literal">Ok</span>(<span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[panic_handler]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">panic</span></span>(_info: &amp;core::panic::PanicInfo) -&gt; ! &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123; core::hint::unreachable_unchecked() &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>kprobe-rs中是用户空间部分的代码</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> aya::programs::KProbe;</span><br><span class="line"><span class="keyword">use</span> aya::&#123;include_bytes_aligned, Bpf&#125;;</span><br><span class="line"><span class="keyword">use</span> aya_log::BpfLogger;</span><br><span class="line"><span class="keyword">use</span> log::&#123;info, warn, debug&#125;;</span><br><span class="line"><span class="keyword">use</span> tokio::signal;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span> <span class="comment">// 主入口点</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() -&gt; <span class="built_in">Result</span>&lt;(), anyhow::Error&gt; &#123;</span><br><span class="line">    env_logger::init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Bump the memlock rlimit. This is needed for older kernels that don&#x27;t use the</span></span><br><span class="line">    <span class="comment">// new memcg based accounting, see https://lwn.net/Articles/837122/</span></span><br><span class="line">    <span class="keyword">let</span> rlim = libc::rlimit &#123;</span><br><span class="line">        rlim_cur: libc::RLIM_INFINITY,</span><br><span class="line">        rlim_max: libc::RLIM_INFINITY,</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">let</span> ret = <span class="keyword">unsafe</span> &#123; libc::setrlimit(libc::RLIMIT_MEMLOCK, &amp;rlim) &#125;;</span><br><span class="line">    <span class="keyword">if</span> ret != <span class="number">0</span> &#123;</span><br><span class="line">        debug!(<span class="string">&quot;remove limit on locked memory failed, ret is: &#123;&#125;&quot;</span>, ret);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This will include your eBPF object file as raw bytes at compile-time and load it at</span></span><br><span class="line">    <span class="comment">// runtime. This approach is recommended for most real-world use cases. If you would</span></span><br><span class="line">    <span class="comment">// like to specify the eBPF program at runtime rather than at compile-time, you can</span></span><br><span class="line">    <span class="comment">// reach for `Bpf::load_file` instead.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// include_bytes_aligned!()在编译时会拷贝BPF ELF目标文件的内容</span></span><br><span class="line">    <span class="comment">// Bpf::load()读取前一个命令中BPF ELF目标文件的内容，创建maps，执行BTF重定向</span></span><br><span class="line">    <span class="meta">#[cfg(debug_assertions)]</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> bpf = Bpf::load(include_bytes_aligned!(</span><br><span class="line">        <span class="string">&quot;../../target/bpfel-unknown-none/debug/kprobe-rs&quot;</span></span><br><span class="line">    ))?;</span><br><span class="line">    <span class="meta">#[cfg(not(debug_assertions))]</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> bpf = Bpf::load(include_bytes_aligned!(</span><br><span class="line">        <span class="string">&quot;../../target/bpfel-unknown-none/release/kprobe-rs&quot;</span></span><br><span class="line">    ))?;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="literal">Err</span>(e) = BpfLogger::init(&amp;<span class="keyword">mut</span> bpf) &#123;</span><br><span class="line">        <span class="comment">// This can happen if you remove all log statements from your eBPF program.</span></span><br><span class="line">        warn!(<span class="string">&quot;failed to initialize eBPF logger: &#123;&#125;&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 提取kprobe程序</span></span><br><span class="line">    <span class="keyword">let</span> program: &amp;<span class="keyword">mut</span> KProbe = bpf.program_mut(<span class="string">&quot;kprobe_rs&quot;</span>).unwrap().try_into()?;</span><br><span class="line">    <span class="comment">// 把它加载进内核</span></span><br><span class="line">    program.load()?;</span><br><span class="line">    program.attach(<span class="string">&quot;do_sys_openat2&quot;</span>, <span class="number">0</span>)?;</span><br><span class="line"></span><br><span class="line">    info!(<span class="string">&quot;Waiting for Ctrl-C...&quot;</span>);</span><br><span class="line">    signal::ctrl_c().<span class="keyword">await</span>?;</span><br><span class="line">    info!(<span class="string">&quot;Exiting...&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.编译运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ cargo xtask build-ebpf</span><br><span class="line">$ export RUST_LOG&#x3D;INFO &#x2F;&#x2F; 设置LOG级别为INFO</span><br><span class="line">$ cargo xtask run</span><br><span class="line">...</span><br><span class="line">[2023-07-08T19:30:28Z INFO  kprobe_rs] Waiting for Ctrl-C...</span><br><span class="line">[2023-07-08T19:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-08T19:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-08T19:30:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>现在生成的项目可以编译运行在Ubuntu上了，想要能在安卓上运行需要进行交叉编译。</p>
+<h2 id="四、交叉编译"><a href="#四、交叉编译" class="headerlink" title="四、交叉编译"></a>四、交叉编译</h2><p>Rust可以支持的平台非常多，ARM、MIPS、PowerPC、RISCV、X86等：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ rustup target list</span><br><span class="line">aarch64-apple-darwin</span><br><span class="line">aarch64-apple-ios</span><br><span class="line">aarch64-apple-ios-sim</span><br><span class="line">aarch64-linux-android</span><br><span class="line">aarch64-pc-windows-msvc</span><br><span class="line">aarch64-unknown-fuchsia</span><br><span class="line">aarch64-unknown-linux-gnu</span><br><span class="line">aarch64-unknown-linux-musl (installed)</span><br><span class="line">aarch64-unknown-none</span><br><span class="line">aarch64-unknown-none-softfloat</span><br><span class="line">aarch64-unknown-uefi</span><br><span class="line">arm-linux-androideabi</span><br><span class="line">arm-unknown-linux-gnueabi</span><br><span class="line">arm-unknown-linux-gnueabihf</span><br><span class="line">arm-unknown-linux-musleabi</span><br><span class="line">arm-unknown-linux-musleabihf</span><br><span class="line">armebv7r-none-eabi</span><br><span class="line">armebv7r-none-eabihf</span><br><span class="line">armv5te-unknown-linux-gnueabi</span><br><span class="line">armv5te-unknown-linux-musleabi</span><br><span class="line">armv7-linux-androideabi</span><br><span class="line">armv7-unknown-linux-gnueabi</span><br><span class="line">armv7-unknown-linux-gnueabihf</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这里用到的是aarch64-unknown-linux-musl，支持aarch64架构的静态编译工具。<br>还需要对项目中的文件进行一些修改，首先是项目整体的配置文件.cargo/config.toml，末尾加上这个编译工具：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[target.aarch64-unknown-linux-musl]</span><br><span class="line">linker &#x3D; &quot;ld.lld&quot;</span><br></pre></td></tr></table></figure>
+<p>eBPF代码的编译文件kprobe-rs-ebpf/Cargo.toml，加入aarch64编译条件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[features]</span><br><span class="line">aarch64 &#x3D; []</span><br></pre></td></tr></table></figure>
+<p>用户空间部分代码的编译文件kprobe-rs/Cargo.toml，加入aarch64系统调用依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[target.&#39;cfg(target_arch &#x3D; &quot;aarch64&quot;)&#39;.dependencies]</span><br><span class="line">syscalls &#x3D; &#123; version &#x3D; &quot;*&quot;, default-features &#x3D; false, features &#x3D; [&quot;aarch64&quot;] &#125;</span><br></pre></td></tr></table></figure>
+<p>其他也主要是相关的编译文件，需要在其中加入arm64架构的配置。详细修改内容可以下载我在github上的<a target="_blank" rel="noopener" href="https://github.com/fanrong1992/Rust_Android_eBPF">完整代码</a>，与cargo generate生成的原Aya项目进行对比。</p>
+<h2 id="五、编译运行"><a href="#五、编译运行" class="headerlink" title="五、编译运行"></a>五、编译运行</h2><p>下载：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https:&#x2F;&#x2F;github.com&#x2F;fanrong1992&#x2F;Rust_Android_eBPF.git</span><br><span class="line">$ cd Rust_Android_eBPF&#x2F;kprobe</span><br></pre></td></tr></table></figure>
+
+<p>编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cargo xtask build --arch aarch64-unknown-linux-musl --release</span><br></pre></td></tr></table></figure>
+<p>运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ adb push target&#x2F;aarch64-unknown-linux-musl&#x2F;release&#x2F;kprobe-rs &#x2F;data&#x2F;local&#x2F;tmp</span><br><span class="line">$ adb shell</span><br><span class="line">$ su</span><br><span class="line"># cd &#x2F;data&#x2F;local&#x2F;tmp</span><br><span class="line"># RUST_LOG&#x3D;INFO .&#x2F;kprobe-rs</span><br><span class="line">[2023-07-07T04:26:28Z INFO  kprobe_rs] Waiting for Ctrl-C...</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">[2023-07-07T04:26:30Z INFO  kprobe_rs] function do_sys_openat2 called</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>到这里Rust开发的eBPF程序就可以在安卓上正常运行了。</p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>总的来说，用Rust写eBPF程序在安卓上运行的优点是前后端都可以用Rust实现，整个流程也比较简单。但是目前例子和应用较少，不知道会不会存在什么坑，真正应用到项目中还需要更多人一起进行探索。</p>
+<p>参考：<br><a target="_blank" rel="noopener" href="https://kaisery.github.io/trpl-zh-cn/ch01-03-hello-cargo.html">https://kaisery.github.io/trpl-zh-cn/ch01-03-hello-cargo.html</a><br><a target="_blank" rel="noopener" href="http://pwn4.fun/2022/08/08/Aya%E5%85%A5%E9%97%A8/">http://pwn4.fun/2022/08/08/Aya%E5%85%A5%E9%97%A8/</a><br><a target="_blank" rel="noopener" href="https://www.freesion.com/article/1938967007/">https://www.freesion.com/article/1938967007/</a><br><a target="_blank" rel="noopener" href="https://aya-rs.dev/book/start/development/">https://aya-rs.dev/book/start/development/</a><br><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-277628.htm">https://bbs.kanxue.com/thread-277628.htm</a><br><a target="_blank" rel="noopener" href="https://github.com/ri-char/eStrace">https://github.com/ri-char/eStrace</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/25/Occlum%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/25/Occlum%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Occlum入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建于：2023-05-25 22:54:00 / 更新于：22:55:57" itemprop="dateCreated datePublished" datetime="2023-05-25T22:54:00+08:00">2023-05-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Occlum入门"><a href="#Occlum入门" class="headerlink" title="Occlum入门"></a>Occlum入门</h1><p>Occlum是一款蚂蚁集团开源的LibOS，目的是为了降低SGX应用开发门槛。传统的SGX开发存在一定的开发困境：<br>1.需要将应用程序分为两部分，可信部分和不可信部分。<br>2.可以使用的编程语言受限制。<br>3.功能受限制，Enclave无法访问不可信OS，是不可信环境的一个很小的功能子集。<br>Occlum解决了上述问题，实现了类似docker的命令，使得正常开发的程序可以在SGX可信环境中运行。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/05/25/Occlum%E5%85%A5%E9%97%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/09/SGX%E5%85%A5%E9%97%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -179,10 +345,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建于：2022-12-09 21:34:16 / 更新于：21:51:07" itemprop="dateCreated datePublished" datetime="2022-12-09T21:34:16+08:00">2022-12-09</time>
+              <time title="创建于：2022-12-09 21:34:16" itemprop="dateCreated datePublished" datetime="2022-12-09T21:34:16+08:00">2022-12-09</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2023-08-20 11:13:24" itemprop="dateModified" datetime="2023-08-20T11:13:24+08:00">2023-08-20</time>
+              </span>
 
           
 
@@ -195,12 +367,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>SGX应用由两部分组成：</p>
-<ul>
-<li>untrusted 不可信区<br>代码和数据运行在普通非加密内存区域，程序main入口必须在非可信区，上图的main()和bar()在非可信区。</li>
-<li>trusted 可信区<br>代码和数据运行在硬件加密内存区域，此区域由CPU创建的且只有CPU有权限访问，上图的helloworld()和foo()运行在可信区。  </li>
-</ul>
-<p>非可信区只能通过<code>ECALL</code>函数调用可信区内的函数，可信区只能通过<code>OCALL</code>函数调用非可信区的函数。<code>ECALL</code>函数和<code>OCALL</code>函数通过<code>EDL</code>文件声明。  </p>
+          <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p><img src="/images/sgx/sgx.png"></p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/12/09/SGX%E5%85%A5%E9%97%A8/#more" rel="contents">
@@ -721,151 +888,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">runc&runsc单独使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2020-06-20 20:33:02" itemprop="dateCreated datePublished" datetime="2020-06-20T20:33:02+08:00">2020-06-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2020-11-12 15:20:33" itemprop="dateModified" datetime="2020-11-12T15:20:33+08:00">2020-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="runc命令"><a href="#runc命令" class="headerlink" title="runc命令"></a>runc命令</h2><p>1.准备一个busybox容器所需文件系统</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker pull busybox</span><br><span class="line">$ mkdir rootfs</span><br><span class="line">$ sudo docker export $(sudo docker create busybox) | sudo tar -C rootfs -xvf -</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/20/runc-runsc%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/" class="post-title-link" itemprop="url">Qemu虚拟机与宿主机之间文件传输</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2020-05-27 16:24:44" itemprop="dateCreated datePublished" datetime="2020-05-27T16:24:44+08:00">2020-05-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:15:54" itemprop="dateModified" datetime="2022-08-10T00:15:54+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Qemu虚拟机与宿主机之间实现文件传输，大概有四类方法：<br>1.虚拟机与宿主机之间，使用网络来进行文件传输。这个需要先在宿主机上配置网络桥架，在qemu-kvm启动配置网卡就可以实现文件传输。<br>2.使用9psetup协议实现虚拟机与宿主机之间文件传输。该方法先要宿主机需要在内核中配置了9p选项，qemu在编译时需要支持ATTR/XATTR。<br>3.通过在Qemu虚拟机中挂载宿主机中的一个文件为硬盘。<br>4.第四类方法是一种新方法，是用virtio-fs通过FUSE协议进行传输。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/27/Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B9%8B%E9%97%B4%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -937,7 +959,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">130</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -971,7 +993,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
