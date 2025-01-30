@@ -156,6 +156,441 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">C++模板与泛型编程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-15 23:18:56" itemprop="dateCreated datePublished" datetime="2017-08-15T23:18:56+08:00">2017-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:02:18" itemprop="dateModified" datetime="2022-08-10T00:02:18+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>模板是C++中泛型编程的基础，一个模板就是一个创建类或函数的蓝图。</p>
+<h3 id="函数模板"><a href="#函数模板" class="headerlink" title="函数模板"></a>函数模板</h3><p>我们可以定义一个通用的<code>函数模板（function template）</code>，而不是为每个类型都定义一个新函数。compare的模板版本如下：  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/08/15/C-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/15/Linux-Kernel-UAF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/15/Linux-Kernel-UAF/" class="post-title-link" itemprop="url">Linux Kernel UAF</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-15 15:44:38" itemprop="dateCreated datePublished" datetime="2017-08-15T15:44:38+08:00">2017-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:09:22" itemprop="dateModified" datetime="2022-08-10T00:09:22+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="题目概述"><a href="#题目概述" class="headerlink" title="题目概述"></a>题目概述</h2><p>这是一道CTF的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1qYsNeKO">kernel题</a>，题目不是很难，但是可以学到很多知识，下面会用两种方法对这个题目进行解决：<br>1.修改进程的cred结构体中权限相关的信息，将权限改为root；<br>2.通过ROP将cr4中的smep位置反，关闭SMEP机制，然后ret2usr获取root权限。<br>题目给出了三个文件：rootfs.cpio、bzImage和boot.sh。boot.sh内容如下：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/08/15/Linux-Kernel-UAF/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/" class="post-title-link" itemprop="url">学习Android上的内存分配jemalloc</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-08 22:25:10" itemprop="dateCreated datePublished" datetime="2017-08-08T22:25:10+08:00">2017-08-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:55:52" itemprop="dateModified" datetime="2022-08-09T23:55:52+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>之前写过<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/04/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3glibc-malloc/">一篇文章</a>介绍过libc malloc，主要是PC上的malloc机制。这篇文章要介绍的是jemalloc，Android早在5.0就切换到了jemalloc。所以想要学习Android上堆相关的漏洞利用就要对jemalloc有所了解。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/08/08/%E5%AD%A6%E4%B9%A0Android%E4%B8%8A%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8Djemalloc/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/08/03/CVE-2015-3636%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/08/03/CVE-2015-3636%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">CVE-2015-3636漏洞分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-08-03 00:04:13" itemprop="dateCreated datePublished" datetime="2017-08-03T00:04:13+08:00">2017-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:03:16" itemprop="dateModified" datetime="2022-08-10T00:03:16+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>CVE-2015-3636是一个Android系统上可通用的root提权漏洞，这种提权漏洞的挖掘越来越困难，一方面是因为Android系统碎片化十分严重，另一方面是漏洞缓冲机制的不断引入。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞属于Linux Kernel级别的use-after-free漏洞，存在于Linux内核的ping.c文件中。当用户态调用系统调用<code>socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)</code>，用返回的socket文件描述符作为参数调用系统调用<code>connect()</code>，并且connect的第二个参数中<code>sa_family == AF_UNSPEC</code>时，就会因为访问0x200200这个地址引起系统crash。如果攻击者巧妙地填充或者覆盖PING socket对象，就能达到获取root权限的目的。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/08/03/CVE-2015-3636%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/" class="post-title-link" itemprop="url">用libFuzzer搞事情</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-07-15 23:41:39" itemprop="dateCreated datePublished" datetime="2017-07-15T23:41:39+08:00">2017-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:56:13" itemprop="dateModified" datetime="2022-08-09T23:56:13+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>前面一篇文章介绍过libFuzzer的基本用法了，本文就用libFuzzer来搞一些实际的事情。这里的学习还是以<a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop">libfuzzer-workshop</a>这个系列教程为主。</p>
+<h2 id="Heartbleed-Vulnerable-CVE-2014-0160"><a href="#Heartbleed-Vulnerable-CVE-2014-0160" class="headerlink" title="Heartbleed Vulnerable(CVE-2014-0160)"></a>Heartbleed Vulnerable(CVE-2014-0160)</h2><p><strong>编译有漏洞的openssl版本</strong> libfuzzer-workshop/lessons/05</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/07/15/%E7%94%A8libFuzzer%E6%90%9E%E4%BA%8B%E6%83%85/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/15/libFuzzer%E8%8F%9C%E9%B8%9F%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/07/15/libFuzzer%E8%8F%9C%E9%B8%9F%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">libFuzzer菜鸟入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-07-15 14:47:25" itemprop="dateCreated datePublished" datetime="2017-07-15T14:47:25+08:00">2017-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:09:11" itemprop="dateModified" datetime="2022-08-10T00:09:11+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LibFuzzer是一个<code>in-process</code>，<code>coverage-guided</code>，<code>evolutionary</code>模糊测试引擎，是LLVM项目的一部分。LibFuzzer和要被测试的库链接在一起，通过一个特殊的模糊测试进入点（目标函数），用测试用例feed要被测试的库。fuzzer会跟踪哪些代码区域已经测试过，然后在输入数据的语料库上产生变异，来最大化代码覆盖。代码覆盖的信息由LLVM的SanitizerCoverage插桩提供。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/07/15/libFuzzer%E8%8F%9C%E9%B8%9F%E5%85%A5%E9%97%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/14/Dirty-COW%EF%BC%88CVE-2016-5195%EF%BC%89%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -440,451 +875,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/" class="post-title-link" itemprop="url">VirtualBox上调试Linux Kernel</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-07-01 20:44:32" itemprop="dateCreated datePublished" datetime="2017-07-01T20:44:32+08:00">2017-07-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:14:45" itemprop="dateModified" datetime="2022-08-10T00:14:45+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>之前写过用VMware调试Linux Kernel，今天又尝试了一下VirtualBox+gdb的组合。</p>
-<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>我的环境，主机：Ubuntu14.04<br>虚拟机：VirtualBox5.1<br>客户机：Ubuntu12.04.5 x64<br>1.首先在VirtualBox上安装客户机<br>编译安装<a target="_blank" rel="noopener" href="https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.13.tar.gz">linux-3.13内核</a>（一般是将源码放到/usr/src中）：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/" class="post-title-link" itemprop="url">Linux x64内核ROP</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-06-28 22:12:21" itemprop="dateCreated datePublished" datetime="2017-06-28T22:12:21+08:00">2017-06-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:10:08" itemprop="dateModified" datetime="2022-08-10T00:10:08+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这是篇文章主要介绍一下Linux内核中的ROP chain如何构造来提升用户权限。内核ROP经常用来绕过和非可执行内存区域相关的限制，例如，在默认内核上，它提供了一种可以绕过内核和用户地址分离缓解技术（例如SMEP）的方法。<br>结果成功需要满足如下条件：</p>
-<ul>
-<li>执行一个权限提升的有效载荷</li>
-<li>可以引用驻留在用户空间的数据（允许从用户空间获取数据）</li>
-<li>驻留在用户空间的指令可能不能被执行</li>
-</ul>
-<p>在典型的<code>ret2usr</code>攻击中，内核执行流被重定向到一个用户空间的地址，这个地址中包含了提权的载荷：  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/28/Linux-x64%E5%86%85%E6%A0%B8ROP/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/" class="post-title-link" itemprop="url">堆漏洞之House of Spirit</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-06-26 20:46:06" itemprop="dateCreated datePublished" datetime="2017-06-26T20:46:06+08:00">2017-06-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:48:03" itemprop="dateModified" datetime="2022-08-09T23:48:03+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这个漏洞利用的方式借之前做过的<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/10/19/L-CTF2016-PWN-Writeup/">一道题目</a>进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/26/%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BHouse-of-Spirit/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/06/24/VMware%E4%B8%8A%E8%BF%9B%E8%A1%8CLinux-Kernel%E8%B0%83%E8%AF%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/24/VMware%E4%B8%8A%E8%BF%9B%E8%A1%8CLinux-Kernel%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">VMware上进行Linux Kernel调试</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-06-24 17:58:06" itemprop="dateCreated datePublished" datetime="2017-06-24T17:58:06+08:00">2017-06-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:14:58" itemprop="dateModified" datetime="2022-08-10T00:14:58+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>之前的Linux内核调试都是编译内核源码后，用qemu启动来调试，但是实际一些Linux的发行版还是需要用其他的虚拟机软件来进行调试，这里记录一下VMware调试环境的搭建过程。<br>主机是Ubuntu14.04 x86_64<br>VMware Workstation 12.5.6<br>虚拟机是Ubuntu12.04.5 x86_64<br>主机选择Ubuntu是因为需要用gdb对VMware中的Linux Kernel进行调试，选择这个版本的虚拟机是因为有一篇关于内核ROP的文章用到的这个版本，为了方便后面做实验选择这个版本。<br>配置过程如下：  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/24/VMware%E4%B8%8A%E8%BF%9B%E8%A1%8CLinux-Kernel%E8%B0%83%E8%AF%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/06/12/Exploiting-Linux-Kernel-Heap-Corruptions/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/12/Exploiting-Linux-Kernel-Heap-Corruptions/" class="post-title-link" itemprop="url">Exploiting Linux Kernel Heap Corruptions</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-06-12 20:09:12" itemprop="dateCreated datePublished" datetime="2017-06-12T20:09:12+08:00">2017-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:05:51" itemprop="dateModified" datetime="2022-08-10T00:05:51+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这种类型的漏洞利用借助吾爱破解挑战赛的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1boMJfxP">一个题目</a>进行学习，给了一个有问题的驱动程序。<br>让在Ubuntu14.04 32位系统环境下提权，Ubuntu14.04内核版本是3.14，我的测试环境是在qemu中启动的一个linux-3.10的内核版本。用qemu是为了方便调试。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/12/Exploiting-Linux-Kernel-Heap-Corruptions/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/06/12/Linux-Kernel%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/06/12/Linux-Kernel%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="post-title-link" itemprop="url">Linux Kernel一些基础知识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-06-12 20:05:48" itemprop="dateCreated datePublished" datetime="2017-06-12T20:05:48+08:00">2017-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:09:26" itemprop="dateModified" datetime="2022-08-10T00:09:26+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="最常见的内核漏洞"><a href="#最常见的内核漏洞" class="headerlink" title="最常见的内核漏洞"></a>最常见的内核漏洞</h3><ul>
-<li>NULL pointer dereference</li>
-<li>kernel space stack overflow</li>
-<li>kernel slab overflow</li>
-<li>race conditions</li>
-</ul>
-<p>一些漏洞利用比较简单，不需要准备Linux Kernel调试环境来写exploit，另外一些漏洞则需要Linux Kernel设计、工作原理和内存管理等方面的知识。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/06/12/Linux-Kernel%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -956,7 +946,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">131</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -990,7 +980,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

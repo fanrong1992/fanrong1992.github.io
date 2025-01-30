@@ -156,6 +156,444 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/" class="post-title-link" itemprop="url">Linux内核漏洞利用（三）Kernel Stack Buffer Overflow</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-20 11:17:39" itemprop="dateCreated datePublished" datetime="2017-04-20T11:17:39+08:00">2017-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:10:29" itemprop="dateModified" datetime="2022-08-10T00:10:29+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>内核栈溢出和用户态栈溢出原理一样，拷贝、拼接字符串的时候未作边界检查，导致溢出数据覆盖栈上保存的返回地址，从而劫持程序控制流。在内核空间可以用来提权。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/20/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89Kernel-Stack-Buffer-Overflow/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/19/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89NULL-Pointer-Dereference/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/19/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89NULL-Pointer-Dereference/" class="post-title-link" itemprop="url">Linux内核漏洞利用（二）NULL Pointer Dereference</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-19 14:23:33" itemprop="dateCreated datePublished" datetime="2017-04-19T14:23:33+08:00">2017-04-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:10:23" itemprop="dateModified" datetime="2022-08-10T00:10:23+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>漏洞比较久远，仅是作为Linux Kernel Exploit入门。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/19/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89NULL-Pointer-Dereference/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/17/BCTF2017-re2-apk-Writeup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/17/BCTF2017-re2-apk-Writeup/" class="post-title-link" itemprop="url">BCTF2017 re2.apk Writeup</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-17 14:17:15" itemprop="dateCreated datePublished" datetime="2017-04-17T14:17:15+08:00">2017-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:01:14" itemprop="dateModified" datetime="2022-08-10T00:01:14+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>题目下载：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1gfMeJSZ">re2.apk</a><br>关于Android Studio的使用一直不太熟悉，借着题目学习一下。<br>这里是Android Studio中<a target="_blank" rel="noopener" href="https://developer.android.com/studio/projects/add-native-code.html">NDK开发</a>的官方文档。<br>将APK文件用JEB打开：  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/17/BCTF2017-re2-apk-Writeup/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/17/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/17/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Linux内核漏洞利用（一）环境配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-17 10:13:22" itemprop="dateCreated datePublished" datetime="2017-04-17T10:13:22+08:00">2017-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:10:35" itemprop="dateModified" datetime="2022-08-10T00:10:35+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>我的实验环境是:</p>
+<ul>
+<li>Ubuntu 12.04 x86</li>
+<li>qemu</li>
+<li>linux-2.6.32</li>
+<li>busybox 1.19.4</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/17/Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">Android逆向之反调试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-15 00:08:37" itemprop="dateCreated datePublished" datetime="2017-04-15T00:08:37+08:00">2017-04-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:00:11" itemprop="dateModified" datetime="2022-08-10T00:00:11+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>为了防止通过调试将内存中的DEX文件dump出来，APP一般都会采用各种反调试来进行保护，这篇文章主要对常见的一些反调试技术进行介绍。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/15/Android%E9%80%86%E5%90%91%E4%B9%8B%E5%8F%8D%E8%B0%83%E8%AF%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/12/%E4%BD%BF%E7%94%A8sulley-framework/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/04/12/%E4%BD%BF%E7%94%A8sulley-framework/" class="post-title-link" itemprop="url">使用sulley framework</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-04-12 23:26:39" itemprop="dateCreated datePublished" datetime="2017-04-12T23:26:39+08:00">2017-04-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:55:29" itemprop="dateModified" datetime="2022-08-09T23:55:29+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>sulley的安装过程就不介绍了，<a target="_blank" rel="noopener" href="https://github.com/OpenRCE/sulley/wiki/Windows-Installation">官网</a>的介绍很详细。下面先介绍一些sulley的基本用法，再对WarFTPD1.6（有已知的缓冲区溢出漏洞）进行模糊测试，主要目的是了解sulley的使用方法。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/04/12/%E4%BD%BF%E7%94%A8sulley-framework/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2017/04/04/Android%E9%80%86%E5%90%91%E4%B9%8B%E8%84%B1%E5%A3%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -441,442 +879,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/03/05/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%89%EF%BC%89%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/03/05/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%89%EF%BC%89%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="post-title-link" itemprop="url">Linux设备驱动（三）文件系统</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-03-05 23:07:27" itemprop="dateCreated datePublished" datetime="2017-03-05T23:07:27+08:00">2017-03-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:10:53" itemprop="dateModified" datetime="2022-08-10T00:10:53+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Linux文件系统与设备驱动"><a href="#Linux文件系统与设备驱动" class="headerlink" title="Linux文件系统与设备驱动"></a>Linux文件系统与设备驱动</h2><p>图中所示为Linux中虚拟文件系统（VFS）、磁盘/Flash文件系统及一般的设备文件与设备驱动程序之间的关系。<br><img src="/images/linuxkernel/fs.png"><br>应用程序和VFS之间的接口是<code>系统调用</code>，而VFS与文件系统以及设备文件之间的接口是<code>file_operations</code>结构体成员函数，这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/03/05/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%89%EF%BC%89%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/25/fastbin%E4%B8%8A%E7%9A%84%E5%A0%86%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/02/25/fastbin%E4%B8%8A%E7%9A%84%E5%A0%86%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" class="post-title-link" itemprop="url">fastbin上的堆漏洞利用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-02-25 19:45:06" itemprop="dateCreated datePublished" datetime="2017-02-25T19:45:06+08:00">2017-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:06:01" itemprop="dateModified" datetime="2022-08-10T00:06:01+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这是一个hctf2016的比赛题目，题目中的漏洞是堆相关的，但与之前写过的堆漏洞有所不同，程序中申请的堆块比较小，只能用<code>uaf</code>去利用。<br>经过对程序的分析，分析出如下两个结构体：<br><img src="/images/uaf/struct.png"><br><code>str_struct</code>是漏洞利用所用到的结构体，每次创建字符串都会malloc一个这个结构。<br>漏洞发生在<code>delete_str</code>函数中，在delete时没有检查这块内存是否被释放过，造成double free。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/02/25/fastbin%E4%B8%8A%E7%9A%84%E5%A0%86%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">模糊测试基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-02-22 19:59:53" itemprop="dateCreated datePublished" datetime="2017-02-22T19:59:53+08:00">2017-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:52:40" itemprop="dateModified" datetime="2022-08-09T23:52:40+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这篇文章主要是对模糊测试的一个入门级的认识，没有太多干货，主要是一些概念性的东西，为以后深入学习做一点铺垫。<br>用于模糊测试的模糊测试器分为两类：</p>
-<ul>
-<li>一类是<code>基于变异（mutation-based）</code>的模糊测试器，这一类测试器通过对已有的数据样本进行变异来创建测试用例</li>
-<li>另一类是<code>基于生成（generation-based）</code>的模糊测试器，该类测试器为被测系统使用的协议或是文件格式建模，基于模型生成输入并据此创建测试用例。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/02/22/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">Blind Return Oriented Programming (BROP) Attack攻击实践</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-02-22 15:46:38" itemprop="dateCreated datePublished" datetime="2017-02-22T15:46:38+08:00">2017-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:01:26" itemprop="dateModified" datetime="2022-08-10T00:01:26+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这个攻击的实践以2016年的hctf中的一个pwn题为例。虽然这个例子中没有包含<a target="_blank" rel="noopener" href="http://pwn4.fun/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">攻击原理</a>的全部细节，但是作为这种攻击的入门还是不错的。<br>这道题目没有给二进制文件，只能采用BROP。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/02/22/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">Blind Return Oriented Programming (BROP) Attack攻击原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-02-13 09:15:14" itemprop="dateCreated datePublished" datetime="2017-02-13T09:15:14+08:00">2017-02-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:01:36" itemprop="dateModified" datetime="2022-08-10T00:01:36+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>BROP攻击基于一篇发表在Oakland 2014的论文Hacking Blind，作者是来自Standford的Andrea Bittau，<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/brop/bittau-brop.pdf">相关paper下载</a>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/02/13/Blind-Return-Oriented-Programming-BROP-Attack%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/" class="post-title-link" itemprop="url">JAVA ASM字节码框架</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-02-07 11:30:39" itemprop="dateCreated datePublished" datetime="2017-02-07T11:30:39+08:00">2017-02-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:08:02" itemprop="dateModified" datetime="2022-08-10T00:08:02+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="http://asm.ow2.org/">ASM</a>是一款基于JAVA字节码层面的代码分析和修改工具；无需提供源代码即可对应用增添所需的Debug代码。用于应用API性能分析，代码优化和代码混淆等工作。ASM的目标是生成，转换和分析已编译的JAVA class文件，可使用ASM工具读、写、转换JVM指令集。<br>ASM工具提供两种方式来产生和转换已编译的class文件：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/02/07/JAVA-ASM%E5%AD%97%E8%8A%82%E7%A0%81%E6%A1%86%E6%9E%B6/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -948,7 +950,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">131</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -982,7 +984,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

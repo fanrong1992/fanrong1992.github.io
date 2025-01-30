@@ -156,6 +156,445 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/11/09/Return-to-dl-resolve/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/09/Return-to-dl-resolve/" class="post-title-link" itemprop="url">Return-to-dl-resolve</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-11-09 10:59:58" itemprop="dateCreated datePublished" datetime="2016-11-09T10:59:58+08:00">2016-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:12:07" itemprop="dateModified" datetime="2022-08-10T00:12:07+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文介绍通过return-to-dl-resolve的手法绕过NX和ASLR的限制。<br>这里构造一个存在栈缓冲区漏洞的程序，以方便后续构造ROP链。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">100</span>];</span><br><span class="line">    setbuf(<span class="built_in">stdin</span>, buf);</span><br><span class="line">    read(<span class="number">0</span>, buf, <span class="number">256</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">100</span>] = <span class="string">&quot;Welcome to XDCTF2015~!\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, buf);</span><br><span class="line">    write(<span class="number">1</span>, buf, <span class="built_in">strlen</span>(buf));</span><br><span class="line">    vuln();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/11/09/Return-to-dl-resolve/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">C++虚函数逆向分析（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-11-02 20:53:07" itemprop="dateCreated datePublished" datetime="2016-11-02T20:53:07+08:00">2016-11-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:02:39" itemprop="dateModified" datetime="2022-08-10T00:02:39+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文以一个简单C++例子进行介绍。</p>
+<blockquote>
+<p>示例代码编译时没有使用RTTI，也没有使用异常机制<br>下文中的样例在x86平台上测试<br>所有二进制文件已经被strip了<br>大多数虚函数的实现细节都没有标准化，并且不同编译器之间可能会有所不一样。因此，我们将专注于GCC的行为。</p>
+</blockquote>
+<p>大多数情况下，没有办法让一个虚函数的调用，变换为一个对非虚函数的调用（反虚拟化）。因为，需要的信息在静态编译中是不全的，只有在运行时才会存在。因此，逆向虚函数时，目标是判断哪些函数会在特定的情况下被调用。后面会学习其他技巧，来进一步缩小范围。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/11/02/C-%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/10/29/IDAPython-Learning-part1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/10/29/IDAPython-Learning-part1/" class="post-title-link" itemprop="url">IDAPython Learning part1</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-10-29 22:41:13" itemprop="dateCreated datePublished" datetime="2016-10-29T22:41:13+08:00">2016-10-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:07:54" itemprop="dateModified" datetime="2022-08-10T00:07:54+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>先介绍一下IDAPython的简单用法：写一个获取函数引用的功能，只需要XrefsTo()这个API函数，脚本如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_func_xrefs</span>(<span class="params">addr</span>):</span></span><br><span class="line">    <span class="keyword">for</span> addr <span class="keyword">in</span> XrefsTo(addr, flags=<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="built_in">hex</span>(addr.frm)</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/10/29/IDAPython-Learning-part1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/10/26/C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/10/26/C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">C++面向对象程序设计</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-10-26 15:36:56" itemprop="dateCreated datePublished" datetime="2016-10-26T15:36:56+08:00">2016-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:02:10" itemprop="dateModified" datetime="2022-08-10T00:02:10+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>类的基本思想是<code>数据抽象</code>和<code>封装</code>。数据抽象是一种依赖于<code>接口</code>和<code>实现</code>分离的编程技术。<br>面向对象程序设计的核心思想是<code>数据抽象</code>、<code>继承</code>和<code>动态绑定</code>。<br><strong>定义基类</strong>  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/10/26/C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/10/25/L-CTF2016-PWN500/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/10/25/L-CTF2016-PWN500/" class="post-title-link" itemprop="url">L-CTF2016 PWN500</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-10-25 22:18:47" itemprop="dateCreated datePublished" datetime="2016-10-25T22:18:47+08:00">2016-10-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:09:07" itemprop="dateModified" datetime="2022-08-10T00:09:07+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1eSNtjqE">下载</a><br>漏洞点在new_package的时候会有nullbyte off-by-one，通过伪造prev_size和in_use位来达到chunk overlapping。<br>下图是漏洞点的位置，在new_package函数里。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/10/25/L-CTF2016-PWN500/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="post-title-link" itemprop="url">Linux设备驱动（二）字符设备驱动</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2016-10-21 14:39:19" itemprop="dateCreated datePublished" datetime="2016-10-21T14:39:19+08:00">2016-10-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:10:44" itemprop="dateModified" datetime="2022-08-10T00:10:44+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="字符设备驱动结构"><a href="#字符设备驱动结构" class="headerlink" title="字符设备驱动结构"></a>字符设备驱动结构</h2><h3 id="cdev结构体"><a href="#cdev结构体" class="headerlink" title="cdev结构体"></a>cdev结构体</h3><p>Linux内核中cdev结构体描述一个字符设备。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cdev</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">kobj</span>;</span>         <span class="comment">// 内嵌的kobject对象</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">module</span> *<span class="title">owner</span>;</span>        <span class="comment">// 所属模块</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> *<span class="title">ops</span>;</span> <span class="comment">// 文件操作结构体</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="keyword">dev_t</span> dev;                   <span class="comment">// 设备号</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%80%EF%BC%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -446,453 +885,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">Android动态加载之免安装运行程序</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-26 10:50:42" itemprop="dateCreated datePublished" datetime="2016-08-26T10:50:42+08:00">2016-08-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:59:00" itemprop="dateModified" datetime="2022-08-09T23:59:00+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文说的关于动态加载的内容与之前一篇<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/22/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">Android动态加载之插件开发</a>有关系，本文要说的加载有两种：</p>
-<ul>
-<li>使用反射机制修改类加载器</li>
-<li>使用代理的方式</li>
-</ul>
-<p>这两种方式都由各自的优缺点。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/22/Java%E7%9A%84%E5%9B%9E%E8%B0%83%E6%9C%BA%E5%88%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/22/Java%E7%9A%84%E5%9B%9E%E8%B0%83%E6%9C%BA%E5%88%B6/" class="post-title-link" itemprop="url">Java的回调机制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-22 22:07:48" itemprop="dateCreated datePublished" datetime="2016-08-22T22:07:48+08:00">2016-08-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:08:10" itemprop="dateModified" datetime="2022-08-10T00:08:10+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>回调机制就是A类中调用B类中的某个方法C，然后B类中反过来调用A类中的方法D，D这个方法就叫回调方法。下面结合经典的例子进行说明：</p>
-<ul>
-<li>Class A实现接口CallBack callback —— 背景1</li>
-<li>Class A中包含一个Class B的引用b —— 背景2</li>
-<li>Class B有一个参数为callback的方法C(CallBack callback) —— 背景3</li>
-<li>A的对象a调用B的方法C(CallBack callback) —— A类调用B类的某个方法C</li>
-<li>然后b就可以在C(CallBack callback)方法中调用A的方法 —— B类调用A类的某个方法D</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/22/Java%E7%9A%84%E5%9B%9E%E8%B0%83%E6%9C%BA%E5%88%B6/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/22/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/22/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" class="post-title-link" itemprop="url">Android动态加载之插件开发</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-22 11:18:41" itemprop="dateCreated datePublished" datetime="2016-08-22T11:18:41+08:00">2016-08-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:58:51" itemprop="dateModified" datetime="2022-08-09T23:58:51+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>动态加载可以用来进行插件开发，这些插件大概都是为了在一个主程序中实现比较通用的功能，使主程序具有可扩展性。实现原理是实现一套插件接口，把插件实现编成apk或dex，在运行时用DexClassLoader动态加载进来。<br>预备知识：<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">Android中的动态加载机制</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/22/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/20/C-%E6%A0%87%E5%87%86%E5%BA%93%E7%B1%BB%E5%9E%8Bvector%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/20/C-%E6%A0%87%E5%87%86%E5%BA%93%E7%B1%BB%E5%9E%8Bvector%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%99%A8/" class="post-title-link" itemprop="url">C++标准库类型vector和迭代器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-20 20:44:23" itemprop="dateCreated datePublished" datetime="2016-08-20T20:44:23+08:00">2016-08-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:01:50" itemprop="dateModified" datetime="2022-08-10T00:01:50+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>忘了说我的运行环境是Ubuntu14.04，vim，gcc version 4.8.4，操作系统和编辑器没什么要紧，gcc如果版本低了可能不支持C++11。<br>编译运行方法如下：  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -std&#x3D;c++11 -o test test.c</span><br><span class="line">$ .&#x2F;test</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/20/C-%E6%A0%87%E5%87%86%E5%BA%93%E7%B1%BB%E5%9E%8Bvector%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%99%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">Android内核源码编译调试</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-19 15:40:02" itemprop="dateCreated datePublished" datetime="2016-08-19T15:40:02+08:00">2016-08-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:59:43" itemprop="dateModified" datetime="2022-08-09T23:59:43+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>下面的方法是基于编译完Android系统源码之后，再另外下载Linux内核进行编译调试的。我在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/03/03/%E7%BC%96%E8%AF%91Android6-0-1%E6%BA%90%E7%A0%81%EF%BC%8C%E7%83%A7%E5%BD%95%E5%88%B0nexus5%E7%9C%9F%E6%9C%BA%E4%B8%8A/">编译Android6.0.1源码，烧录到nexus5真机上</a>这篇文章中编译的是<code>lunch 8</code>，即aosp_hammerhead-userdebug，但是用<code>emulator</code>启动模拟器时，需要用模拟器版本的编译<code>lunch 1</code>，即aosp_arm-eng。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2016/08/17/C-%E5%8F%98%E9%87%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/17/C-%E5%8F%98%E9%87%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/" class="post-title-link" itemprop="url">C++变量和基本类型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2016-08-17 10:42:53" itemprop="dateCreated datePublished" datetime="2016-08-17T10:42:53+08:00">2016-08-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:01:43" itemprop="dateModified" datetime="2022-08-10T00:01:43+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="复合类型"><a href="#复合类型" class="headerlink" title="复合类型"></a>复合类型</h2><h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3><p><code>引用（reference）</code>为对象起了另外一个名字。  </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> ival = <span class="number">1024</span>;</span><br><span class="line"><span class="keyword">int</span> &amp;refVal = ival; <span class="comment">// refVal指向ival</span></span><br><span class="line"><span class="keyword">int</span> &amp;refVal2; <span class="comment">// 报错：引用必须被初始化</span></span><br></pre></td></tr></table></figure>
-<p>定义引用时，程序把引用和它的初始值<code>绑定</code>在一起，而不是将初始值拷贝给引用。无法令引用重新绑定到另外一个对象，因此引用必须初始化。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/17/C-%E5%8F%98%E9%87%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -964,7 +956,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">131</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -998,7 +990,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

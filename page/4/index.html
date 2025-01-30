@@ -156,6 +156,448 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/" class="post-title-link" itemprop="url">JTAG调试STM32开发板</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-07-27 10:29:21" itemprop="dateCreated datePublished" datetime="2019-07-27T10:29:21+08:00">2019-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:08:39" itemprop="dateModified" datetime="2022-08-10T00:08:39+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>JTAG(Joint Test Action Group；联合测试工作组)是一种国际标准测试协议（IEEE 1149.1兼容），主要用于芯片内部测试。现在多数的高级器件都支持JTAG协议，如DSP、FPGA器件等。标准的JTAG接口是4线：TMS、TCK、TDI、TDO，分别为模式选择、时钟、数据输入和数据输出线。<br>OpenOCD是一个用于JTAG调试的软件, 可以用于不同调试器和CPU, 还可以与GDB配合，stlink和jlink都是符合JTAG标准的调试器。<br>想在Ubuntu下对stm32开发板进行调试需要先安装OpenOCD<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/openocd/files/openocd/0.10.0/">下载地址</a>，在Ubuntu16.04上:</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/27/JTAG%E8%B0%83%E8%AF%95STM32%E5%BC%80%E5%8F%91%E6%9D%BF/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">DeepSpeech2使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-31 16:34:43" itemprop="dateCreated datePublished" datetime="2019-05-31T16:34:43+08:00">2019-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:03:58" itemprop="dateModified" datetime="2022-08-10T00:03:58+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/tree/master/research/deep_speech">原项目</a><br>下载<a target="_blank" rel="noopener" href="https://github.com/tensorflow/models/archive/v1.11.tar.gz">models v1.11</a><br>因为项目要用到official包里的文件，所以将下载的models压缩包解压后，把其中的official文件夹拷贝到python包路径下，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;.virtualenvs&#x2F;deepspeech&#x2F;lib&#x2F;python3.5&#x2F;site-packages</span><br></pre></td></tr></table></figure>
+<p>安装official依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install -r official&#x2F;requirements.txt</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/05/31/DeepSpeech2%E4%BD%BF%E7%94%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/31/Syzkaller%E5%8E%9F%E7%90%86%E5%92%8C%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/31/Syzkaller%E5%8E%9F%E7%90%86%E5%92%8C%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Syzkaller原理和源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-31 11:46:15" itemprop="dateCreated datePublished" datetime="2019-05-31T11:46:15+08:00">2019-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:13:35" itemprop="dateModified" datetime="2022-08-10T00:13:35+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>syzkaller运行流程结构如下图所示，红色标签表示需要配置的选项：<br><img src="/images/syzkaller/syz-arch.png"><br><code>syz-manager</code>用来启动、监控、和重启多个虚拟机实例，并在虚拟机里启动一个<code>syz-fuzzer</code>进程。它负责持久化corpus和存储crash。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/05/31/Syzkaller%E5%8E%9F%E7%90%86%E5%92%8C%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/" class="post-title-link" itemprop="url">Ubuntu下SSH登录Qemu虚拟机</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-31 11:40:21" itemprop="dateCreated datePublished" datetime="2019-05-31T11:40:21+08:00">2019-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:14:06" itemprop="dateModified" datetime="2022-08-10T00:14:06+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>宿主机要通过ssh访问虚拟机有两种网络配置方式，一种是用户模式网络，另一种是网桥网络模式。</p>
+<h2 id="qemu内部的用户模式网络"><a href="#qemu内部的用户模式网络" class="headerlink" title="qemu内部的用户模式网络"></a>qemu内部的用户模式网络</h2><p>在没有任何<code>-net</code>参数时，qemu默认使用的是<code>-net nic -net user</code>参数，提供了一种用户模式（user-mode）的网络模拟。使用用户模式网络的虚拟机可以连通宿主机及外部网络，用户模式网络是完全由qemu自身实现，不依赖于其他工具，而且不需要root权限。qemu使用Slirp实现了一整套TCP/IP协议栈，并且使用这个协议栈实现了一套虚拟的NAT网络。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/05/31/Ubuntu%E4%B8%8BSSH%E7%99%BB%E5%BD%95Qemu%E8%99%9A%E6%8B%9F%E6%9C%BA/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/" class="post-title-link" itemprop="url">Syzkaller安装 Fuzz Qemu amd64 Kernel</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-31 11:28:49" itemprop="dateCreated datePublished" datetime="2019-05-31T11:28:49+08:00">2019-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-10 00:13:22" itemprop="dateModified" datetime="2022-08-10T00:13:22+08:00">2022-08-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>syzkaller官网上有介绍如何在Ubuntu宿主机上用qemu方法fuzz x86_64的Linux内核，但是步骤很分散，在好几个页面上，而且还可能有一些坑，后面会讲到。<br>首先介绍一下我的环境：  </p>
+<ul>
+<li>Ubuntu 16.04 x86_64</li>
+<li>gcc 8.2.0</li>
+<li>linux-5.1</li>
+<li>go1.12.5</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">用Tensorflow Serving部署自己的模型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2019-05-09 16:11:21" itemprop="dateCreated datePublished" datetime="2019-05-09T16:11:21+08:00">2019-05-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:57:11" itemprop="dateModified" datetime="2022-08-09T23:57:11+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Google为了解决机器学习模型部署上线至生产环境，发布了Tensorflow Serving。本文主要通过部署一个手写数字识别的模型来介绍Tensorflow Serving的基本用法。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/05/09/%E7%94%A8Tensorflow-Serving%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9E%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/08/Docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8MySQL%E5%92%8CTensorflow-Serving/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -448,438 +890,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/06/01/%E5%86%B3%E7%AD%96%E6%A0%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/06/01/%E5%86%B3%E7%AD%96%E6%A0%91/" class="post-title-link" itemprop="url">决策树</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-06-01 11:59:00" itemprop="dateCreated datePublished" datetime="2018-06-01T11:59:00+08:00">2018-06-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:52:30" itemprop="dateModified" datetime="2022-08-09T23:52:30+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>分类决策树模型是一种描述对实例进行分类的树形结构，决策树由结点和有向边组成，结点有两种类型：内部结点和叶结点。内部结点表示一个特征或属性，叶结点表示一个类。<br>用决策树分类，从根结点开始，对实例的某一特征进行测试，根据测试结果，将实例分配到其子结点；这时，每一个子结点对应着该特征的一个取值。如此递归地对实例进行测试并分配，直至达到叶结点。最后将实例分到叶结点的类中。决策树学习的目的是为了产生一个泛化能力强，即处理未见示例能力强的决策树，其基本流程遵循简单且直观的分而治之（divide-and-conquer）策略。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/06/01/%E5%86%B3%E7%AD%96%E6%A0%91/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="post-title-link" itemprop="url">卷积神经网络</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-05-30 12:05:58" itemprop="dateCreated datePublished" datetime="2018-05-30T12:05:58+08:00">2018-05-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:51:40" itemprop="dateModified" datetime="2022-08-09T23:51:40+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>关于卷积神经网络的原理这篇文章先不做介绍，推荐<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA3MzI4MjgzMw==&mid=2650728746&idx=1&sn=61e9cb824501ec7c505eb464e8317915&scene=0#wechat_redirect">机器视角：长文揭秘图像处理和卷积神经网络架构</a>和<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25754846">卷积：如何成为一个很厉害的神经网络</a>这两篇文章，这里记录一下PyTorch对卷积神经网络的实现。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/05/30/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" class="post-title-link" itemprop="url">神经网络</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-05-28 14:47:47" itemprop="dateCreated datePublished" datetime="2018-05-28T14:47:47+08:00">2018-05-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:53:54" itemprop="dateModified" datetime="2022-08-09T23:53:54+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>当构建神经网络时，我们经常想把计算分配到各个layer，一些可学习参数(learnable parameter)在学习的过程中会被优化。在PyTorch中<code>nn</code>包提供了计算图(computational graph)的高级抽象，<code>nn</code>包定义了一系列<code>Module</code>，和神经网络的layer大致相同，Module接收输入Tensor，计算输出Tensor，同时也保存中间状态，如包含可学习参数的Tensor。<code>nn</code>包也定义了一系列有用的损失函数。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/05/28/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/" class="post-title-link" itemprop="url">前向传播和反向传播</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-05-25 14:26:31" itemprop="dateCreated datePublished" datetime="2018-05-25T14:26:31+08:00">2018-05-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:53:29" itemprop="dateModified" datetime="2022-08-09T23:53:29+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>之前听过前向传播和反向传播，也看到项目中有这两个步骤，但是不知道具体是干什么的，在看<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/pytorch_with_examples.html">PyTorch官方教程</a>的时候看到一个用numpy实现的2层神经网络，里面实现了前向传播和反向传播，这里记录一下，同时也记录一下我的PyTorch学习过程。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/05/25/%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E5%92%8C%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" class="post-title-link" itemprop="url">朴素贝叶斯</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-05-24 14:42:42" itemprop="dateCreated datePublished" datetime="2018-05-24T14:42:42+08:00">2018-05-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:52:53" itemprop="dateModified" datetime="2022-08-09T23:52:53+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="基于贝叶斯决策理论的分类方法"><a href="#基于贝叶斯决策理论的分类方法" class="headerlink" title="基于贝叶斯决策理论的分类方法"></a>基于贝叶斯决策理论的分类方法</h2><p> 朴素贝叶斯是贝叶斯决策理论的一部分，所以在学习朴素贝叶斯之前先了解一下贝叶斯决策理论。<br> 假设我们有一个数据集，由两类数据组成：<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/05/24/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/" class="post-title-link" itemprop="url">Logistic回归</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2018-05-23 17:41:43" itemprop="dateCreated datePublished" datetime="2018-05-23T17:41:43+08:00">2018-05-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:11:07" itemprop="dateModified" datetime="2022-08-10T00:11:07+08:00">2022-08-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>我们需要一个函数能接受所有的输入然后预测出类别，例如在两个类的情况下，这个函数输出0或1。单位阶跃函数具有这种性质，然而它的问题在于在跳跃点上从0瞬间跳跃到1，这个瞬间跳跃过程有时很难处理。幸好另一个函数也有类似性质，且数学上更易处理，这就是sigmoid函数。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/05/23/Logistic%E5%9B%9E%E5%BD%92/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -951,7 +961,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">131</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -985,7 +995,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
