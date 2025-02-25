@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png">
+  <link rel="mask-icon" href="/images/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="官方的OLLVM适配到LLVM-4.0就没有再更新了，不过网上有许多大佬开源的适配新版本LLVM的OLLVM可以参考。 环境及源码Mac 14.6.1Android StudioNDK 25.1.8937393cmake 3.31.5ninja 1.12.1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac编译OLLVM14 &amp; 配置NDK">
+<meta property="og:url" content="http://example.com/2025/02/25/Mac%E7%BC%96%E8%AF%91OLLVM14-%E9%85%8D%E7%BD%AENDK/index.html">
+<meta property="og:site_name" content="BruceFan&#39;s Blog">
+<meta property="og:description" content="官方的OLLVM适配到LLVM-4.0就没有再更新了，不过网上有许多大佬开源的适配新版本LLVM的OLLVM可以参考。 环境及源码Mac 14.6.1Android StudioNDK 25.1.8937393cmake 3.31.5ninja 1.12.1">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-02-25T02:07:20.000Z">
+<meta property="article:modified_time" content="2025-02-25T02:09:35.818Z">
+<meta property="article:author" content="Bruce Fan">
+<meta property="article:tag" content="Reverse">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2025/02/25/Mac%E7%BC%96%E8%AF%91OLLVM14-%E9%85%8D%E7%BD%AENDK/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Mac编译OLLVM14 & 配置NDK | BruceFan's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BruceFan's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Stay hungry, stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/25/Mac%E7%BC%96%E8%AF%91OLLVM14-%E9%85%8D%E7%BD%AENDK/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mac编译OLLVM14 & 配置NDK
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建于：2025-02-25 10:07:20 / 更新于：10:09:35" itemprop="dateCreated datePublished" datetime="2025-02-25T10:07:20+08:00">2025-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>官方的<a target="_blank" rel="noopener" href="https://github.com/obfuscator-llvm/obfuscator">OLLVM</a>适配到LLVM-4.0就没有再更新了，不过网上有许多大佬开源的适配新版本LLVM的OLLVM可以参考。</p>
+<h2 id="环境及源码"><a href="#环境及源码" class="headerlink" title="环境及源码"></a>环境及源码</h2><p>Mac 14.6.1<br>Android Studio<br>NDK 25.1.8937393<br>cmake 3.31.5<br>ninja 1.12.1</p>
+<a id="more"></a>
+<h2 id="下载OLLVM"><a href="#下载OLLVM" class="headerlink" title="下载OLLVM"></a>下载OLLVM</h2><p>NDK 25.1.8937393对应的LLVM版本为14.x，因此我从网上找了几个适配到14之后的OLLVM进行编译，最终使用的是<a target="_blank" rel="noopener" href="https://github.com/heroims/obfuscator%E3%80%82">https://github.com/heroims/obfuscator。</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git clone --depth&#x3D;1 -b release&#x2F;14.x https:&#x2F;&#x2F;github.com&#x2F;llvm&#x2F;llvm-project.git</span><br><span class="line">$ cd llvm-project</span><br><span class="line">$ wget https:&#x2F;&#x2F;heroims.github.io&#x2F;obfuscator&#x2F;LegacyPass&#x2F;ollvm14.patch</span><br><span class="line">$ git apply --reject --ignore-whitespace ollvm14.patch</span><br></pre></td></tr></table></figure>
+<p>这里作者提供了两个版本的patch，我使用NewPass版本编译后，clang没有混淆的选项，可能是编译时没有配置正确，使用LegacyPass可以正常使用。</p>
+<blockquote>
+<p> New Pass Manager是 LLVM 项目中对原有Legacy Pass Manager的重新设计和改进，从 LLVM 11 开始被引入，并在后续版本中逐步推广。新 Pass 管理器在性能、易用性和灵活性方面相较旧 Pass 管理器有许多优化，目前已经被推荐为默认的 Pass 管理方式。</p>
+</blockquote>
+<ul>
+<li>reject选项，表示如果patch内容如果不能应用则生成.rej文件记录没有被应用的patch部分，可以后续手动修改，不过这里如果使用14.x版本，patch可以全部正常应用。</li>
+<li>ignore-whitespace选项，表示比较和应用补丁时忽略空格变化。</li>
+</ul>
+<h2 id="编译OLLVM"><a href="#编译OLLVM" class="headerlink" title="编译OLLVM"></a>编译OLLVM</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cmake -S llvm -B build -G Ninja -DLLVM_ENABLE_PROJECTS&#x3D;&quot;clang&quot; -DCMAKE_BUILD_TYPE&#x3D;Release -DLLVM_INCLUDE_TESTS&#x3D;OFF -DLLVM_ENABLE_NEW_PASS_MANAGER&#x3D;OFF</span><br></pre></td></tr></table></figure>
+<ul>
+<li>-G Ninja：使用 ninja 进行编译源码</li>
+<li>-DLLVM_ENABLE_PROJECTS=”clang”：启用 clang，有多个选择 但我们只需要 clang，官方文档有说明</li>
+<li>-DCMAKE_BUILD_TYPE=Release：构建 release 版本，比 debug 版本编译快很多</li>
+<li>-DLLVM_INCLUDE_TESTS=OFF：关闭 llvm 的头文件测试，也是为了加快编译速度</li>
+<li>-DLLVM_ENABLE_NEW_PASS_MANAGER=OFF：这个非常重要，llvm-12.x 开始默认使用 new pass manager 进行编译源码，导致 ollvm 不起作用</li>
+</ul>
+<p>编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cmake --build build -j16</span><br></pre></td></tr></table></figure>
+<h2 id="配置Android-Studio"><a href="#配置Android-Studio" class="headerlink" title="配置Android Studio"></a>配置Android Studio</h2><p>1.编译成功后，需要把build/bin目录中的<code>clang</code> <code>clang++</code> <code>clang-format</code> <code>clang-cl</code> 4个文件复制到ndk对应目录中（最好先备份原文件）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;Library&#x2F;Android&#x2F;sdk&#x2F;ndk&#x2F;25.1.8937393&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;darwin-x86_64&#x2F;bin</span><br></pre></td></tr></table></figure>
+<p>2.将build/lib/clang/14.0.6/include目录中的<code>__stddef_max_align_t.h</code> <code>float.h</code> <code>stdarg.h</code> <code>stdbool.h</code> <code>stddef.h</code> 5个文件也复制到ndk对应目录中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;Library&#x2F;Android&#x2F;sdk&#x2F;ndk&#x2F;25.1.8937393&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;darwin-x86_64&#x2F;sysroot&#x2F;usr&#x2F;include</span><br></pre></td></tr></table></figure>
+<p>3.拷贝库文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd &#x2F;Users&#x2F;fanrong&#x2F;Library&#x2F;Android&#x2F;sdk&#x2F;ndk&#x2F;25.1.8937393&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;darwin-x86_64</span><br><span class="line">$ cp -r lib64&#x2F;clang lib</span><br></pre></td></tr></table></figure>
+<p>否则在编译arm架构时会报错缺少atomic或unwind等库文件，如果只编译arm64架构应该就不需要拷贝了。</p>
+<h2 id="NDK中使用OLLVM"><a href="#NDK中使用OLLVM" class="headerlink" title="NDK中使用OLLVM"></a>NDK中使用OLLVM</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-mllvm</td>
+<td>传递给 LLVM 的内部选项</td>
+</tr>
+<tr>
+<td>-fla</td>
+<td>启用控制流平坦化（Control Flow Flattening）</td>
+</tr>
+<tr>
+<td>-sub</td>
+<td>启用指令替换（Instruction Substitution）</td>
+</tr>
+<tr>
+<td>-sub_loop=3</td>
+<td>一个函数应用3次sub，默认为1</td>
+</tr>
+<tr>
+<td>-bcf</td>
+<td>启用伪代码插入（Bogus Code Insertion）</td>
+</tr>
+<tr>
+<td>-bcf_loop=3</td>
+<td>一个函数应用3次bcf，默认为1</td>
+</tr>
+<tr>
+<td>-bcf_prob=40</td>
+<td>一个基本块会有40%的概率被混淆，默认为30%</td>
+</tr>
+<tr>
+<td>-split</td>
+<td>启用基本块分割，和fla一起用时增强fla</td>
+</tr>
+<tr>
+<td>-split_num=3</td>
+<td>一个基本块应用3次split，默认为1</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://github.com/heroims/obfuscator">Heroims</a> 在移植 OLLVM 时，集成了 <a target="_blank" rel="noopener" href="https://github.com/GoSSIP-SJTU/Armariris">Armariris</a> 的字符串混淆功能。（不过好像只对char *起作用了，对char []没生效）<br>| 参数 | 说明 |<br>| – | – |<br>| -sobf | 启用字符串加密 |</p>
+<p>在 build.gradle 中进行配置，如:</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    namespace <span class="string">&#x27;com.sankuai.reverse&#x27;</span></span><br><span class="line">    compileSdk <span class="number">34</span></span><br><span class="line"></span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        applicationId <span class="string">&quot;com.sankuai.reverse&quot;</span></span><br><span class="line">        minSdk <span class="number">28</span></span><br><span class="line">        targetSdk <span class="number">34</span></span><br><span class="line">        versionCode <span class="number">1</span></span><br><span class="line">        versionName <span class="string">&quot;1.0&quot;</span></span><br><span class="line"></span><br><span class="line">        testInstrumentationRunner <span class="string">&quot;androidx.test.runner.AndroidJUnitRunner&quot;</span></span><br><span class="line">        externalNativeBuild &#123;</span><br><span class="line">            cmake &#123;</span><br><span class="line">                cppFlags <span class="string">&quot;-fvisibility=hidden&quot;</span></span><br><span class="line">                cppFlags <span class="string">&quot;-mllvm -fla -mllvm -sub -mllvm -sobf&quot;</span></span><br><span class="line">                cFlags <span class="string">&quot;-fvisibility=hidden&quot;</span></span><br><span class="line">                cFlags <span class="string">&quot;-mllvm -fla  -mllvm -sub -mllvm -sobf&quot;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ndk &#123;</span><br><span class="line">            abiFilters <span class="string">&quot;arm64-v8a&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    ndkVersion <span class="string">&#x27;25.1.8937393&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果需要单个函数混淆的情况：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__attribute((__annotate__(<span class="string">&quot;bcf&quot;</span>)))</span><br><span class="line">__attribute((__annotate__(<span class="string">&quot;fla&quot;</span>)))</span><br><span class="line">__attribute((__annotate__(<span class="string">&quot;sub&quot;</span>)))</span><br><span class="line">__attribute((__annotate__(<span class="string">&quot;split&quot;</span>)))</span><br><span class="line">__attribute((__annotate__(<span class="string">&quot;sobf&quot;</span>)))</span><br><span class="line"><span class="keyword">void</span> func()&#123;</span><br><span class="line">	xxx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>从llvm-project源码看LLVM版本：<br>llvm-18：llvm-project/llvm/CMakeLists.txt<br>llvm-19：llvm-project/cmake/Modules/LLVMVersion.cmake</p>
+</blockquote>
+<p><strong>reference</strong><br><a target="_blank" rel="noopener" href="https://wwxiaoqi.com/tech/android-ollvm-build/">Windows 编译 OLLVM NDK 使用</a><br><a target="_blank" rel="noopener" href="https://heroims.github.io/2022/04/09/OLLVM%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86%E7%A7%BB%E6%A4%8D%E4%B8%8E%E4%BD%BF%E7%94%A8(%E5%86%8D%E7%BB%AD)/">OLLVM代码混淆移植与使用(再续）</a><br><a target="_blank" rel="noopener" href="https://github.com/sr-tream/obfuscator/tree/master">https://github.com/sr-tream/obfuscator/tree/master</a><br><a target="_blank" rel="noopener" href="https://cyrus-studio.github.io/blog/posts/%E7%A7%BB%E6%A4%8D-ollvm-%E5%88%B0-android-ndkandroid-studio-%E4%B8%AD%E4%BD%BF%E7%94%A8-ollvm/">移植 OLLVM 到 Android NDK，Android Studio 中使用 OLLVM</a><br><a target="_blank" rel="noopener" href="https://cyrus-studio.github.io/blog/posts/%E7%A7%BB%E6%A4%8D-ollvm-%E5%88%B0-llvm-18cc++%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">移植 OLLVM 到 LLVM 18，C&amp;C++代码混淆</a><br><a target="_blank" rel="noopener" href="https://github.com/CYRUS-STUDIO/LLVM">https://github.com/CYRUS-STUDIO/LLVM</a></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/DreamSoule/ollvm17">https://github.com/DreamSoule/ollvm17</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/DreamSoule/ollvm16">https://github.com/DreamSoule/ollvm16</a></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://llvm.org/docs/GettingStarted.html">https://llvm.org/docs/GettingStarted.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Reverse/" rel="tag"># Reverse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/01/20/eBPF-LSM%E9%98%BB%E6%96%AD%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD/" rel="prev" title="eBPF LSM阻断文件系统挂载">
+      <i class="fa fa-chevron-left"></i> eBPF LSM阻断文件系统挂载
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%8A%E6%BA%90%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">环境及源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BDOLLVM"><span class="nav-number">2.</span> <span class="nav-text">下载OLLVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91OLLVM"><span class="nav-number">3.</span> <span class="nav-text">编译OLLVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEAndroid-Studio"><span class="nav-number">4.</span> <span class="nav-text">配置Android Studio</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NDK%E4%B8%AD%E4%BD%BF%E7%94%A8OLLVM"><span class="nav-number">5.</span> <span class="nav-text">NDK中使用OLLVM</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bruce Fan"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Bruce Fan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bruce Fan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

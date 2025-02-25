@@ -156,6 +156,78 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Bruce Fan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BruceFan's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">Android Linker（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建于：2017-07-02 22:55:32" itemprop="dateCreated datePublished" datetime="2017-07-02T22:55:32+08:00">2017-07-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="更新于：2022-08-09 23:58:32" itemprop="dateModified" datetime="2022-08-09T23:58:32+08:00">2022-08-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>目前Android应用加固可以分为dex加固和Native加固，Native加固的保护对象为Native层的so文件，使用加壳、反调试、混淆、VM等手段增加so文件的反编译难度。目前最主流的so文件保护方案还是加壳技术， 在so文件加壳和脱壳的攻防技术领域，最重要的基础的便是对于Linker即装载链接机制的理解。本文分析了so文件的装载和链接过程，也就是在调用dlopen(“libxx.so”)之后，Linker的处理过程，还对so加壳的关键技术进行了简要介绍。<br>本文基于Android5.0 AOSP源码，仅针对ARM平台。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/07/02/Android-Linker%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2017/07/01/VirtualBox%E4%B8%8A%E8%B0%83%E8%AF%95Linux-Kernel/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -813,82 +885,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2017/05/20/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Bruce Fan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="BruceFan's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/05/20/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">密码学基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建于：2017-05-20 23:36:45" itemprop="dateCreated datePublished" datetime="2017-05-20T23:36:45+08:00">2017-05-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:53:13" itemprop="dateModified" datetime="2022-08-09T23:53:13+08:00">2022-08-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="加密算法分类"><a href="#加密算法分类" class="headerlink" title="加密算法分类"></a>加密算法分类</h3><p><strong>根据密钥数量</strong></p>
-<ul>
-<li>对称加密：加解密使用相同密钥。基于复杂的非线性变换与迭代运算实现安全性。（DES、AES）</li>
-<li>非对称加密：加密使用公钥，解密使用私钥。基于某个数学难题实现安全性。（RSA）</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017/05/20/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -960,7 +956,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">137</span>
+          <span class="site-state-item-count">138</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
