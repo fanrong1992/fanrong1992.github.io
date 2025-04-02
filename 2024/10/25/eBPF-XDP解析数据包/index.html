@@ -22,20 +22,20 @@
 
   <meta name="description" content="eBPF使用XDP（eXpress Data Path）解析数据包是eBPF技术中一个非常重要的应用场景。XDP是Linux内核中一个高性能数据包处理机制，它允许开发者在网络报文进入内核协议栈之前，对其进行处理和操作。通过在数据包的接收路径上运行eBPF程序，XDP提供极低的延迟和高效的网络流量处理能力。   什么是 XDP？XDP全称是eXpress Data Path，它是Linux内核中一个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="eBPF XDP入门">
-<meta property="og:url" content="http://example.com/2024/10/25/eBPF-XDP%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:title" content="eBPF XDP解析数据包">
+<meta property="og:url" content="http://example.com/2024/10/25/eBPF-XDP%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85/index.html">
 <meta property="og:site_name" content="BruceFan&#39;s Blog">
 <meta property="og:description" content="eBPF使用XDP（eXpress Data Path）解析数据包是eBPF技术中一个非常重要的应用场景。XDP是Linux内核中一个高性能数据包处理机制，它允许开发者在网络报文进入内核协议栈之前，对其进行处理和操作。通过在数据包的接收路径上运行eBPF程序，XDP提供极低的延迟和高效的网络流量处理能力。   什么是 XDP？XDP全称是eXpress Data Path，它是Linux内核中一个">
 <meta property="og:locale">
 <meta property="og:image" content="http://example.com/images/ebpf/xdp.png">
 <meta property="article:published_time" content="2024-10-25T08:42:56.000Z">
-<meta property="article:modified_time" content="2025-02-25T02:38:32.559Z">
+<meta property="article:modified_time" content="2025-03-10T02:27:16.179Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="eBPF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/ebpf/xdp.png">
 
-<link rel="canonical" href="http://example.com/2024/10/25/eBPF-XDP%E5%85%A5%E9%97%A8/">
+<link rel="canonical" href="http://example.com/2024/10/25/eBPF-XDP%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85/">
 
 
 <script id="page-configurations">
@@ -48,7 +48,7 @@
   };
 </script>
 
-  <title>eBPF XDP入门 | BruceFan's Blog</title>
+  <title>eBPF XDP解析数据包 | BruceFan's Blog</title>
   
 
 
@@ -164,7 +164,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/25/eBPF-XDP%E5%85%A5%E9%97%A8/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/25/eBPF-XDP%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -177,7 +177,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          eBPF XDP入门
+          eBPF XDP解析数据包
         </h1>
 
         <div class="post-meta">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2025-02-25 10:38:32" itemprop="dateModified" datetime="2025-02-25T10:38:32+08:00">2025-02-25</time>
+                <time title="更新于：2025-03-10 10:27:16" itemprop="dateModified" datetime="2025-03-10T10:27:16+08:00">2025-03-10</time>
               </span>
 
           
@@ -235,8 +235,64 @@
 <p>另起一个终端：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ sudo cat &#x2F;sys&#x2F;kernel&#x2F;tracing&#x2F;trace_pipe</span><br><span class="line">         &lt;idle&gt;-0       [005] ..s21 4494866.066820: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.068955: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.072233: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.075536: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.078468: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.081657: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.084106: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.086325: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.088399: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.090771: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.093293: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.099956: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.102167: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.104241: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br><span class="line">          &lt;idle&gt;-0       [005] ..s21 4494866.105401: bpf_trace_printk: TCP src port: 57771, dst port: 22</span><br></pre></td></tr></table></figure>
 
-<h2 id="XDP的返回动作"><a href="#XDP的返回动作" class="headerlink" title="XDP的返回动作"></a>XDP的返回动作</h2><p>XDP程序的返回值决定了如何处理数据包。常见的动作包括：<br>| 返回值 | 含义 |<br>| :—- | :—- |<br>| XDP_PASS | 允许数据包继续进入内核协议栈处理。 |<br>| XDP_DROP | 丢弃数据包，不进一步处理。 |<br>| XDP_TX | 将数据包直接发回到接收的网络接口（环回）。 |<br>| XDP_REDIRECT | 将数据包重定向到另一个网络接口或用户态处理。 |<br>| XDP_ABORTED | 表示程序发生错误，数据包处理失败。 |</p>
-<h2 id="XDP加载的几种模式"><a href="#XDP加载的几种模式" class="headerlink" title="XDP加载的几种模式"></a>XDP加载的几种模式</h2><p>在eBPF框架中，XDP（eXpress Data Path）程序可以以不同的模式加载到网络接口上。这些模式决定了XDP程序的运行位置和性能表现。<br>| 模式 | 描述 | 优点 | 适用场景 |<br>| :—- | :—- | :—- | :—- |<br>| XDP Native | XDP程序直接加载到网卡驱动的最低层（数据包接收的最初阶段），绕过内核协议栈 | 性能最高，因为数据包处理在驱动层完成，最大限度减少了延迟和 CPU 消耗 | 高性能场景：DDoS 防护、负载均衡等 |<br>| XDP Generic | XDP程序运行在内核协议栈的XDP模拟层，不依赖网卡驱动的支持 | 兼容性更好，即使网卡驱动不支持XDP，也可以运行；便于开发和调试 | 测试开发、实验环境，或硬件不支持XDP时使用 |<br>| XDP Offload | XDP程序卸载到支持XDP的智能网卡（SmartNIC）进行运行，由网卡硬件处理XDP操作 | 减少主机CPU负载，进一步提升性能；由硬件完成数据包处理，可以释放更多的计算资源给其他任务 | 大流量场景、高端硬件环境 |</p>
+<h2 id="XDP的返回动作"><a href="#XDP的返回动作" class="headerlink" title="XDP的返回动作"></a>XDP的返回动作</h2><p>XDP程序的返回值决定了如何处理数据包。常见的动作包括：  </p>
+<table>
+<thead>
+<tr>
+<th>返回值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>XDP_PASS</td>
+<td>允许数据包继续进入内核协议栈处理。</td>
+</tr>
+<tr>
+<td>XDP_DROP</td>
+<td>丢弃数据包，不进一步处理。</td>
+</tr>
+<tr>
+<td>XDP_TX</td>
+<td>将数据包直接发回到接收的网络接口（环回）。</td>
+</tr>
+<tr>
+<td>XDP_REDIRECT</td>
+<td>将数据包重定向到另一个网络接口或用户态处理。</td>
+</tr>
+<tr>
+<td>XDP_ABORTED</td>
+<td>表示程序发生错误，数据包处理失败。</td>
+</tr>
+</tbody></table>
+<h2 id="XDP加载的几种模式"><a href="#XDP加载的几种模式" class="headerlink" title="XDP加载的几种模式"></a>XDP加载的几种模式</h2><p>在eBPF框架中，XDP（eXpress Data Path）程序可以以不同的模式加载到网络接口上。这些模式决定了XDP程序的运行位置和性能表现。  </p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>描述</th>
+<th>优点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>XDP Native</td>
+<td>XDP程序直接加载到网卡驱动的最低层（数据包接收的最初阶段），绕过内核协议栈</td>
+<td>性能最高，因为数据包处理在驱动层完成，最大限度减少了延迟和 CPU 消耗</td>
+<td>高性能场景：DDoS 防护、负载均衡等</td>
+</tr>
+<tr>
+<td>XDP Generic</td>
+<td>XDP程序运行在内核协议栈的XDP模拟层，不依赖网卡驱动的支持</td>
+<td>兼容性更好，即使网卡驱动不支持XDP，也可以运行；便于开发和调试</td>
+<td>测试开发、实验环境，或硬件不支持XDP时使用</td>
+</tr>
+<tr>
+<td>XDP Offload</td>
+<td>XDP程序卸载到支持XDP的智能网卡（SmartNIC）进行运行，由网卡硬件处理XDP操作</td>
+<td>减少主机CPU负载，进一步提升性能；由硬件完成数据包处理，可以释放更多的计算资源给其他任务</td>
+<td>大流量场景、高端硬件环境</td>
+</tr>
+</tbody></table>
 <p>可以使用ip命令加载XDP字节码到相应位置，这里用上面编写的eBPF程序，用clang命令编译：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ clang -O2 -target bpf -c xdp.bpf.c -o xdp.bpf.o</span><br></pre></td></tr></table></figure>
 <p>可能会报找不到vmlinux.h的错误，使用bpftool在当前目录生成一个即可：  </p>
@@ -353,7 +409,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-count">139</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
