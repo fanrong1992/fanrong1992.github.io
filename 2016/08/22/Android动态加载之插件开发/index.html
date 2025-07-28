@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/images/androidplugin/host.png">
 <meta property="og:image" content="http://example.com/images/androidplugin/run.png">
 <meta property="article:published_time" content="2016-08-22T03:18:41.000Z">
-<meta property="article:modified_time" content="2022-08-09T15:58:51.567Z">
+<meta property="article:modified_time" content="2025-07-28T01:52:51.592Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:58:51" itemprop="dateModified" datetime="2022-08-09T23:58:51+08:00">2022-08-09</time>
+                <time title="更新于：2025-07-28 09:52:51" itemprop="dateModified" datetime="2025-07-28T09:52:51+08:00">2025-07-28</time>
               </span>
 
           
@@ -212,7 +212,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>动态加载可以用来进行插件开发，这些插件大概都是为了在一个主程序中实现比较通用的功能，使主程序具有可扩展性。实现原理是实现一套插件接口，把插件实现编成apk或dex，在运行时用DexClassLoader动态加载进来。<br>预备知识：<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">Android中的动态加载机制</a></p>
+        <p>动态加载可以用来进行插件开发，这些插件大概都是为了在一个主程序中实现比较通用的功能，使主程序具有可扩展性。实现原理是实现一套插件接口，把插件实现编成apk或dex，在运行时用DexClassLoader动态加载进来。<br>预备知识：<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">Android中的动态加载机制</a></p>
 <a id="more"></a>
 <h2 id="插件演示"><a href="#插件演示" class="headerlink" title="插件演示"></a>插件演示</h2><p>这里用了三个项目：</p>
 <ul>
@@ -241,7 +241,7 @@
 
 </li>
 </ol>
-<h3 id="项目引用关系"><a href="#项目引用关系" class="headerlink" title="项目引用关系"></a>项目引用关系</h3><p>1.将接口项目PInterface设置成一个Library，<br><img src="/images/androidplugin/library.png"><br>并导出项目为一个jar。<br><img src="/images/androidplugin/jar.png"><br>2.插件项目PImplement引用接口项目的jar<br>注意是lib文件夹，而不是libs，在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">Android中的动态加载机制</a><br>中说过这样做的原因：<strong>插件项目打包不能集成接口jar，宿主项目打包一定要集成接口jar</strong>。<br><img src="/images/androidplugin/plugin.png"><br>3.HostProject项目引用PInterface这个Library<br><img src="/images/androidplugin/host.png"><br>项目引用完成后，我们编译PImplement项目，生成PImplement.apk放到/data/data/com.plugindemo/files，因为代码中是从这个目录进行加载的，这个目录是可以修改的。运行HostProject<br><img src="/images/androidplugin/run.png"><br>运行成功，这个对话框其实是在插件中定义的。<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1kVtt01L">项目下载</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/jiangwei0910410003/article/details/41384667">http://blog.csdn.net/jiangwei0910410003/article/details/41384667</a></p>
+<h3 id="项目引用关系"><a href="#项目引用关系" class="headerlink" title="项目引用关系"></a>项目引用关系</h3><p>1.将接口项目PInterface设置成一个Library，<br><img src="/images/androidplugin/library.png"><br>并导出项目为一个jar。<br><img src="/images/androidplugin/jar.png"><br>2.插件项目PImplement引用接口项目的jar<br>注意是lib文件夹，而不是libs，在<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/08/16/Android%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">Android中的动态加载机制</a><br>中说过这样做的原因：<strong>插件项目打包不能集成接口jar，宿主项目打包一定要集成接口jar</strong>。<br><img src="/images/androidplugin/plugin.png"><br>3.HostProject项目引用PInterface这个Library<br><img src="/images/androidplugin/host.png"><br>项目引用完成后，我们编译PImplement项目，生成PImplement.apk放到/data/data/com.plugindemo/files，因为代码中是从这个目录进行加载的，这个目录是可以修改的。运行HostProject<br><img src="/images/androidplugin/run.png"><br>运行成功，这个对话框其实是在插件中定义的。<br><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1kVtt01L">项目下载</a><br><strong>reference</strong><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/jiangwei0910410003/article/details/41384667">http://blog.csdn.net/jiangwei0910410003/article/details/41384667</a></p>
 
     </div>
 

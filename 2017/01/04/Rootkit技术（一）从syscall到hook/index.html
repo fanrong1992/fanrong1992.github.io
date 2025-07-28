@@ -28,7 +28,7 @@
 <meta property="og:description" content="什么是Rootkit简单地说，rootkit是一种能够隐身的恶意程序，也就是说，当它进行恶意活动的时候，操作系统根本感觉不到它的存在。想象一下，一个程序能够潜入到当前操作系统中，并且能够主动在进程列表中隐藏病毒，或者替换日志文件输出，或者两者兼而有之——那它就能有效地清除自身存在的证据了。此外，它还可以从受保护的内存区域中操纵系统调用，或将接口上的数据包导出到另一个接口。本文将重点介绍如何通过ho">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-01-04T07:44:45.000Z">
-<meta property="article:modified_time" content="2022-08-09T16:12:25.835Z">
+<meta property="article:modified_time" content="2025-07-28T01:53:18.207Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Kernel">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:12:25" itemprop="dateModified" datetime="2022-08-10T00:12:25+08:00">2022-08-10</time>
+                <time title="更新于：2025-07-28 09:53:18" itemprop="dateModified" datetime="2025-07-28T09:53:18+08:00">2025-07-28</time>
               </span>
 
           
@@ -230,7 +230,7 @@
 <p>将sys_process_name(char *process_name)添加到syscall头文件中。因为asmlinkage用于定义函数的哪些参数可以放在堆栈上，所以头文件的末尾必须添加函数的原型。  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim include&#x2F;linux&#x2F;syscalls.h</span><br></pre></td></tr></table></figure>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">asmlinkage <span class="keyword">long</span> <span class="title">sys_process_name</span><span class="params">(<span class="keyword">char</span> *process_name)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>编译安装新内核并重启系统，这个在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%80%EF%BC%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/">前面的文章</a>中有介绍，这里就不再赘述。<br>测试新的pname系统调用，在任意一个用户目录，如/home/fanrong/hook/：  </p>
+<p>编译安装新内核并重启系统，这个在<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/10/21/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%EF%BC%88%E4%B8%80%EF%BC%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/">前面的文章</a>中有介绍，这里就不再赘述。<br>测试新的pname系统调用，在任意一个用户目录，如/home/fanrong/hook/：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim testPname.c</span><br></pre></td></tr></table></figure>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/syscall.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">32</span>];</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Enter process to find&quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>, name);</span><br><span class="line">    strtok(name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">long</span> <span class="keyword">int</span> status = syscall(<span class="number">351</span>, name);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;System call returned %ld\n&quot;</span>, status);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>随便写一个能一直运行的小程序，如test.c：  </p>

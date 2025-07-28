@@ -28,7 +28,7 @@
 <meta property="og:description" content="这个漏洞利用的方式借之前做过的一道题目进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2017-06-26T12:46:06.000Z">
-<meta property="article:modified_time" content="2022-08-09T15:48:03.707Z">
+<meta property="article:modified_time" content="2025-07-28T01:51:41.218Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-09 23:48:03" itemprop="dateModified" datetime="2022-08-09T23:48:03+08:00">2022-08-09</time>
+                <time title="更新于：2025-07-28 09:51:41" itemprop="dateModified" datetime="2025-07-28T09:51:41+08:00">2025-07-28</time>
               </span>
 
           
@@ -206,7 +206,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>这个漏洞利用的方式借之前做过的<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/10/19/L-CTF2016-PWN-Writeup/">一道题目</a>进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。  </p>
+        <p>这个漏洞利用的方式借之前做过的<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/10/19/L-CTF2016-PWN-Writeup/">一道题目</a>进行讲解，其中的pwn200之前是用修改got地址的方式，这里用House of Spirit的方式进行利用。  </p>
 <a id="more"></a>
 <h2 id="House-of-Spirit原理"><a href="#House-of-Spirit原理" class="headerlink" title="House of Spirit原理"></a>House of Spirit原理</h2><p>House of Spirit的主要思想是覆盖一个堆指针，使其指向可控的区域，构造好相关数据，释放堆指针时系统会将该区域作为chunk放到fastbin里，再申请这块区域，这块区域就可能改写目标区域。shellphish的<a target="_blank" rel="noopener" href="https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c">github</a>里有相关的原理介绍，但是可能会比较难懂，还是看题目比较具体。  </p>
 <h3 id="利用场景和思路"><a href="#利用场景和思路" class="headerlink" title="利用场景和思路"></a>利用场景和思路</h3><p>House of Spirit的利用场景如下：<br>（1）想要控制的目标区域的前面一段空间和后面一段空间都是可控的内存区域想要控制的目标区域一般为返回地址或函数指针，正常情况下，该区域是无法控制的。  </p>

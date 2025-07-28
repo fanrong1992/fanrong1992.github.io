@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/images/packedapk/flow.png">
 <meta property="og:image" content="http://example.com/images/packedapk/result.png">
 <meta property="article:published_time" content="2016-08-29T13:19:28.000Z">
-<meta property="article:modified_time" content="2022-08-09T16:00:40.178Z">
+<meta property="article:modified_time" content="2025-07-28T01:50:11.326Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary">
@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:00:40" itemprop="dateModified" datetime="2022-08-10T00:00:40+08:00">2022-08-10</time>
+                <time title="更新于：2025-07-28 09:50:11" itemprop="dateModified" datetime="2025-07-28T09:50:11+08:00">2025-07-28</time>
               </span>
 
           
@@ -399,7 +399,7 @@
 </ul>
 <p>第一个文件就是源程序项目编译之后的APK文件，第二个文件是下面要讲的第三个项目：壳程序项目中的classes.dex文件，修改名称之后得到。<br>3.壳程序项目：PackApk<br><img src="/images/packedapk/packapk.png"><br>先来了解一下壳程序项目的工作：</p>
 <ul>
-<li>通过反射置换android.app.ActivityThread中的mClassLoader为加载解密出APK的DexClassLoader，该DexClassLoader一方面加载了源程序，另一方面以原mClassLoader为父节点，这就保证即加载了源程序，又没有放弃原先加载的资源与系统代码。<br>关于这部分内容不了解的可以看一下<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">Android动态加载之免安装运行程序</a>这篇文章。</li>
+<li>通过反射置换android.app.ActivityThread中的mClassLoader为加载解密出APK的DexClassLoader，该DexClassLoader一方面加载了源程序，另一方面以原mClassLoader为父节点，这就保证即加载了源程序，又没有放弃原先加载的资源与系统代码。<br>关于这部分内容不了解的可以看一下<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/08/26/Android%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E4%B9%8B%E5%85%8D%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">Android动态加载之免安装运行程序</a>这篇文章。</li>
 <li>找到源程序的Application，通过反射建立并运行。<br>这里需要注意的是，我们现在是加载一个完整的APK，让他运行起来。一个APK运行的时候都是有一个Application对象的，这个也是一个程序运行之后的全局类，所以我们必须找到解密之后的源程序APK的Application类，运行它的onCreate方法，这样源程序APK才开始它的运行生命周期。后面会说如何得到源程序APK的Application类：使用meta标签进行设置。</li>
 </ul>
 <p>下面看一下整体流程：<br><img src="/images/packedapk/flow.png"><br>下面看一下代码：<br>ProxyApplication.java  </p>

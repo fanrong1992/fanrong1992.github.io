@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/images/androiddebug/locals.png">
 <meta property="og:image" content="http://example.com/images/androiddebug/log.png">
 <meta property="article:published_time" content="2017-01-10T07:53:24.000Z">
-<meta property="article:modified_time" content="2022-08-09T16:00:27.065Z">
+<meta property="article:modified_time" content="2025-07-28T01:49:15.259Z">
 <meta property="article:author" content="Bruce Fan">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary">
@@ -199,7 +199,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="更新于：2022-08-10 00:00:27" itemprop="dateModified" datetime="2022-08-10T00:00:27+08:00">2022-08-10</time>
+                <time title="更新于：2025-07-28 09:49:15" itemprop="dateModified" datetime="2025-07-28T09:49:15+08:00">2025-07-28</time>
               </span>
 
           
@@ -247,7 +247,7 @@
 <h2 id="IDA"><a href="#IDA" class="headerlink" title="IDA"></a>IDA</h2><p>1.解压出APK的DEX文件classes.dex；<br>2.在IDA中加载这个DEX文件；<br>3.将光标移动到要下断点的行，按F2下断点；<br>4.打开一个Terminal：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell am start -D -n com.example.test&#x2F;.MainActivity</span><br></pre></td></tr></table></figure>
 <p>5.选择Debugger-&gt;Attach to process…将Debugger Attach到要调试的进程；<br><img src="/images/androiddebug/attachprocess.png"><br>6.开始运行后按F9运行程序到断点，弹出的窗口cancel掉就行了；<br><img src="/images/androiddebug/debugrun.png"><br>7.在Debugger-&gt;Debugger windows-&gt;Locals窗口中有变量，但是无法正确显示。<br><img src="/images/androiddebug/locals.png"><br>IDA调试查看不了变量值，但是每一步跳的比较准，可以结合使用这两种调试方法：IDA查看运行流程，smalidea查看变量值。</p>
-<h2 id="Instrumentation"><a href="#Instrumentation" class="headerlink" title="Instrumentation"></a>Instrumentation</h2><p>这个方法在<a target="_blank" rel="noopener" href="http://pwn4.fun/2016/01/08/Android-Reverse-Engineering/">之前的文章</a>中介绍过，插桩的方法步骤比较复杂，但是实现的功能比较强大。而且可以在以前的基础上添加更多的方法，实现更多的功能，比如在一篇博客上看到的：  </p>
+<h2 id="Instrumentation"><a href="#Instrumentation" class="headerlink" title="Instrumentation"></a>Instrumentation</h2><p>这个方法在<a target="_blank" rel="noopener" href="http://fanrong1992.github.io/2016/01/08/Android-Reverse-Engineering/">之前的文章</a>中介绍过，插桩的方法步骤比较复杂，但是实现的功能比较强大。而且可以在以前的基础上添加更多的方法，实现更多的功能，比如在一篇博客上看到的：  </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">PrintFunc</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Thread cur_thread = Thread.currentThread();</span><br><span class="line">    StackTraceElement stack[] = cur_thread.getStackTrace();</span><br><span class="line">    Log.d(<span class="string">&quot;bruce&quot;</span>, stack[<span class="number">3</span>].toString() + <span class="string">&quot;[&quot;</span> + cur_thread.getId() + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在需要调试的APK反编译出来的smali代码中添加一句：  </p>
 <figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">invoke-static &#123;&#125;, <span class="class">Lcom/bruce/BFLog;</span>-&gt;PrintFunc()V</span><br></pre></td></tr></table></figure>
